@@ -1,0 +1,15 @@
+//- requires:
+
+mixin visualization(id)
+    div(id=id).path.invisible
+        canvas
+        .wait &nbsp;
+        .close
+        .navigation.invisible
+            .button.prev Prev
+            .button.next Next
+        div#session.prompt Select a session:
+            div
+                select#categories
+                select#sessions
+                input.select(type="button", value="Select", autofocus="autofocus")

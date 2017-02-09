@@ -1,0 +1,117 @@
+#visualization {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+
+    text-align: center;
+
+    &.invisible {
+        display: none;
+    }
+
+    .close {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        width: 32px;
+        height: 32px;
+        z-index: 2;
+        cursor: pointer;
+        background: rgba(255,255,255,0.3) url("img/close.png") no-repeat right top;
+    }
+
+    .wait {
+        position: fixed;
+        top: 8px;
+        left: 8px;
+        width: 100vw;
+        height: 100vh;
+        background: url("img/wait.gif") no-repeat fixed center;
+
+        &.invisible {
+            display: none;
+        }
+    }
+
+    canvas {
+        position: relative;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 1;
+        background-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .prompt {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+
+        background-color: #CCC;
+        border: 1px solid black;
+        border-radius: 2px;
+        padding: 0.3em;
+
+        &.invisible {
+            display: none;
+        }
+
+        select {
+            display: block;
+            margin: 0.3em;
+            width: 16em;
+        }
+
+        select[multiple] {
+            height: 12em;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        input {
+            display: block;
+            margin: 0.3em;
+            width: 16em;
+        }
+    }
+
+    .track_pointer {
+        position: absolute;
+        height: 8px;
+        width: 8px;
+        background-color: #F80;
+        border: 1px solid black;
+        border-radius: 4px;
+        opacity: 0.7;
+
+        &.invisible {
+            display: none;
+        }
+    }
+
+    .navigation {
+        position: fixed;
+        bottom: 0;
+        margin: 0 auto;
+        padding: 0.3em;
+        left: 0;
+        right: 0;
+
+        &.invisible {
+            display: none;
+        }
+
+        @import "mixins/button.less";
+
+        .button {
+            width: 7em;
+            line-height: 2em;
+        }
+    }
+}

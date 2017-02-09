@@ -1,0 +1,55 @@
+//- requires:
+//-     slideout.less
+
+mixin options(id, lists)
+    div(id=id).slideout.left
+        .title Options
+        .slideout_inner
+            .group
+                .name Mapping
+                .row
+                    .label Type
+                    select.value#gaze-plot_mapping
+                        each mapping in lists.mappings
+                            option(value="#{mapping}") #{mapping}
+            .group
+                .name Gaze plot
+                .row
+                    .label Word color metric
+                    select.value#gaze-plot_color-metric
+                        each metric in lists.colorMetrics
+                            option(value="#{metric}") #{metric}
+                .row
+                    .label Show IDs
+                    input.value#gaze-plot_show-ids(type="checkbox")
+                .row
+                    .label Show word-fixation connections
+                    input.value#gaze-plot_show-connections(type="checkbox")
+                .row
+                    .label Show saccades
+                    input.value#gaze-plot_show-saccades(type="checkbox")
+                .row
+                    .label Show fixations
+                    input.value#gaze-plot_show-fixations(type="checkbox")
+                .row
+                    .label Show orig. fixation location
+                    input.value#gaze-plot_show-original-fix-location(type="checkbox")
+            .group
+                .name Gaze plots
+                .row
+                    .label Color metric
+                    select.value#gaze-plots_color-metric
+                        each metric in lists.colorMetrics
+                            option(value="#{metric}") #{metric}
+                .row
+                    .label Show fixations
+                    input.value#gaze-plots_show-fixations(type="checkbox")
+                .row
+                    .label Unite spacings
+                    input.value#gaze-plots_unite-spacings(type="checkbox")
+                .row
+                    .label Show regressions
+                    input.value#gaze-plots_show-regressions(type="checkbox")
+            input.save(type="button", value="Save")
+            input.close(type="button", value="Close")
+            input.reset(type="button", value="Reset")

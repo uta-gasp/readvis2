@@ -1,0 +1,55 @@
+-
+    var ids = {
+        controls: 'controls',
+        options: 'options',
+        visualization: 'visualization',
+        wordlist: 'wordlist'
+    };
+
+    // the order must match the corresponding enums
+    var optionLists = {
+        mappings: [ 'static', 'dynamic' ],
+        colorMetrics: [ 'none', 'duration', 'char speed', 'syllable speed' ]   // Matric@utils/metric.js
+    };
+
+doctype html
+html
+    head
+        title School Reading
+        meta(charset="utf-8")
+        link(rel='stylesheet', href='app.css')
+        script(src="./libs/sgwm.js")
+        script(src="https://www.gstatic.com/firebasejs/3.6.6/firebase.js")
+        script.
+            var config = {
+                apiKey: "AIzaSyCHAhFtSM2bKNEzTbKVOiYEv-wpRi2zjdU",
+                authDomain: "burning-torch-9217.firebaseapp.com",
+                databaseURL: "https://burning-torch-9217.firebaseio.com",
+                storageBucket: "burning-torch-9217.appspot.com",
+                messagingSenderId: "777150892492"
+            };
+            if (this["firebase"]) {
+                firebase.initializeApp(config);
+            }
+
+    body
+        include ./components/controls.jade
+        +controls( ids.controls )
+
+        include ./components/options.jade
+        +options( ids.options, optionLists )
+
+        include ./components/visualization.jade
+        +visualization( ids.visualization )
+
+        include ./components/wordlist.jade
+        +wordlist( ids.wordlist )
+
+        script(src='app.js')
+        script.
+            Reading.init({
+                visualization: '##{ids.visualization}',
+                wordlist: '##{ids.wordlist}',
+                controls: '##{ids.controls}',
+                options: '##{ids.options}',
+            });

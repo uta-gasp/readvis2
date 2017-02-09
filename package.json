@@ -1,0 +1,35 @@
+{
+  "name": "gaze-reading",
+  "version": "1.0.0",
+  "description": "Gaze reading",
+  "main": "index.js",
+  "scripts": {},
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lexasss/reading.git"
+  },
+  "engines": {
+    "node": "^4.0.0"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "autoprefixer": "^6.0.3",
+    "chai": "^3.5.0",
+    "grunt": "^0.4.5",
+    "grunt-contrib-clean": "^0.6.0",
+    "grunt-contrib-concat": "^0.5.1",
+    "grunt-contrib-copy": "^0.8.2",
+    "grunt-contrib-jade": "^0.15.0",
+    "grunt-contrib-jshint": "^0.12.0",
+    "grunt-contrib-less": "^1.0.1",
+    "grunt-eslint": "^18.1.0",
+    "grunt-postcss": "^0.7.0",
+    "grunt-stylelint": "^0.3.0",
+    "mocha": "^2.5.3",
+    "postcss-less": "^0.12.0",
+    "stylelint": "^6.5.1",
+    "stylelint-config-standard": "^8.0.0"
+  }
+}

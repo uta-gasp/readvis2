@@ -1,0 +1,102 @@
+@import "slideout";
+
+#options {
+    user-select: none;
+    max-height: 100vh;
+    overflow: auto;
+
+    &.expanded {
+        width: 22em;
+    }
+
+    .group {
+        font-size: 14pt;
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+        margin-bottom: 0.9em;
+
+        &.inner {
+            padding-left: 2em;
+        }
+
+        .name {
+            color: #ffd;
+            background: lighten(@back, 5%);
+            margin-bottom: 0.5em;
+        }
+
+        .row {
+            font-size: 12pt;
+            font-weight: normal;
+            height: 1.5em;
+
+            display: flex;
+            flex-wrap: nowrap;
+            justify-content: space-between;
+
+            .cell {
+                display: inline-block;
+
+                span {
+                    padding: 0 0.2em;
+                }
+            }
+
+            label, .label {
+                display: inline-block;
+            }
+
+            .value {
+                width: 4em;
+                text-align: right;
+            }
+
+            input.value[type="color"] {
+                width: 4.5em;
+            }
+
+            select.value, input.value[type="text"] {
+                width: 6em;
+                text-align: left;
+            }
+
+            input[type="radio"] {
+                margin: 0;
+                padding: 0;
+                height: 24px;
+            }
+
+            .listItem {
+                cursor: pointer;
+                background-size: contain;
+                background-repeat: no-repeat;
+                display: inline-block;
+                transition: all 400ms ease-in;
+                width: 24px;
+                height: 24px;
+
+                &.text-align-left {
+                    background-image: url("img/align-left.png");
+                }
+                &.text-align-center {
+                    background-image: url("img/align-center.png");
+                }
+                &.line-spacing-0 {
+                    background-image: url("img/line-spacing-0.png");
+                }
+                &.line-spacing-1 {
+                    background-image: url("img/line-spacing-1.png");
+                }
+                &.line-spacing-2 {
+                    background-image: url("img/line-spacing-2.png");
+                }
+                &.line-spacing-3 {
+                    background-image: url("img/line-spacing-3.png");
+                }
+                &.line-spacing-4 {
+                    background-image: url("img/line-spacing-4.png");
+                }
+            }
+        }
+    }
+}

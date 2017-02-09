@@ -1,0 +1,56 @@
+@rowMode: 2280px;
+
+#controls {
+    position: fixed;
+
+    background-color: rgba(255, 255, 255, 0.6);
+    font: bold 13px Arial, Helvetica, sans-serif;
+
+    &.left {
+        left: 0;
+        top: 50%;
+        width: 6em;
+        transform: translate(0, -50%);
+
+        .button {
+            width: 100%;
+        }
+    }
+
+    &.top {
+        left: 50%;
+        top: 0;
+        transform: translate(-50%, 0);
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    // @media (min-width: @rowMode) {
+    //     width: 100vw;
+    //     padding-bottom: 0.5em;
+    // }
+
+    // @media (max-width: @rowMode) {
+    //     height: 100vh;
+    //     padding-left: 0.5em;
+    // }
+
+    @import "mixins/button.less";
+
+    .buttonBlock {
+        @media (min-width: @rowMode) {
+            display: inline-block;
+        }
+
+        &.hidden {
+            display: none;
+        }
+    }
+
+    .separator {
+        width: 2em;
+        display: inline-block;
+    }
+}
