@@ -63,9 +63,53 @@
     GazePlots.prototype._load = function( textID, sessions ) {
         app.WordList.instance.show();
 
-        console.log(textID);
-        console.dir( sessions );
-        return
+        const sessionPromises = [];
+
+        sessions.forEach( (session, id) => {
+            sessionPromises.push( this._sessions[ id ] || new Promise( (resolve, reject) => {
+                const sessionRef = app.firebase.child( 'sessions/' + id);
+                sessionRef.once( 'value', snapshot => {
+
+                    if (!snapshot.exists()) {
+                        reject( `Session ${id} does not exist in the database` );
+                        return;
+                    }
+
+                    const sessionData = snapshot.val();
+                    this._sessions[ id ] = sessionData;
+
+                    resolve( sessionData );
+
+                }, function (err) {
+                    reject( err );
+                });
+            }));
+        });
+
+        Promise.all( sessionPromises ).then( sessions => {
+            sessions.forEach( session => {
+                console.log( session.length );
+            });
+            /*
+            this._data = {
+                user: userName,
+                name: sessionName,
+                id: sessionID,
+                session: session,
+                text: text
+            };
+
+            app.WordList.instance.show();
+
+            this._pageIndex = 0;
+            this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );
+            this._remapAndShow();*/
+
+        }).catch( reason => {
+            window.alert( reason );
+        });
+
+        /*
         var words, fixes;
         var fixations = [];
         var sessionNames = [];
@@ -95,7 +139,7 @@
             this._drawTitle( ctx, `${conditionTitle} for ${sessionNames.length} sessions` );
 
             app.WordList.instance.fill( words, { units: app.WordList.Units.PERCENTAGE } );
-        }
+        }*/
     };
 
     GazePlots.prototype._loadSession = function (words, sessionName) {

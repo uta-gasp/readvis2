@@ -26,11 +26,11 @@
         this.fixationColor = options.fixationColor || '#000';
         this.saccadeColor = options.saccadeColor || '#08F';
         this.connectionColor = options.connectionColor || '#F00';
-        this.showIDs = options.showIDs || true;
+        this.showIDs = options.showIDs || false;
 
-        this.showConnections = options.showConnections !== undefined ? options.showConnections : false;
-        this.showSaccades = options.showSaccades !== undefined ? options.showSaccades : false;
-        this.showFixations = options.showFixations !== undefined ? options.showFixations : false;
+        this.showConnections = options.showConnections !== undefined ? options.showConnections : true;
+        this.showSaccades = options.showSaccades !== undefined ? options.showSaccades : true;
+        this.showFixations = options.showFixations !== undefined ? options.showFixations : true;
         this.showOriginalFixLocation = options.showOriginalFixLocation !== undefined ? options.showOriginalFixLocation : false;
         this.originalFixationColor = options.originalFixationColor || 'rgba(0,0,0,0.15)';
         this.greyFixationColor = options.greyFixationColor || 'rgba(0,0,0,0.5)';
@@ -77,7 +77,13 @@
 
     GazePlot.prototype._fillCategories = function( list, users ) {
         users.forEach( user => {
-            const option = this._addOption( list, user.key, user.key, user.val()['sessions'] );
+            const userSessions = user.val()['sessions'];
+            const sessions = new Map();
+            for (let [key, value] of Object.entries( userSessions )) {
+                sessions.set( key, value );
+            }
+
+            const option = this._addOption( list, user.key, user.key, sessions );
             if (this._data && this._data.user === user.key) {
                 option.selected = true;
             }
@@ -97,10 +103,10 @@
                     return;
                 }
 
-                const session = snapshot.val();
-                this._sessions[ sessionID ] = session;
+                const sessionData = snapshot.val();
+                this._sessions[ sessionID ] = sessionData;
 
-                resolve( session );
+                resolve( sessionData );
 
             }, function (err) {
                 reject( err );

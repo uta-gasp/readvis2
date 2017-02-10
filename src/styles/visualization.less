@@ -56,28 +56,31 @@
         border-radius: 2px;
         padding: 0.3em;
 
+        font-size: 1.5em;
+
         &.invisible {
             display: none;
         }
 
-        select {
+        select, input {
             display: block;
             margin: 0.3em;
-            width: 16em;
+            min-width: 20em;
+            width: 100%;
+            font-size: 16px;
         }
 
         select[multiple] {
-            height: 12em;
+            height: 20em;
+            //font-family: 'Source Code Pro', monospace;
+            font-family: 'Oxygen Mono', monospace;
+            //font-family: 'Inconsolata', monospace;
+            white-space: pre;
+            font-size: 16px;
         }
 
         .hidden {
             display: none;
-        }
-
-        input {
-            display: block;
-            margin: 0.3em;
-            width: 16em;
         }
     }
 

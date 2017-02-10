@@ -169,16 +169,17 @@
             const sessions = user.val()['sessions'];
             for (let sessionID of Object.keys( sessions )) {
                 const session = sessions[ sessionID ];
+                session.user = user.key;
                 if (!texts.has( session.text )) {
                     const item = {
                         title: session.textTitle || session.text,
-                        sessions: { }
+                        sessions: new Map()
                     };
-                    item.sessions[ sessionID ] = session;
+                    item.sessions.set( sessionID, session );
                     texts.set( session.text, item );
                 }
                 else {
-                    texts.get( session.text ).sessions[ sessionID ] = session;
+                    texts.get( session.text ).sessions.set( sessionID, session );
                 }
             };
         });
@@ -333,10 +334,10 @@
         const sessionsList = _sessionPrompt.querySelector( '#sessions' );
 
         if (sessionsList.multiple) {
-            const sessions = { };
+            const sessions = new Map();
             for (let i = 0; i < sessionsList.selectedOptions.length; i++) {
                 const item = sessionsList.selectedOptions[i];
-                sessions[ item.value ] = item.data;
+                sessions.set( item.value, item.data );
             }
             const textID = categoriesList.options[ categoriesList.selectedIndex ].value;
             _sessionPromtCallback( textID, sessions );
@@ -358,18 +359,16 @@
             sessionsList.innerHTML = '';
 
             const sessions = category.data;
-            for (let sessionID of Object.keys( sessions )) {
-                const session = sessions[ sessionID ];
-                let textToDisplay;
-                if (session.textTitle) {
-                    textToDisplay = session.textTitle;
+            sessions.forEach( (session, id ) => {
+                const date = new Date( session.date );
+                let textToDisplay = `${date.getDate()}.${date.getMonth()}.${date.getYear()}, ${date.getHours()}:${date.getMinutes()} `;
+                if (session.user) {
+                    textToDisplay += new Array( Math.max( 0, 17 - textToDisplay.length ) ).join( String.fromCharCode( 0x2012 ) );
+                    textToDisplay += ' ' + session.user;
                 }
-                else {
-                    const date = new Date( session.date );
-                    textToDisplay = `${date.toDateString()} at ${date.toTimeString()}`;
-                }
-                addOption( sessionsList, sessionID, textToDisplay, session );
-            }
+
+                addOption( sessionsList, id, textToDisplay, session );
+            });
         }
     }
 
