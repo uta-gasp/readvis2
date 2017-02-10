@@ -1,23 +1,19 @@
 // Requires:
-//      app,Colors
-//      app.firebase
 //      app.WordList
-//      utils/metric
-//      utils/visualization
+//      app.Metric
+//      app.Visualization
 
 (function (app) { 'use strict';
 
     // Word gazing display routine
     // Constructor arguments:
     //      options: {
-    //          spacingNames        - spacing names
     //          fixationColor       - fixation color
     //          showFixations       - fixation display flag
     //          showRegressions     - regression display flag
     //      }
     function GazePlots (options) {
 
-        this.spacingNames = app.Common.spacingNames; //
         this.fixationColor = options.fixationColor || '#000';
 
         this.showFixations = options.showFixations !== undefined ? options.showFixations : true;
@@ -68,15 +64,6 @@
             this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );
             this._remapAndShow();
 
-            // sessionDatas.forEach( session => {
-            //     const allFixations = [];
-            //     const fixations = this._remapStatic( session.fixations, text )
-            //     fixations.forEach( fixation => {
-            //         fixation.participant = sessionDatas.user;
-            //     });
-            //     allFixations.push( ...fixations );
-            // });
-
             this._setPrevPageCallback( () => { this._prevPage(); });
             this._setNextPageCallback( () => { this._nextPage(); });
 
@@ -89,6 +76,10 @@
         app.WordList.instance.clear();
 
         const ctx = this._getCanvas2D();
+        const words = this._data.text[ this._pageIndex ];
+
+        const metricRange = app.Metric.compute( words, this.colorMetric );
+        this._drawWords( ctx, words, metricRange, false, false );
 
         this._data.sessions.forEach( session => {
             const sessionPage = session[ this._pageIndex ];
@@ -102,7 +93,7 @@
 
             const data = {
                 fixations: sessionPage.fixations,
-                words: this._data.text[ this._pageIndex ]
+                words: words
             };
 
             let fixations;
@@ -112,9 +103,6 @@
                 default: console.error( 'unknown mapping type' ); return;
             }
 
-            const metricRange = app.Metric.compute( data.words, this.colorMetric );
-
-            this._drawWords( ctx, data.words, metricRange, false, false );
             if (this.showFixations && fixations) {
                 this._drawFixations( ctx, fixations );
             }
@@ -124,8 +112,9 @@
     };
 
     GazePlots.prototype._remapStatic = function (session, words) {
-        const sgwm = new SGWM();
-        let settings = new SGWM.FixationProcessorSettings();
+        let settings;
+
+        settings = new SGWM.FixationProcessorSettings();
         settings.location.enabled = false;
         settings.duration.enabled = false;
         settings.save();
@@ -159,16 +148,10 @@
         settings.ignoreTransitions = false;
         settings.save();
 
+        const sgwm = new SGWM();
         const result = sgwm.map( session );
+
         return result.fixations;
-
-        // app.StaticFit.map({
-        //     fixations: session.fixations,
-        //     setup: session.setup,
-        //     words: words
-        // });
-
-        // return session.fixations;
     };
 
     // Overriden from Visualization._drawWord
@@ -215,51 +198,6 @@
     };
 
     });
-
-    function getParticipantNameFromSessionName (sessionName) {
-        var nameParts = sessionName.split( '_' );
-        if (nameParts.length === 3) {
-            return nameParts[0];
-        }
-    }
-
-    function compareParticipnatsByDuration (a, b) {
-        if (a.duration < b.duration) {
-            return 1;
-        }
-        if (a.duration > b.duration) {
-            return -1;
-        }
-        return 0;
-    }
-
-    function calcParticipantGazing( words ) {
-        words.forEach( word => {
-            if (!word.fixations) {
-                return;
-            }
-
-            let participants = new Map();
-            word.fixations.forEach( fixation => {
-                let participantDuration = participants.get( fixation.participant );
-                if (!participantDuration) {
-                    participants.set( fixation.participant, fixation.duration );
-                }
-                else {
-                    participants.set( fixation.participant, participantDuration + fixation.duration );
-                }
-            });
-
-            word.participants = [];
-            participants.forEach( (value, key) => {
-                word.participants.push({
-                    name: key,
-                    duration: value
-                });
-            });
-            word.participants = word.participants.sort( compareParticipnatsByDuration );
-        });
-    }
 
     app.GazePlots = GazePlots;
 

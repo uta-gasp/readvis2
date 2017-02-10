@@ -1,6 +1,7 @@
 // Requires:
-//      app.firebase
 //      app.WordList
+//      app.Metric
+//      app.Visualization
 
 (function (app) { 'use strict';
 
@@ -82,11 +83,11 @@
         Promise.all( [sessionPromise, textPromise] ).then( ([session, text]) => {
             this._data = {
                 user: userName,
-                name: sessionName,
-                id: sessionID,
+                sessionName: sessionName,
+                sessionID: sessionID,
                 session: session,
                 text: text,
-                hyphen: sessionData.interaction.syllabification.hyphen
+                sessionMeta: sessionData
             };
 
             app.WordList.instance.show();
@@ -113,7 +114,7 @@
         let fixations;
         switch (this.mapping) {
             case app.Visualization.Mapping.STATIC: fixations = this._remapStatic( data ); break;
-            case app.Visualization.Mapping.DYNAMIC: fixations = this._remapDynamic( data ); break;
+            //case app.Visualization.Mapping.DYNAMIC: fixations = this._remapDynamic( data ); break;
             default: console.error( 'unknown mapping type' ); return;
         }
 
@@ -125,11 +126,12 @@
         if (this.showFixations && fixations) {
             this._drawFixations( ctx, fixations );
         }
-        this._drawTitle( ctx, name );
+
+        this._drawTitle( ctx, `${this._data.user} at ${this._data.sessionName}` );
 
         app.WordList.instance.fill(
             this._data.session[ this._pageIndex ].records, {
-                hyphen: this._data.hyphen
+                hyphen: this._data.sessionMeta.interaction.syllabification.hyphen
             }
         );
     };
@@ -228,6 +230,7 @@
         ctx.stroke();
     };
 
+    /*
     GazePlot.prototype._remapDynamic = function (session) {
         app.Logger.enabled = false;
 
@@ -262,11 +265,12 @@
         });
 
         return result;
-    };
+    };*/
 
     GazePlot.prototype._remapStatic = function (session) {
-        const sgwm = new SGWM();
-        let settings = new SGWM.FixationProcessorSettings();
+        let settings;
+
+        settings = new SGWM.FixationProcessorSettings();
         settings.location.enabled = false;
         settings.duration.enabled = false;
         settings.save();
@@ -300,10 +304,10 @@
         settings.ignoreTransitions = false;
         settings.save();
 
+        const sgwm = new SGWM();
         const result = sgwm.map( session );
+
         return result.fixations;
-        //app.StaticFit.map( session );
-        //return session.fixations;
     };
 
     GazePlot.prototype._prevPage = function () {
@@ -324,6 +328,7 @@
 
     }); // end of delayed call
 
+    /*
     function Word (rect) {
         this.left = rect.left;
         this.top = rect.top;
@@ -333,7 +338,7 @@
 
     Word.prototype.getBoundingClientRect = function () {
         return this;
-    };
+    };*/
 
     app.GazePlot = GazePlot;
 

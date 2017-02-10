@@ -91,43 +91,7 @@
         });
     };
 
-    Visualization.prototype._addOption = function ( list, value, text, data ) {
-        return addOption( list, value, text, data );
-    }
-
-    Visualization.prototype._setPrevPageCallback = function( cb ) {
-        _prevPageCallback = cb;
-    };
-
-    Visualization.prototype._setNextPageCallback = function( cb ) {
-        _nextPageCallback = cb;
-    };
-
-    Visualization.prototype._enableNavigationButtons = function( prev, next ) {
-        if (prev) {
-            _prev.classList.remove( 'disabled' );
-        }
-        else {
-            _prev.classList.add( 'disabled' );
-        }
-
-        if (next) {
-            _next.classList.remove( 'disabled' );
-        }
-        else {
-            _next.classList.add( 'disabled' );
-        }
-    };
-
-    /*
-    Visualization.prototype._getConditionNameFromSessionName = function (sessionName ) {
-        var result;
-        var nameParts = sessionName.split( '_' );
-        if (nameParts.length === 3) {
-            result = nameParts[1];
-        }
-        return result;
-    }*/
+    // private
 
     Visualization.prototype._showDataSelectionDialog = function( multiple, users ) {
         _wait.classList.add( 'invisible' );
@@ -140,23 +104,8 @@
         const sessionsList = _sessionPrompt.querySelector( '#sessions' );
         sessionsList.multiple = !!multiple;
 
-        var event = new Event( 'change' );
+        const event = new Event( 'change' );
         categoriesList.dispatchEvent( event );
-
-        /*
-        if (categories) {
-            catList.innerHTML = '';
-            catList.classList.remove( 'hidden' );
-            for (var key of categories.keys()) {
-                addOption( catList, key, key, categories.get( key ) );
-            }
-            var event = new Event('change');
-            catList.dispatchEvent( event );
-        }
-        else {
-            catList.classList.add( 'hidden' );
-        }
-        */
 
         _sessionPromtCallback = this._load.bind( this );
         _sessionPrompt.classList.remove( 'invisible' );
@@ -204,7 +153,7 @@
 
                 resolve( text );
 
-            }, function (err) {
+            }, err => {
                 reject( err );
             });
         });
@@ -226,7 +175,7 @@
 
                 resolve( sessionData );
 
-            }, function (err) {
+            }, err => {
                 reject( err );
             });
         });
@@ -242,7 +191,7 @@
             _canvas.setAttribute( 'height', _height );
         }
 
-        var ctx = _canvas.getContext('2d');
+        const ctx = _canvas.getContext('2d');
 
         ctx.font = this.wordFont;
         ctx.clearRect(0, 0, _width, _height);
@@ -254,18 +203,18 @@
         ctx.fillStyle = this.infoColor;
         ctx.font = this.infoFont;
 
-        var textWidth = ctx.measureText( title ).width;
-        ctx.fillText( title, (_canvas.width - textWidth) / 2, 32);
+        const textWidth = ctx.measureText( title ).width;
+        ctx.fillText( title, (_canvas.width - textWidth) / 2, 52);
     };
 
     Visualization.prototype._drawWords = function (ctx, words, metricRange, showIDs, hideBoundingBox) {
         ctx.strokeStyle = this.wordStrokeColor;
         ctx.lineWidth = 1;
 
-        var indexComputer = IndexComputer();
+        const indexComputer = IndexComputer();
 
         words.forEach( (word, index) => {
-            var alpha = app.Metric.getAlpha( word, this.colorMetric, metricRange );
+            const alpha = app.Metric.getAlpha( word, this.colorMetric, metricRange );
             this._drawWord( ctx, word, alpha,
                 showIDs ? indexComputer.feed( word.x, word.y ) : null,
                 hideBoundingBox);
@@ -309,7 +258,7 @@
                     if (index > 2) {
                         return;
                     }
-                    let id = +participant.name.substr(1);
+                    const id = +participant.name.substr(1);
                     ctx.fillStyle = '#004' //`rgb(${10*id},0,0)`;
                     ctx.fillText( participant.name, word.x, word.y + index * 15 - 20);
                 });
@@ -321,27 +270,57 @@
         }
     };
 
-    var _height;
-    var _width;
-    var _view;
-    var _wait;
-    var _canvas;
-    var _sessionPrompt;
-    var _navigationBar;
-    var _prev;
-    var _next;
+    // Paging
 
-    var _sessionPromtCallback;
-    var _prevPageCallback;
-    var _nextPageCallback;
+    Visualization.prototype._addOption = function ( list, value, text, data ) {
+        return addOption( list, value, text, data );
+    }
 
-    var _waiting = false;
+    Visualization.prototype._setPrevPageCallback = function( cb ) {
+        _prevPageCallback = cb;
+    };
 
-    var IndexComputer = function () {
-        var lastX = -1;
-        var lastY = -1;
-        var currentWordIndex = -1;
-        var currentLineIndex = -1;
+    Visualization.prototype._setNextPageCallback = function( cb ) {
+        _nextPageCallback = cb;
+    };
+
+    Visualization.prototype._enableNavigationButtons = function( prev, next ) {
+        if (prev) {
+            _prev.classList.remove( 'disabled' );
+        }
+        else {
+            _prev.classList.add( 'disabled' );
+        }
+
+        if (next) {
+            _next.classList.remove( 'disabled' );
+        }
+        else {
+            _next.classList.add( 'disabled' );
+        }
+    };
+
+    let _height;
+    let _width;
+    let _view;
+    let _wait;
+    let _canvas;
+    let _sessionPrompt;
+    let _navigationBar;
+    let _prev;
+    let _next;
+
+    let _sessionPromtCallback;
+    let _prevPageCallback;
+    let _nextPageCallback;
+
+    let _waiting = false;
+
+    const IndexComputer = function () {
+        let lastX = -1;
+        let lastY = -1;
+        let currentWordIndex = -1;
+        let currentLineIndex = -1;
 
         return {
             feed: function (x, y) {
