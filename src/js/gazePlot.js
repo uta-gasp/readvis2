@@ -38,7 +38,7 @@
         this.greyFixationSize = options.greyFixationSize || 15;
         this.numberFont = options.numberFont || 'bold 16px Verdana';
 
-        var lineColorA = 0.5;
+        const lineColorA = 0.5;
         this.lineColors = [
             `rgba(255,0,0,${lineColorA}`,
             `rgba(255,255,0,${lineColorA}`,
@@ -51,22 +51,6 @@
         app.Visualization.call( this, options );
 
         this._data = null;
-
-        this._setPrevPageCallback( () => {
-            if (this._data && this._pageIndex > 0) {
-                this._pageIndex--;
-                this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );
-                this._remapAndShow();
-            }
-        });
-
-        this._setNextPageCallback( () => {
-            if (this._data && this._pageIndex < this._data.text.length - 1) {
-                this._pageIndex++;
-                this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );
-                this._remapAndShow();
-            }
-        });
     }
 
     app.loaded( () => { // we have to defer the prototype definition until the Visualization mudule is loaded
@@ -92,45 +76,8 @@
 
     GazePlot.prototype._load = function( sessionID, sessionName, sessionData, userName ) {
 
-        app.WordList.instance.hyphen = sessionData.interaction.syllabification.hyphen;
-
-        const sessionPromise = this._sessions[ sessionID ] || new Promise( (resolve, reject) => {
-            const sessionRef = app.firebase.child( 'sessions/' + sessionID );
-            sessionRef.once( 'value', snapshot => {
-
-                if (!snapshot.exists()) {
-                    reject( `Session ${sessionID} does not exist in the database` );
-                    return;
-                }
-
-                const sessionData = snapshot.val();
-                this._sessions[ sessionID ] = sessionData;
-
-                resolve( sessionData );
-
-            }, function (err) {
-                reject( err );
-            });
-        });
-
-        const textPromise = this._texts[ sessionData.text ] || new Promise( (resolve, reject) => {
-            const textRef = app.firebase.child( 'texts/' + sessionData.text );
-            textRef.once( 'value', snapshot => {
-
-                if (!snapshot.exists()) {
-                    reject( `Text ${sessionData.text} does not exist in the database` );
-                    return;
-                }
-
-                const text = snapshot.val();
-                this._texts[ sessionData.text ] = text;
-
-                resolve( text );
-
-            }, function (err) {
-                reject( err );
-            });
-        });
+        const sessionPromise = this._loadSession( sessionID );
+        const textPromise = this._loadText( sessionData.text );
 
         Promise.all( [sessionPromise, textPromise] ).then( ([session, text]) => {
             this._data = {
@@ -138,7 +85,8 @@
                 name: sessionName,
                 id: sessionID,
                 session: session,
-                text: text
+                text: text,
+                hyphen: sessionData.interaction.syllabification.hyphen
             };
 
             app.WordList.instance.show();
@@ -146,6 +94,9 @@
             this._pageIndex = 0;
             this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );
             this._remapAndShow();
+
+            this._setPrevPageCallback( () => { this._prevPage(); });
+            this._setNextPageCallback( () => { this._nextPage(); });
 
         }).catch( reason => {
             window.alert( reason );
@@ -159,16 +110,16 @@
             words: this._data.text[ this._pageIndex ],
         };
 
-        var fixations;
+        let fixations;
         switch (this.mapping) {
             case app.Visualization.Mapping.STATIC: fixations = this._remapStatic( data ); break;
             case app.Visualization.Mapping.DYNAMIC: fixations = this._remapDynamic( data ); break;
             default: console.error( 'unknown mapping type' ); return;
         }
 
-        var metricRange = app.Metric.compute( data.words, this.colorMetric );
+        const metricRange = app.Metric.compute( data.words, this.colorMetric );
 
-        var ctx = this._getCanvas2D();
+        const ctx = this._getCanvas2D();
 
         this._drawWords( ctx, data.words, metricRange, this.showIDs, (this.showIDs && !this.showConnections) );
         if (this.showFixations && fixations) {
@@ -176,7 +127,11 @@
         }
         this._drawTitle( ctx, name );
 
-        app.WordList.instance.fill( this._data.session[ this._pageIndex ].records );
+        app.WordList.instance.fill(
+            this._data.session[ this._pageIndex ].records, {
+                hyphen: this._data.hyphen
+            }
+        );
     };
 
     GazePlot.prototype._drawFixations = function (ctx, fixations) {
@@ -185,9 +140,9 @@
         ctx.textBaseline = 'middle';
         ctx.font = this.numberFont;
 
-        var prevFix, fix;
-        var id = 0;
-        for (var i = 0; i < fixations.length; i += 1) {
+        let prevFix, fix;
+        let id = 0;
+        for (let i = 0; i < fixations.length; i += 1) {
             fix = fixations[i];
             if (fix.x <= 0 && fix.y <= 0) {
                 continue;
@@ -222,7 +177,7 @@
     }
 
     GazePlot.prototype._drawFixation = function (ctx, fixation, id) {
-        var circleSize;
+        let circleSize;
 
         if (this.showIDs) {
             this._drawGreyFixation( ctx, fixation, id );
@@ -276,8 +231,8 @@
     GazePlot.prototype._remapDynamic = function (session) {
         app.Logger.enabled = false;
 
-        var fixations = app.Fixations;
-        var model = app.Model2;
+        const fixations = app.Fixations;
+        const model = app.Model2;
 
         fixations.init( 80, 50 );
         model.init({
@@ -290,16 +245,16 @@
             }
         });
 
-        var layout = session.words.map( function (word) {
+        const layout = session.words.map( function (word) {
             return new Word({ left: word.x, top: word.y, right: word.x + word.width, bottom: word.y + word.height });
         });
 
         fixations.reset();
         model.reset( layout );
 
-        var result = [];
+        const result = [];
         session.fixations.forEach( function (fix) {
-            var fixation = fixations.add( fix.x, fix.y, fix.duration );
+            const fixation = fixations.add( fix.x, fix.y, fix.duration );
             if (fixation) {
                 model.feedFixation( fixation );
                 result.push( fixation );
@@ -351,60 +306,23 @@
         //return session.fixations;
     };
 
-    }); // end of delayed call
-
-    function exportFixations (snapshot) {
-        var records = [];
-        snapshot.forEach( childSnapshot => {
-            var sessionName = childSnapshot.key();
-            var session = snapshot.child( sessionName );
-            if (session && session.exists()) {
-                var sessionVal = session.val();
-                records.push( `\n${sessionName.split('_')[0]}` );
-                if (sessionVal && sessionVal.fixations) {
-                    records.push( `${sessionVal.setup.lineSize}\t${sessionVal.setup.textID}` );
-                    sessionVal.fixations.forEach( fix => {
-                        //if (fix.x > 0 && fix.y > 0) {
-                            records.push( `${fix.ts}\t${fix.x}\t${fix.y}\t${fix.duration}` );
-                        //}
-                    });
-                }
-            }
-        });
-
-        return records;
+    GazePlot.prototype._prevPage = function () {
+        if (this._data && this._pageIndex > 0) {
+            this._pageIndex--;
+            this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );
+            this._remapAndShow();
+        }
     };
 
-    function exportWords (snapshot) {
-        var records = [];
-        var texts = [];
+    GazePlot.prototype._nextPage = function () {
+        if (this._data && this._pageIndex < this._data.text.length - 1) {
+            this._pageIndex++;
+            this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );
+            this._remapAndShow();
+        }
+    };
 
-        snapshot.forEach( childSnapshot => {
-            var sessionName = childSnapshot.key();
-            var parts = sessionName.split('_');
-            var textID = parts[1];
-            var lineSpacing = parts[2];
-            if (lineSpacing !== '2') {
-                return;
-            }
-            if (texts.indexOf( textID ) < 0) {
-                var session = snapshot.child( sessionName );
-                if (session && session.exists()) {
-                    var sessionVal = session.val();
-                    if (sessionVal && sessionVal.words) {
-                        texts.push( textID );
-                        records.push( `\n${textID}\t${lineSpacing}\n` );
-                        sessionVal.words.forEach( word => {
-                            records.push( `${word.x}\t${word.y}\t${word.width}\t${word.height}\t${word.text}\n` );
-                        });
-                    }
-                }
-            }
-
-        });
-
-        return records;
-    }
+    }); // end of delayed call
 
     function Word (rect) {
         this.left = rect.left;

@@ -187,6 +187,51 @@
         return texts;
     }
 
+    // returns promise, or a cached text
+    Visualization.prototype._loadText = function (id, title) {
+        return this._texts[ id ] || new Promise( (resolve, reject) => {
+            const textRef = app.firebase.child( 'texts/' + id );
+            textRef.once( 'value', snapshot => {
+
+                if (!snapshot.exists()) {
+                    reject( `Text ${id} does not exist in the database` );
+                    return;
+                }
+
+                const text = snapshot.val();
+                text.title = title;
+                this._texts[ id ] = text;
+
+                resolve( text );
+
+            }, function (err) {
+                reject( err );
+            });
+        });
+    }
+
+    Visualization.prototype._loadSession = function (id, meta) {
+        return this._sessions[ id ] || new Promise( (resolve, reject) => {
+            const sessionRef = app.firebase.child( 'sessions/' + id );
+            sessionRef.once( 'value', snapshot => {
+
+                if (!snapshot.exists()) {
+                    reject( `Session ${id} does not exist in the database` );
+                    return;
+                }
+
+                const sessionData = snapshot.val();
+                sessionData.meta = meta;
+                this._sessions[ id ] = sessionData;
+
+                resolve( sessionData );
+
+            }, function (err) {
+                reject( err );
+            });
+        });
+    }
+
     // Drawing
 
     Visualization.prototype._getCanvas2D = function () {
@@ -340,7 +385,8 @@
                 sessions.set( item.value, item.data );
             }
             const textID = categoriesList.options[ categoriesList.selectedIndex ].value;
-            _sessionPromtCallback( textID, sessions );
+            const textTitle = categoriesList.options[ categoriesList.selectedIndex ].textContent;
+            _sessionPromtCallback( textID, sessions, textTitle );
         }
         else {
             const selectedUser = categoriesList.options[ categoriesList.selectedIndex ];

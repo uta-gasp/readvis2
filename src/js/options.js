@@ -226,8 +226,16 @@
 
         for (var s = 0; s < document.styleSheets.length; s++) {
             var sheet = document.styleSheets[ s ];
-            for (var r = 0; r < sheet.cssRules.length; r++) {
-                var rule = sheet.cssRules[ r ];
+            let cssRules;
+            try {
+                cssRules = sheet.cssRules;
+            }
+            catch (e) {
+                continue;
+            }
+
+            for (var r = 0; r < cssRules.length; r++) {
+                var rule = cssRules[ r ];
                 for (var c = 0; c < rules.length; c++) {
                     var customRule = rules[ c ];
                     if (rule.selectorText === customRule.selector) {

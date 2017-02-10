@@ -20,28 +20,12 @@
         this.spacingNames = app.Common.spacingNames; //
         this.fixationColor = options.fixationColor || '#000';
 
-        this.showFixations = options.showFixations !== undefined ? options.showFixations : false;
+        this.showFixations = options.showFixations !== undefined ? options.showFixations : true;
         this.showRegressions = options.showRegressions !== undefined ? options.showRegressions : false;
 
         app.Visualization.call( this, options );
 
         this._data = null;
-        /*
-        this._setPrevPageCallback( () => {
-            if (this._data && this._pageIndex > 0) {
-                this._pageIndex--;
-                this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );
-                this._remapAndShow();
-            }
-        });
-
-        this._setNextPageCallback( () => {
-            if (this._data && this._pageIndex < this._data.text.length - 1) {
-                this._pageIndex++;
-                this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );
-                this._remapAndShow();
-            }
-        });*/
     }
 
     app.loaded( () => { // we have to defer the prototype definition until the Visualization mudule is loaded
@@ -60,126 +44,131 @@
         });
     };
 
-    GazePlots.prototype._load = function( textID, sessions ) {
-        app.WordList.instance.show();
+    GazePlots.prototype._load = function( textID, sessions, textTitle ) {
 
-        const sessionPromises = [];
+        const textPromise = this._loadText( textID, textTitle );
+        const promises = [ textPromise ];
 
         sessions.forEach( (session, id) => {
-            sessionPromises.push( this._sessions[ id ] || new Promise( (resolve, reject) => {
-                const sessionRef = app.firebase.child( 'sessions/' + id);
-                sessionRef.once( 'value', snapshot => {
-
-                    if (!snapshot.exists()) {
-                        reject( `Session ${id} does not exist in the database` );
-                        return;
-                    }
-
-                    const sessionData = snapshot.val();
-                    this._sessions[ id ] = sessionData;
-
-                    resolve( sessionData );
-
-                }, function (err) {
-                    reject( err );
-                });
-            }));
+            app.WordList.instance.hyphen = session.interaction.syllabification.hyphen;
+            promises.push( this._loadSession( id, session ) );
         });
 
-        Promise.all( sessionPromises ).then( sessions => {
-            sessions.forEach( session => {
-                console.log( session.length );
-            });
-            /*
+        Promise.all( promises ).then( ([text, ...sessionDatas]) => {
             this._data = {
-                user: userName,
-                name: sessionName,
-                id: sessionID,
-                session: session,
-                text: text
+                textID: textID,
+                textTitle: textTitle,
+                text: text,
+                sessions: sessionDatas
             };
 
             app.WordList.instance.show();
 
             this._pageIndex = 0;
             this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );
-            this._remapAndShow();*/
+            this._remapAndShow();
+
+            // sessionDatas.forEach( session => {
+            //     const allFixations = [];
+            //     const fixations = this._remapStatic( session.fixations, text )
+            //     fixations.forEach( fixation => {
+            //         fixation.participant = sessionDatas.user;
+            //     });
+            //     allFixations.push( ...fixations );
+            // });
+
+            this._setPrevPageCallback( () => { this._prevPage(); });
+            this._setNextPageCallback( () => { this._nextPage(); });
 
         }).catch( reason => {
             window.alert( reason );
         });
+    };
 
-        /*
-        var words, fixes;
-        var fixations = [];
-        var sessionNames = [];
-        this._snapshot.forEach( childSnapshot => {
-            var sessionName = childSnapshot.key();
-            var key = this._getConditionNameFromSessionName( sessionName  );
-            if (key === conditionName) {
-                [words, fixes] = this._loadSession( words, sessionName );
-                if (fixes) {
-                    sessionNames.push( sessionName.split( '_' )[0] );
-                    fixations.push( ...fixes );
+    GazePlots.prototype._remapAndShow = function() {
+        app.WordList.instance.clear();
+
+        const ctx = this._getCanvas2D();
+
+        this._data.sessions.forEach( session => {
+            const sessionPage = session[ this._pageIndex ];
+
+            app.WordList.instance.fill(
+                sessionPage.records, {
+                    preserve: true,
+                    hyphen: session.meta.interaction.syllabification.hyphen
                 }
+            );
+
+            const data = {
+                fixations: sessionPage.fixations,
+                words: this._data.text[ this._pageIndex ]
+            };
+
+            let fixations;
+            switch (this.mapping) {
+                case app.Visualization.Mapping.STATIC: fixations = this._remapStatic( data ); break;
+                //case app.Visualization.Mapping.DYNAMIC: fixations = this._remapDynamic( data ); break;
+                default: console.error( 'unknown mapping type' ); return;
+            }
+
+            const metricRange = app.Metric.compute( data.words, this.colorMetric );
+
+            this._drawWords( ctx, data.words, metricRange, false, false );
+            if (this.showFixations && fixations) {
+                this._drawFixations( ctx, fixations );
             }
         });
 
-        if (words) {
-            var ctx = this._getCanvas2D();
-            var metricRange = app.Metric.compute( words, this.colorMetric );
-
-            var showIDs = false;
-            this._drawWords( ctx, words, metricRange, showIDs );
-
-            if (this.showFixations) {
-                this._drawFixations( ctx, fixations );
-            }
-
-            this._drawTitle( ctx, `${conditionTitle} for ${sessionNames.length} sessions` );
-
-            app.WordList.instance.fill( words, { units: app.WordList.Units.PERCENTAGE } );
-        }*/
-    };
-
-    GazePlots.prototype._loadSession = function (words, sessionName) {
-        var fixations;
-        var participantName = getParticipantNameFromSessionName( sessionName );
-        var session = this._snapshot.child( sessionName );
-        if (session && session.exists()) {
-            var sessionVal = session.val();
-            if (sessionVal && sessionVal.fixations && sessionVal.words) {
-                if (!words) {   // this is the first session to load
-                    words = sessionVal.words;
-                }
-                // switch (this.mapping) {
-                //     case app.Visualization.Mapping.STATIC: fixations = this._remapStatic( sessionVal, words ); break;
-                //     case app.Visualization.Mapping.DYNAMIC: fixations = this._remapDynamic( data ); break;
-                //     default: console.error( 'unknown mapping type' ); return;
-                // }
-                fixations = this._remapStatic( sessionVal, words )
-                fixations.forEach( fixation => {
-                    fixation.participant = participantName;
-                });
-            }
-        } else {
-            window.alert( 'record ' + sessionName + ' does not exist' );
-        }
-
-        //calcParticipantGazing( words );
-        return [words, fixations];
+        this._drawTitle( ctx, `"${this._data.text.title}" for ${this._data.sessions.length} sessions` );
     };
 
     GazePlots.prototype._remapStatic = function (session, words) {
-        //localStorage.setItem('data', JSON.stringify(session));
+        const sgwm = new SGWM();
+        let settings = new SGWM.FixationProcessorSettings();
+        settings.location.enabled = false;
+        settings.duration.enabled = false;
+        settings.save();
 
-        app.StaticFit.map({
-            fixations: session.fixations,
-            setup: session.setup,
-            words: words
-        });
+        settings = new SGWM.SplitToProgressionsSettings();
+        settings.bounds = { // in size of char height
+            left: -0.5,
+            right: 8,
+            verticalChar: 2,
+            verticalLine: 0.6
+        };
+        settings.angle = Math.sin( 15 * Math.PI / 180 );
+        settings.save();
 
-        return session.fixations;
+        settings = new SGWM.ProgressionMergerSettings();
+        settings.minLongSetLength = 2;
+        settings.fitThreshold = 0.28;       // fraction of the interline distance
+        settings.maxLinearGradient = 0.15;
+        settings.removeSingleFixationLines = false;
+        settings.correctForEmptyLines = true;
+        settings.emptyLineDetectorFactor = 1.6;
+        settings.save();
+
+        settings = new SGWM.WordMapperSettings();
+        settings.wordCharSkipStart = 3;
+        settings.wordCharSkipEnd = 6;
+        settings.scalingDiffLimit = 0.9;
+        settings.rescaleFixationX = false;
+        settings.partialLengthMaxWordLength = 2;
+        settings.effectiveLengthFactor = 0.7;
+        settings.ignoreTransitions = false;
+        settings.save();
+
+        const result = sgwm.map( session );
+        return result.fixations;
+
+        // app.StaticFit.map({
+        //     fixations: session.fixations,
+        //     setup: session.setup,
+        //     words: words
+        // });
+
+        // return session.fixations;
     };
 
     // Overriden from Visualization._drawWord
@@ -207,6 +196,22 @@
             ctx.arc( fixation.x, fixation.y, 2, 0, 2*Math.PI );
             ctx.fill();
         });
+    };
+
+    GazePlots.prototype._prevPage = function () {
+        if (this._data && this._pageIndex > 0) {
+            this._pageIndex--;
+            this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );
+            this._remapAndShow();
+        }
+    };
+
+    GazePlots.prototype._nextPage = function () {
+        if (this._data && this._pageIndex < this._data.text.length - 1) {
+            this._pageIndex++;
+            this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );
+            this._remapAndShow();
+        }
     };
 
     });

@@ -6,8 +6,7 @@
     //          container   - container selector
     function WordList (options) {
         this._container = document.querySelector( options.container );
-
-        this.hyphen = '-';
+        this._words = new Map();
 
         const close = app.Visualization.root.querySelector( '.close' );
         close.addEventListener( 'click', () => {
@@ -32,25 +31,49 @@
 		this._container.classList.remove( 'invisible' );
     }
 
-    // Options: {
-    //		units (String): [ms, %]
+    WordList.prototype.clear = function() {
+        this._words = new Map();
+    }
+
+    // words: Map
+    // options: {
+    //		units (String): [ms, %] = ms,
+    //      preserve (bool) = false
+    //      hyphen (Char) = '-'
     // }
     WordList.prototype.fill = function( words, options = {} ) {
+        if (!options.preserve) {
+            this._words = new Map();
+        }
+
+        const hyphen = options.hyphen || '-';
+
         const table = this._container.querySelector( '.table' );
         table.innerHTML = '';
 
-        const hyphenRegExp = new RegExp( `${this.hyphen}`, 'g' );
-        const descending = (a, b) => b.duration - a.duration;
-        words = words.map( word => {
-            const w =  Object.assign( {}, word );
-            w.text = w.text.replace( hyphenRegExp, '');
-            return w;
-        }).sort( descending );
+        let totalDuration = 0;
+        const hyphenRegExp = new RegExp( `${hyphen}`, 'g' );
+        const descending = (a, b) => b[1].duration - a[1].duration;
+        words.forEach( word => {
+            const id = '' + word.rect.x + '_' + word.rect.y;
+            let w = this._words.get( id );
+            if (!w) {
+                w = Object.assign( {}, word );
+                w.text = w.text.replace( hyphenRegExp, '');
+                this._words.set( id, w );
+            }
+            else {
+                w.duration += word.duration;
+            }
+
+            totalDuration += w.duration;
+        });
+
+        this._words = new Map( [...this._words.entries()].sort( descending ) );
 
         const units = options.units || WordList.Units.MS;
-        const totalDuration = words.reduce( (sum, word) => (sum + word.duration), 0);
 
-        words.forEach( word => {
+        this._words.forEach( word => {
         	let value = word.duration;
         	if (units === WordList.Units.MS) {
         		value = Math.round( value );
