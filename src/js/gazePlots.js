@@ -26,7 +26,7 @@
         app.Visualization.call( this, options );
 
         this._data = null;
-
+        /*
         this._setPrevPageCallback( () => {
             if (this._data && this._pageIndex > 0) {
                 this._pageIndex--;
@@ -41,7 +41,7 @@
                 this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );
                 this._remapAndShow();
             }
-        });
+        });*/
     }
 
     app.loaded( () => { // we have to defer the prototype definition until the Visualization mudule is loaded
