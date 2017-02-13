@@ -26,7 +26,7 @@ Reading.init = function (components) {
     var gazePlot = new Reading.GazePlot({
         root: components.visualization
     });
-    var gazePlots = new Reading.GazePlots({
+    var textSummary = new Reading.TextSummary({
         root: components.visualization
     });
     var rtv = new Reading.RTV({
@@ -40,7 +40,7 @@ Reading.init = function (components) {
         root: components.controls
     }, {
         displaySession: gazePlot.queryData.bind( gazePlot ),
-        displaySessions: gazePlots.queryData.bind( gazePlots ),
+        displayTextSummary: textSummary.queryData.bind( textSummary ),
         simulate: rtv.queryData.bind( rtv ),
         gazeReplay: gazeReplay.queryData.bind( gazeReplay )
     });
@@ -79,22 +79,22 @@ Reading.init = function (components) {
                 (gazePlot.showOriginalFixLocation = value);
             }
         },
-        gazePlots: {
+        textSummary: {
             colorMetric: function (value) { return value === undefined ?
-                gazePlots.colorMetric :
-                (gazePlots.colorMetric = value);
+                textSummary.colorMetric :
+                (textSummary.colorMetric = value);
             },
             showFixations: function (value) { return value === undefined ?
-                gazePlots.showFixations :
-                (gazePlots.showFixations = value);
+                textSummary.showFixations :
+                (textSummary.showFixations = value);
             },
             uniteSpacings: function (value) { return value === undefined ?
-                gazePlots.uniteSpacings :
-                (gazePlots.uniteSpacings = value);
+                textSummary.uniteSpacings :
+                (textSummary.uniteSpacings = value);
             },
             showRegressions: function (value) { return value === undefined ?
-                gazePlots.showRegressions :
-                (gazePlots.showRegressions = value);
+                textSummary.showRegressions :
+                (textSummary.showRegressions = value);
             }
         }
     }, {    // utils

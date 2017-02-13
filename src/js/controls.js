@@ -12,7 +12,7 @@
     //      }
     //      services: {
     //          displaySession ()   - show a DB session selection dialog
-    //          displaySessions ()  - show a condition selection dialog
+    //          displayTextSummary () - show a text summary selection dialog
     //          simulate ()         -
     //          gazeReplay ()       -
     //      }
@@ -23,7 +23,7 @@
 
         var logError = app.Logger.moduleErrorPrinter( 'Controls' );
         _services.displaySession = _services.displaySession || logError( 'displaySession' );
-        _services.displaySessions = _services.displaySessions || logError( 'displaySessions' );
+        _services.displayTextSummary = _services.displayTextSummary || logError( 'displayTextSummary' );
         _services.simulate = _services.simulate || logError( 'simulate' );
         _services.gazeReplay = _services.gazeReplay || logError( 'gazeReplay' );
 
@@ -34,9 +34,9 @@
             _services.displaySession();
         });
 
-        const gazePlots = this.root.querySelector( '.gaze-plots' );
-        gazePlots.addEventListener('click', function () {
-            _services.displaySessions( true );
+        const textSummary = this.root.querySelector( '.text-summary' );
+        textSummary.addEventListener('click', function () {
+            _services.displayTextSummary( true );
         });
 
         const gazeReplay = this.root.querySelector( '.gaze-replay' );
@@ -53,11 +53,6 @@
     // private
 
     var _services;
-
-    var _loadSession;
-    var _loadCondition;
-    var _simulate;
-    var _gazeReplay;
 
     app.Controls = Controls;
 

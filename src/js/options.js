@@ -19,7 +19,7 @@
     //              showFixations (bool)
     //              showOriginalFixLocation (bool)
     //          }
-    //          gazePlots {
+    //          textSummary {
     //              colorMetric (index)
     //              showFixations (bool)
     //              uniteSpacings (bool)
@@ -46,11 +46,11 @@
         _values.gazePlot.showFixations = _values.gazePlot.showFixations || logError( 'gazePlot.showFixations' );
         _values.gazePlot.showOriginalFixLocation = _values.gazePlot.showOriginalFixLocation || logError( 'gazePlot.showOriginalFixLocation' );
 
-        _values.gazePlots = _values.gazePlots || {};
-        _values.gazePlots.colorMetric = _values.gazePlots.colorMetric || logError( 'gazePlots.colorMetric' );
-        _values.gazePlots.showFixations = _values.gazePlots.showFixations || logError( 'gazePlots.showFixations' );
-        _values.gazePlots.uniteSpacings = _values.gazePlots.uniteSpacings || logError( 'gazePlots.uniteSpacings' );
-        _values.gazePlots.showRegressions = _values.gazePlots.showRegressions || logError( 'gazePlots.showRegressions' );
+        _values.textSummary = _values.textSummary || {};
+        _values.textSummary.colorMetric = _values.textSummary.colorMetric || logError( 'textSummary.colorMetric' );
+        _values.textSummary.showFixations = _values.textSummary.showFixations || logError( 'textSummary.showFixations' );
+        _values.textSummary.uniteSpacings = _values.textSummary.uniteSpacings || logError( 'textSummary.uniteSpacings' );
+        _values.textSummary.showRegressions = _values.textSummary.showRegressions || logError( 'textSummary.showRegressions' );
 
         _utils = utils;
 
@@ -342,10 +342,10 @@
         bindCheckbox( 'gaze-plot_show-fixations', _values.gazePlot.showFixations );
         bindCheckbox( 'gaze-plot_show-original-fix-location', _values.gazePlot.showOriginalFixLocation );
 
-        bindSelect( 'gaze-plots_color-metric', _values.gazePlots.colorMetric );
-        bindCheckbox( 'gaze-plots_show-fixations', _values.gazePlots.showFixations );
-        bindCheckbox( 'gaze-plots_unite-spacings', _values.gazePlots.uniteSpacings );
-        bindCheckbox( 'gaze-plots_show-regressions', _values.gazePlots.showRegressions );
+        bindSelect( 'gaze-plots_color-metric', _values.textSummary.colorMetric );
+        bindCheckbox( 'gaze-plots_show-fixations', _values.textSummary.showFixations );
+        bindCheckbox( 'gaze-plots_unite-spacings', _values.textSummary.uniteSpacings );
+        bindCheckbox( 'gaze-plots_show-regressions', _values.textSummary.showRegressions );
     }
 
     app.Options = Options;

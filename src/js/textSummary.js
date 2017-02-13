@@ -5,14 +5,14 @@
 
 (function (app) { 'use strict';
 
-    // Word gazing display routine
+    // Text gazing display routine
     // Constructor arguments:
     //      options: {
     //          fixationColor       - fixation color
     //          showFixations       - fixation display flag
     //          showRegressions     - regression display flag
     //      }
-    function GazePlots (options) {
+    function TextSummary (options) {
 
         this.fixationColor = options.fixationColor || '#000';
 
@@ -26,11 +26,11 @@
 
     app.loaded( () => { // we have to defer the prototype definition until the Visualization mudule is loaded
 
-    GazePlots.prototype = Object.create( app.Visualization.prototype );
-    GazePlots.prototype.base = app.Visualization.prototype;
-    GazePlots.prototype.constructor = GazePlots;
+    TextSummary.prototype = Object.create( app.Visualization.prototype );
+    TextSummary.prototype.base = app.Visualization.prototype;
+    TextSummary.prototype.constructor = TextSummary;
 
-    GazePlots.prototype._fillCategories = function (list, users) {
+    TextSummary.prototype._fillCategories = function (list, users) {
         const texts = this._getTexts( users );
         texts.forEach( (text, id) => {
             const option = this._addOption( list, id, text.title, text.sessions );
@@ -40,7 +40,7 @@
         });
     };
 
-    GazePlots.prototype._load = function( textID, sessions, textTitle ) {
+    TextSummary.prototype._load = function( textID, sessions, textTitle ) {
 
         const textPromise = this._loadText( textID, textTitle );
         const promises = [ textPromise ];
@@ -72,7 +72,7 @@
         });
     };
 
-    GazePlots.prototype._remapAndShow = function() {
+    TextSummary.prototype._remapAndShow = function() {
         app.WordList.instance.clear();
 
         const ctx = this._getCanvas2D();
@@ -111,7 +111,7 @@
         this._drawTitle( ctx, `"${this._data.text.title}" for ${this._data.sessions.length} sessions` );
     };
 
-    GazePlots.prototype._remapStatic = function (session, words) {
+    TextSummary.prototype._remapStatic = function (session, words) {
         let settings;
 
         settings = new SGWM.FixationProcessorSettings();
@@ -155,7 +155,7 @@
     };
 
     // Overriden from Visualization._drawWord
-    GazePlots.prototype._drawWord = function (ctx, word, backgroundAlpha, indexes) {
+    TextSummary.prototype._drawWord = function (ctx, word, backgroundAlpha, indexes) {
         this.base._drawWord.call( this, ctx, word, backgroundAlpha, indexes );
 
         if (!indexes) {
@@ -167,7 +167,7 @@
         }
     };
 
-    GazePlots.prototype._drawFixations = function (ctx, fixations) {
+    TextSummary.prototype._drawFixations = function (ctx, fixations) {
         ctx.fillStyle = this.fixationColor;
 
         fixations.forEach( fixation => {
@@ -181,7 +181,7 @@
         });
     };
 
-    GazePlots.prototype._prevPage = function () {
+    TextSummary.prototype._prevPage = function () {
         if (this._data && this._pageIndex > 0) {
             this._pageIndex--;
             this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );
@@ -189,7 +189,7 @@
         }
     };
 
-    GazePlots.prototype._nextPage = function () {
+    TextSummary.prototype._nextPage = function () {
         if (this._data && this._pageIndex < this._data.text.length - 1) {
             this._pageIndex++;
             this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );
@@ -199,6 +199,6 @@
 
     });
 
-    app.GazePlots = GazePlots;
+    app.TextSummary = TextSummary;
 
 })( this.Reading || module.exports );
