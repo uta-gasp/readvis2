@@ -29,7 +29,7 @@ Reading.init = function (components) {
     var textSummary = new Reading.TextSummary({
         root: components.visualization
     });
-    var rtv = new Reading.RTV({
+    var wordReplay = new Reading.WordReplay({
         root: components.visualization
     });
     var gazeReplay = new Reading.GazeReplay({
@@ -42,7 +42,7 @@ Reading.init = function (components) {
         displaySession: gazePlot.queryData.bind( gazePlot ),
         displayTextSummary: textSummary.queryData.bind( textSummary ),
         gazeReplay: gazeReplay.queryData.bind( gazeReplay ),
-        simulate: rtv.queryData.bind( rtv ),
+        wordReplay: wordReplay.queryData.bind( wordReplay ),
     });
 
     var options = new Reading.Options({

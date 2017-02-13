@@ -34,13 +34,13 @@
         const texts = this._getTexts( users );
         texts.forEach( (text, id) => {
             const option = this._addOption( list, id, text.title, text.sessions );
-            // if (this._data && this._data.user === user.key) {
-            //     option.selected = true;
-            // }
+            if (this._data && this._data.textID === id) {
+                option.selected = true;
+            }
         });
     };
 
-    TextSummary.prototype._load = function( textID, sessions, textTitle ) {
+    TextSummary.prototype._load = function( cbLoaded, textID, sessions, textTitle ) {
 
         const textPromise = this._loadText( textID, textTitle );
         const promises = [ textPromise ];
@@ -66,6 +66,10 @@
 
             this._setPrevPageCallback( () => { this._prevPage(); });
             this._setNextPageCallback( () => { this._nextPage(); });
+
+            if (cbLoaded) {
+                cbLoaded();
+            }
 
         }).catch( reason => {
             window.alert( reason );

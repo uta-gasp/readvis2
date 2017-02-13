@@ -45,7 +45,7 @@
         _wait = _view.querySelector( '.wait' );
         _canvas = _view.querySelector( 'canvas');
         _sessionPrompt = _view.querySelector( '#session' );
-        _navigationBar = _view.querySelector( '.navigation' );
+        _navigationBar = _view.querySelector( '.menu .navigation' );
         _prev = _navigationBar.querySelector( '.prev' );
         _next = _navigationBar.querySelector( '.next' );
 
@@ -205,7 +205,7 @@
         ctx.font = this.infoFont;
 
         const textWidth = ctx.measureText( title ).width;
-        ctx.fillText( title, (_canvas.width - textWidth) / 2, 52);
+        ctx.fillText( title, (_width - textWidth) / 2, 52);
     };
 
     Visualization.prototype._drawWords = function (ctx, words, metricRange, showIDs, hideBoundingBox) {
@@ -375,14 +375,15 @@
             }
             const textID = categoriesList.options[ categoriesList.selectedIndex ].value;
             const textTitle = categoriesList.options[ categoriesList.selectedIndex ].textContent;
-            _sessionPromtCallback( textID, sessions, textTitle );
+            _sessionPromtCallback( removeWaitImage, textID, sessions, textTitle );
         }
         else {
             const selectedUser = categoriesList.options[ categoriesList.selectedIndex ];
             const selectedSession = sessionsList.options[ sessionsList.selectedIndex ];
-            _sessionPromtCallback( selectedSession.value, selectedSession.textContent, selectedSession.data, selectedUser.value );
+            _sessionPromtCallback( removeWaitImage, selectedSession.value, selectedSession.textContent, selectedSession.data, selectedUser.value );
         }
 
+        _wait.classList.remove( 'invisible' );
         _navigationBar.classList.remove( 'invisible' );
     }
 
@@ -396,7 +397,7 @@
             const sessions = category.data;
             sessions.forEach( (session, id ) => {
                 const date = new Date( session.date );
-                let textToDisplay = `${date.getDate()}.${date.getMonth()}.${date.getYear()}, ${date.getHours()}:${date.getMinutes()} `;
+                let textToDisplay = `${date.getDate()}.${date.getMonth()}.${date.getFullYear()}, ${date.getHours()}:${date.getMinutes()} `;
                 if (session.user) {
                     textToDisplay += new Array( Math.max( 0, 17 - textToDisplay.length ) ).join( String.fromCharCode( 0x2012 ) );
                     textToDisplay += ' ' + session.user;
@@ -429,6 +430,10 @@
         if (_nextPageCallback) {
             _nextPageCallback( );
         }
+    }
+
+    function removeWaitImage() {
+        _wait.classList.add( 'invisible' );
     }
 
     Visualization.Mapping = {

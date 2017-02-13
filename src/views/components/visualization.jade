@@ -4,10 +4,11 @@ mixin visualization(id)
     div(id=id).path.invisible
         canvas
         .wait &nbsp;
-        .close
-        .navigation.invisible
-            .button.prev Prev
-            .button.next Next
+        .menu
+            .navigation.invisible
+                .btn.prev
+                .btn.next
+            .btn.close
         div#session.prompt Select a session:
             div
                 select#categories

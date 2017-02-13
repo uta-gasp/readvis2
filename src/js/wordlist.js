@@ -55,7 +55,7 @@
         const hyphenRegExp = new RegExp( `${hyphen}`, 'g' );
         const descending = (a, b) => b[1].duration - a[1].duration;
         words.forEach( word => {
-            const id = '' + word.rect.x + '_' + word.rect.y;
+            const id = '' + Math.floor( word.rect.x / 10 ) + '_' + Math.floor( word.rect.y / 10 );
             let w = this._words.get( id );
             if (!w) {
                 w = Object.assign( {}, word );

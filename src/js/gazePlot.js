@@ -64,8 +64,8 @@
         users.forEach( user => {
             const userSessions = user.val()['sessions'];
             const sessions = new Map();
-            for (let [key, value] of Object.entries( userSessions )) {
-                sessions.set( key, value );
+            for (let key of Object.keys( userSessions )) {
+                sessions.set( key, userSessions[ key ] );
             }
 
             const option = this._addOption( list, user.key, user.key, sessions );
@@ -75,10 +75,10 @@
         });
     };
 
-    GazePlot.prototype._load = function( sessionID, sessionName, sessionData, userName ) {
+    GazePlot.prototype._load = function( cbLoaded, sessionID, sessionName, sessionMeta, userName ) {
 
-        const sessionPromise = this._loadSession( sessionID );
-        const textPromise = this._loadText( sessionData.text );
+        const sessionPromise = this._loadSession( sessionID, sessionMeta );
+        const textPromise = this._loadText( sessionMeta.text );
 
         Promise.all( [sessionPromise, textPromise] ).then( ([session, text]) => {
             this._data = {
@@ -86,8 +86,7 @@
                 sessionName: sessionName,
                 sessionID: sessionID,
                 session: session,
-                text: text,
-                sessionMeta: sessionData
+                text: text
             };
 
             app.WordList.instance.show();
@@ -98,6 +97,10 @@
 
             this._setPrevPageCallback( () => { this._prevPage(); });
             this._setNextPageCallback( () => { this._nextPage(); });
+
+            if (cbLoaded) {
+                cbLoaded();
+            }
 
         }).catch( reason => {
             window.alert( reason );
@@ -131,7 +134,7 @@
 
         app.WordList.instance.fill(
             this._data.session[ this._pageIndex ].records, {
-                hyphen: this._data.sessionMeta.interaction.syllabification.hyphen
+                hyphen: this._data.session.meta.interaction.syllabification.hyphen
             }
         );
     };

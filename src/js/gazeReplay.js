@@ -15,7 +15,7 @@
     function GazeReplay (options) {
 
         this.nameFontFamily = options.nameFontFamily || 'Calibri, Arial, sans-serif';
-        this.nameFontSize = options.nameFontSize || 14;
+        this.nameFontSize = options.nameFontSize || 20;
         this.nameFont = options.nameFontFamily || `bold ${this.nameFontSize}px ${this.nameFontFamily}`;
 
         Track.basePointerSize = options.basePointerSize || Track.basePointerSize;
@@ -27,7 +27,7 @@
 
         this._data = null;
         this._tracks = null;
-        this._tracksLegendLocation = {x: 16, y: 64};
+        this._tracksLegendLocation = {x: this.nameFontSize + 2, y: 80};
     }
 
     app.loaded( () => { // we have to defer the prototype definition until the Visualization mudule is loaded
@@ -40,13 +40,13 @@
         const texts = this._getTexts( users );
         texts.forEach( (text, id) => {
             const option = this._addOption( list, id, text.title, text.sessions );
-            // if (this._data && this._data.user === user.key) {
-            //     option.selected = true;
-            // }
+            if (this._data && this._data.textID === id) {
+                option.selected = true;
+            }
         });
     };
 
-    GazeReplay.prototype._load = function (textID, sessions, textTitle) {
+    GazeReplay.prototype._load = function (cbLoaded, textID, sessions, textTitle) {
 
         const textPromise = this._loadText( textID, textTitle );
         const promises = [ textPromise ];
@@ -78,6 +78,10 @@
             this._setPrevPageCallback( () => { this._prevPage(); });
             this._setNextPageCallback( () => { this._nextPage(); });
             this._setCloseCallback( () => { this._stopAll(); });
+
+            if (cbLoaded) {
+                cbLoaded();
+            }
 
         }).catch( reason => {
             window.alert( reason );
@@ -121,8 +125,8 @@
                     ctx.fillStyle = track.color;
                     ctx.font = this.nameFont;
                     ctx.fillText(
-                        'v',
-                        this._tracksLegendLocation.x - 12,
+                        String.fromCharCode( 0x2713 ),
+                        this._tracksLegendLocation.x - this.nameFontSize,
                         this._tracksLegendLocation.y + (1.8 * this.nameFontSize) * ti
                     );
                 }

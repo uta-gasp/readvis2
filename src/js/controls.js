@@ -11,10 +11,10 @@
     //          root:               - controls container element ID
     //      }
     //      services: {
-    //          displaySession ()   - show a DB session selection dialog
-    //          displayTextSummary () - show a text summary selection dialog
-    //          simulate ()         -
-    //          gazeReplay ()       -
+    //          displaySession ()
+    //          displayTextSummary ()
+    //          gazeReplay ()
+    //          wordReplay ()
     //      }
     function Controls (options, services) {
         this.root = document.querySelector( options.root );
@@ -24,7 +24,7 @@
         var logError = app.Logger.moduleErrorPrinter( 'Controls' );
         _services.displaySession = _services.displaySession || logError( 'displaySession' );
         _services.displayTextSummary = _services.displayTextSummary || logError( 'displayTextSummary' );
-        _services.simulate = _services.simulate || logError( 'simulate' );
+        _services.wordReplay = _services.wordReplay || logError( 'wordReplay' );
         _services.gazeReplay = _services.gazeReplay || logError( 'gazeReplay' );
 
         //var container = document.querySelector( this.root );
@@ -46,7 +46,7 @@
 
         const wordReplay = this.root.querySelector( '.word-replay' );
         wordReplay.addEventListener('click', function () {
-            _services.simulate( true );
+            _services.wordReplay( true );
         });
     }
 

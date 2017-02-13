@@ -11,15 +11,49 @@
         display: none;
     }
 
-    .close {
+    .menu {
         position: absolute;
         top: 8px;
-        left: 8px;
-        width: 32px;
-        height: 32px;
-        z-index: 2;
-        cursor: pointer;
-        background: rgba(255,255,255,0.3) url("img/close.png") no-repeat right top;
+        right: 8px;
+        font-size: 32px;
+
+        .navigation {
+            display: inline-block;
+
+            &.invisible {
+                display: none;
+            }
+        }
+
+        .btn {
+            width: 32px;
+            height: 32px;
+            z-index: 2;
+            cursor: pointer;
+            display: inline-block;
+            user-select: none;
+            background-color: rgba(255,255,255,0.3);
+            background-position: center;
+            background-repeat: no-repeat;
+
+            &.close {
+                background-image: url("img/close.png");
+            }
+
+            &.prev {
+                background-image: url("img/prev.png");
+            }
+
+            &.next {
+                background-image: url("img/next.png");
+            }
+
+            &.disabled {
+                opacity: 0.3;
+                cursor: auto;
+                pointer-events: none;
+            }
+        }
     }
 
     .wait {
@@ -98,23 +132,23 @@
         }
     }
 
-    .navigation {
-        position: fixed;
-        bottom: 0;
-        margin: 0 auto;
-        padding: 0.3em;
-        left: 0;
-        right: 0;
+    // .navigation {
+    //     position: fixed;
+    //     bottom: 0;
+    //     margin: 0 auto;
+    //     padding: 0.3em;
+    //     left: 0;
+    //     right: 0;
 
-        &.invisible {
-            display: none;
-        }
+    //     &.invisible {
+    //         display: none;
+    //     }
 
-        @import "mixins/button.less";
+    //     @import "mixins/button.less";
 
-        .button {
-            width: 7em;
-            line-height: 2em;
-        }
-    }
+    //     .button {
+    //         width: 7em;
+    //         line-height: 2em;
+    //     }
+    // }
 }
