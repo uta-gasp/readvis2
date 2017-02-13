@@ -1,8 +1,5 @@
 // Requires:
-//      app,Colors
-//      app.firebase
-//      utils.metric
-//      utils.remapExporter
+//      app.Metric
 
 (function (app) { 'use strict';
 
@@ -18,17 +15,19 @@
     function GazeReplay (options) {
 
         this.nameFontFamily = options.nameFontFamily || 'Calibri, Arial, sans-serif';
-        this.nameFontSize = options.nameFontFamily || 14;
+        this.nameFontSize = options.nameFontSize || 14;
         this.nameFont = options.nameFontFamily || `bold ${this.nameFontSize}px ${this.nameFontFamily}`;
 
         Track.basePointerSize = options.basePointerSize || Track.basePointerSize;
-
-        this.words = null;
 
         options.wordColor = options.wordColor || '#222';
         options.colorMetric = app.Metric.Type.NONE;
 
         app.Visualization.call( this, options );
+
+        this._data = null;
+        this._tracks = null;
+        this._tracksLegendLocation = {x: 16, y: 64};
     }
 
     app.loaded( () => { // we have to defer the prototype definition until the Visualization mudule is loaded
@@ -37,84 +36,80 @@
     GazeReplay.prototype.base = app.Visualization.prototype;
     GazeReplay.prototype.constructor = GazeReplay;
 
+    GazeReplay.prototype._fillCategories = function (list, users) {
+        const texts = this._getTexts( users );
+        texts.forEach( (text, id) => {
+            const option = this._addOption( list, id, text.title, text.sessions );
+            // if (this._data && this._data.user === user.key) {
+            //     option.selected = true;
+            // }
+        });
+    };
+
+    GazeReplay.prototype._load = function (textID, sessions, textTitle) {
+
+        const textPromise = this._loadText( textID, textTitle );
+        const promises = [ textPromise ];
+
+        sessions.forEach( (session, id) => {
+            app.WordList.instance.hyphen = session.interaction.syllabification.hyphen;
+            promises.push( this._loadSession( id, session ) );
+        });
+
+        Promise.all( promises ).then( ([text, ...sessionDatas]) => {
+            this._data = {
+                textID: textID,
+                textTitle: textTitle,
+                text: text,
+                sessions: sessionDatas
+            };
+
+            Track.colorIndex = 0;
+            this._tracks = [];
+
+            sessionDatas.forEach( sessionData => {
+                this._tracks.push( new Track( app.Visualization.root, sessionData ) );
+            });
+
+            this._pageIndex = 0;
+            this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );
+            this._start();
+
+            this._setPrevPageCallback( () => { this._prevPage(); });
+            this._setNextPageCallback( () => { this._nextPage(); });
+            this._setCloseCallback( () => { this._stopAll(); });
+
+        }).catch( reason => {
+            window.alert( reason );
+        });
+    };
+
+    GazeReplay.prototype._start = function () {
+        if (!this._tracks.length) {
+            return;
+        }
+
+        const ctx = this._getCanvas2D();
+
+        const words = this._data.text[ this._pageIndex ];
+
+        // var words = tracks[0].words;
+        this._drawWords( ctx, words, null, false, true );
+        this._drawNames( ctx );
+
+        this._run( ctx );
+    };
+
     GazeReplay.prototype._stopAll = function () {
         if (this._tracks) {
             this._tracks.forEach( track => track.stop() );
         }
     }
 
-    GazeReplay.prototype._fillDataQueryList = function (list) {
-
-        var conditions = this._getConditions( false );
-        var result = new Map();
-
-        for (var key of conditions.keys()) {
-            result.set( `Text #${key}`, conditions.get( key ) );
-        }
-
-        return result;
-    };
-
-    GazeReplay.prototype._load = function (names) {
-        if (!this._snapshot) {
-            return;
-        }
-
-        if (!this._tracks) {    // first time, since we do not nullify this._tracks
-            let onHidden = this._callbacks().hidden;
-            this._callbacks().hidden = () => {
-                this._stopAll();
-                if (onHidden) {
-                    onHidden();
-                }
-            }
-        }
-
-        Track.colorIndex = 0;
-        var tracks = [];
-        names.forEach( (name, index) => {
-            var session = this._snapshot.child( name );
-            if (session && session.exists()) {
-                var sessionVal = session.val();
-                if (sessionVal && sessionVal.fixations) {
-                    tracks.push( new Track( app.Visualization.root, name, sessionVal ) );
-                    this.words = sessionVal.words;
-                }
-            }
-        });
-
-        if (!tracks.length) {
-            return;
-        }
-
-        var ctx = this._getCanvas2D();
-
-        // var words = tracks[0].words;
-        this._drawWords( ctx, this.words, null, false, true );
-        this._drawNames( ctx, tracks );
-
-        this._run( ctx, tracks );
-        this._tracks = tracks;
-    };
-
-    GazeReplay.prototype._drawNames = function (ctx, tracks) {
-        tracks.forEach( (track, ti) => {
-            ctx.textAlign = 'left';
-            ctx.textBaseline = 'bottom';
-            ctx.fillStyle = track.color;
-            ctx.font = this.nameFont;
-
-            ctx.fillText(
-                track.name,
-                8,
-                64 + 25 * ti
-            );
-        });
-    };
-
-    GazeReplay.prototype._run = function (ctx, tracks) {
-        tracks.forEach( (track, ti) => {
+    GazeReplay.prototype._run = function( ctx ) {
+        this._tracks.forEach( (track, ti) => {
             track.start(
+                this._pageIndex,
                 // fixation
                 (fixation, pointer) => {
                 },
@@ -127,28 +122,61 @@
                     ctx.font = this.nameFont;
                     ctx.fillText(
                         'v',
-                        5,
-                        20 + 25 * ti
+                        this._tracksLegendLocation.x - 12,
+                        this._tracksLegendLocation.y + (1.8 * this.nameFontSize) * ti
                     );
                 }
             );
         })
     };
 
+    GazeReplay.prototype._prevPage = function () {
+        this._stopAll();
+        if (this._data && this._pageIndex > 0) {
+            this._pageIndex--;
+            this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );
+            this._start();
+        }
+    };
+
+    GazeReplay.prototype._nextPage = function () {
+        this._stopAll();
+        if (this._data && this._pageIndex < this._data.text.length - 1) {
+            this._pageIndex++;
+            this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );
+            this._start();
+        }
+    };
+
+    GazeReplay.prototype._drawNames = function( ctx ) {
+        this._tracks.forEach( (track, ti) => {
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'bottom';
+            ctx.fillStyle = track.color;
+            ctx.font = this.nameFont;
+
+            ctx.fillText(
+                track.name,
+                this._tracksLegendLocation.x,
+                this._tracksLegendLocation.y + (1.8 * this.nameFontSize) * ti
+            );
+        });
+    };
+
     }); // end of delayed call
 
-    function Track (root, name, session) {
+    function Track (root, session) {
         this.root = root;
-        this.name = name;
+        this.name = session.meta.user;
+        this.session = session;
         this.color = Track.colors[ Track.colorIndex++ % Track.colors.length ];
 
         this.pointerSize = 8;
         this.fixationTimer = null;
         this.nextTimer = null;
 
-        this.fixations = session.fixations;
+        this.fixations = null;
 
-        this.delay = Math.round( 3000 * Math.random() );
         this.fixationIndex = -1;
 
         this.__next = this._next.bind( this );
@@ -225,10 +253,11 @@
         // '#333333',
     ];
 
-    Track.prototype.start = function (onFixation, onCompleted) {
+    Track.prototype.start = function (pageIndex, onFixation, onCompleted) {
         this.onFixation = onFixation;
         this.onCompleted = onCompleted;
 
+        this.fixations = this.session[ pageIndex ].fixations;
         this.fixationIndex = 0;
 
         this.pointer = document.createElement( 'div' );
@@ -236,7 +265,7 @@
         this.pointer.classList.add( 'invisible' );
         this.root.appendChild( this.pointer );
 
-        this.nextTimer = setTimeout( this.__next, this.delay);
+        this.nextTimer = setTimeout( this.__next, 1500);
     }
 
     Track.prototype.stop = function () {

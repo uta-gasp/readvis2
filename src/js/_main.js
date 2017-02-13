@@ -41,8 +41,8 @@ Reading.init = function (components) {
     }, {
         displaySession: gazePlot.queryData.bind( gazePlot ),
         displayTextSummary: textSummary.queryData.bind( textSummary ),
+        gazeReplay: gazeReplay.queryData.bind( gazeReplay ),
         simulate: rtv.queryData.bind( rtv ),
-        gazeReplay: gazeReplay.queryData.bind( gazeReplay )
     });
 
     var options = new Reading.Options({

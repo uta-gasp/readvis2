@@ -1,6 +1,4 @@
 // Requires:
-//      app,Colors
-//      app.firebase
 //      utils.metric
 //      utils.remapExporter
 

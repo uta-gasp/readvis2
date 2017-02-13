@@ -1,6 +1,7 @@
 // Base for visualizations
 //
 // Requires:
+//      app,Colors
 //
 // Interface to implement by its descendants:
 //        _load
@@ -299,6 +300,10 @@
             _next.classList.add( 'disabled' );
         }
     };
+    Visualization.prototype._setCloseCallback = function( cb ) {
+        _closeCallback = cb;
+    };
+
 
     let _height;
     let _width;
@@ -313,6 +318,7 @@
     let _sessionPromtCallback;
     let _prevPageCallback;
     let _nextPageCallback;
+    let _closeCallback;
 
     let _waiting = false;
 
@@ -349,6 +355,10 @@
 
         const ctx = _canvas.getContext('2d');
         ctx.clearRect( 0, 0, _width, _height );
+
+        if (_closeCallback) {
+            _closeCallback();
+        }
     }
 
     function clickSelect() {
