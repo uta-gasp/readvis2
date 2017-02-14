@@ -3,7 +3,8 @@
         controls: 'controls',
         options: 'options',
         visualization: 'visualization',
-        wordlist: 'wordlist'
+        wordlist: 'wordlist',
+        wordReplay: 'word-replay',
     };
 
     // the order must match the corresponding enums
@@ -46,6 +47,9 @@ html
         include ./components/wordlist.jade
         +wordlist( ids.wordlist )
 
+        include ./components/word-replay.jade
+        +word-replay( ids.wordReplay )
+
         script(src='app.js')
         script.
             Reading.init({
@@ -53,4 +57,5 @@ html
                 wordlist: '##{ids.wordlist}',
                 controls: '##{ids.controls}',
                 options: '##{ids.options}',
+                wordReplay: '##{ids.wordReplay}',
             });

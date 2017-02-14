@@ -30,7 +30,8 @@ Reading.init = function (components) {
         root: components.visualization
     });
     var wordReplay = new Reading.WordReplay({
-        root: components.visualization
+        root: components.visualization,
+        container: components.wordReplay
     });
     var gazeReplay = new Reading.GazeReplay({
         root: components.visualization

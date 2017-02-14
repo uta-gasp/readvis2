@@ -300,10 +300,10 @@
             _next.classList.add( 'disabled' );
         }
     };
+
     Visualization.prototype._setCloseCallback = function( cb ) {
         _closeCallback = cb;
     };
-
 
     let _height;
     let _width;

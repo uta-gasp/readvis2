@@ -5,25 +5,16 @@
     // Real-time visualization constructor
     // Arguments:
     //      options: {
-    //          focusColor           - focus color
+    //          container    - selecotr of the table
     //      }
     function WordReplay (options) {
 
-        this.focusColor = options.focusColor || '#F80';
+        this._container = document.querySelector( options.container || '#word-list' );
 
-        this.longFixationThreshold = 1000;
+        this._longFixationThreshold = 1000;
 
-        this.wordListWidth = 100;
         this.wordHeight = 20;
-        this.wordPaddingX = 4;
         this.wordPaddingY = 4;
-
-        this.fontFamily = 'Calibri, Arial, sans-serif';
-        this.captionFontSize = 16;
-        this.captionFont = `${this.captionFontSize}px ${this.fontFamily}`;
-
-        options.wordColor = options.wordColor || '#222';
-        options.wordFont = options.wordFont || `${this.wordHeight - this.wordPaddingY}px ${this.fontFamily}`;
 
         app.Visualization.call( this, options );
 
@@ -70,8 +61,8 @@
             Track.colorIndex = 0;
             this._tracks = [];
 
-            sessionDatas.forEach( sessionData => {
-                this._tracks.push( new Track( app.Visualization.root, sessionData ) );
+            sessionDatas.forEach( (sessionData, id) => {
+                this._tracks.push( new Track( this._container, sessionData, id ) );
             });
 
             this._pageIndex = 0;
@@ -80,7 +71,10 @@
 
             this._setPrevPageCallback( () => { this._prevPage(); });
             this._setNextPageCallback( () => { this._nextPage(); });
-            this._setCloseCallback( () => { this._stopAll(); });
+            this._setCloseCallback( () => {
+                this._stopAll();
+                this._container.classList.add( 'invisible' );
+            });
 
             if (cbLoaded) {
                 cbLoaded();
@@ -96,15 +90,8 @@
             return;
         }
 
-        var ctx = this._getCanvas2D();
-
-        const words = this._data.text[ this._pageIndex ];
-
-        this._computeFontSize( words );
-        this._drawWords( ctx, words );
-        this._drawTracks( ctx );
-
-        this._run( ctx );
+        const table = this._createTable( this._data.text[ this._pageIndex ], this._tracks );
+        this._run( table );
     };
 
     WordReplay.prototype._stopAll = function () {
@@ -113,32 +100,64 @@
         }
     }
 
-    WordReplay.prototype._run = function( ctx ) {
+    WordReplay.prototype._createTable = function (words, tracks) {
+        const table = this._container.querySelector( 'table' );
+        table.innerHTML = '';
+
+        const hyphenRegExp = new RegExp( `${this._data.hyphen}`, 'g' );
+        words.forEach( word => {
+            const row = table.insertRow();
+            const cell = row.insertCell();
+            cell.textContent = word.text.replace( hyphenRegExp, '');
+
+            tracks.forEach( track => {
+                row.insertCell();
+            });
+        });
+
+        const header = table.createTHead();
+        const footer = table.createTFoot();
+        const headerRow = header.insertRow();
+        const footerRow = footer.insertRow();
+        headerRow.insertCell();
+        footerRow.insertCell();
+
+        tracks.forEach( track => {
+            headerRow.insertCell().textContent = track.name;
+            footerRow.insertCell().textContent = '-';
+        });
+
+        this._container.classList.remove( 'invisible' );
+
+        return table;
+    };
+
+    WordReplay.prototype._run = function( table ) {
+        const rows = table.querySelectorAll( 'tr' );
+        const pageText = this._data.text[ this._pageIndex ];
+
         this._tracks.forEach( (track, ti) => {
             track.start(
                 this._pageIndex,
-                this._data.text[ this._pageIndex ],
+                pageText,
                 (word, duration, pointer) => {
                     const rawWord = track.words[ word.id ];
                     rawWord.totalDuration = rawWord.totalDuration + duration;
 
-                    const tone = 255 - 24 * Math.min( 10, 1 + Math.floor( rawWord.totalDuration / this.longFixationThreshold ) );
-                    ctx.fillStyle = `rgb(${tone},${tone},${tone})`;  //'rgba(0,0,0,0.40)';
+                    const tone = 255 - 24 * Math.min( 10, 1 + Math.floor( rawWord.totalDuration / this._longFixationThreshold ) );
+                    const rgb = `rgb(${tone},${tone},${tone})`;
 
-                    const y = track.y + word.id * track.height;
-                    ctx.fillRect( track.x, y, track.width - 1, track.height );
-                    // pointer.style = `left: ${track.x + Math.round((track.width - pointer.offsetWidth) / 2)}px;
-                    //                  top: ${y + Math.round((track.height - pointer.offsetHeight) / 2)}px`;
+                    const row = rows[ word.id + 1 ];
+                    const cell = row.cells[ track.id + 1 ];
+                    cell.style.backgroundColor = rgb;
+
+                    track.pointer.style = `left: ${cell.offsetLeft + (cell.offsetWidth - track.pointerSize) / 2}px;
+                                           top: ${cell.offsetTop + (cell.offsetHeight - track.pointerSize) / 2}px`;
                 },
                 () => {
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'top';
-                    ctx.fillStyle = this.wordColor;
-                    ctx.fillText(
-                        'done',
-                        track.x + track.width * 0.5,
-                        track.y + this.wordHeight * track.words.length + this.wordPaddingY
-                    );
+                    const row = rows[ pageText.length + 1 ];
+                    const cell = row.cells[ track.id + 1 ];
+                    cell.textContent = 'done';
                 }
             );
         })
@@ -162,74 +181,12 @@
         }
     };
 
-    WordReplay.prototype._computeFontSize = function (words) {
-        const viewportHeight = document.querySelector( '#visualization' ).offsetHeight;
-        const trackHeight = viewportHeight - this._tracksLegendLocation.y - 2 * (this.captionFontSize + 2 * this.wordPaddingY);
-        this.wordHeight = Math.min( 24, Math.max( 8, Math.floor( trackHeight / words.length ) ) );
-        this.wordFont = `${this.wordHeight - this.wordPaddingY}px ${this.fontFamily}`;
-    };
-
-    WordReplay.prototype._drawWords = function (ctx, words) {
-        ctx.textAlign = 'end';
-        ctx.textBaseline = 'top';
-        ctx.fillStyle = this.wordColor;
-        ctx.font = this.wordFont;
-
-        const hyphenRegExp = new RegExp( `${this._data.hyphen}`, 'g' );
-        const maxWordWidth = words.reduce( (max, word) => {
-            return Math.max( max, ctx.measureText( word.text.replace( hyphenRegExp, '') ).width );
-        }, 0 );
-        this.wordListWidth = maxWordWidth + 2 * this.wordPaddingX;
-
-        const x = this._tracksLegendLocation.x + this.wordPaddingX + maxWordWidth;
-        const y = this._tracksLegendLocation.y + this.captionFontSize + 2 * this.wordPaddingY;
-
-        words.forEach( (word, index) => {
-            ctx.fillText( word.text.replace( hyphenRegExp, ''), x, y + this.wordHeight * index + this.wordPaddingY );
-        });
-    };
-
-    WordReplay.prototype._drawTracks = function( ctx ) {
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'bottom';
-        ctx.fillStyle = this.wordColor;
-        ctx.font = this.captionFont;
-        ctx.strokeStyle = '#000';
-
-        const x = this._tracksLegendLocation.x + this.wordListWidth;
-        const y = this._tracksLegendLocation.y + this.captionFontSize + 2 * this.wordPaddingY;
-
-        let trackOffsetX = 0;
-        this._tracks.forEach( track => {
-            track.setRect(
-                x + trackOffsetX, y,
-                ctx.measureText( track.name ).width + 2 * this.wordPaddingX,
-                this.wordHeight
-            );
-
-            ctx.fillText(
-                track.name,
-                track.x + track.width * 0.5,
-                track.y - this.wordPaddingY
-            );
-            this._data.text[ this._pageIndex ].forEach( (word, wi) => {
-                ctx.strokeRect(
-                    track.x,
-                    track.y + this.wordHeight * wi,
-                    track.width,
-                    this.wordHeight
-                );
-            });
-
-            trackOffsetX += track.width;
-        });
-    };
-
     }); // end of delayed call
 
-    function Track (root, session) {
+    function Track (root, session, id) {
         this.root = root;
         this.name = session.meta.user;
+        this.id = id;
 
         this.x = 0;
         this.y = 0;
@@ -276,7 +233,7 @@
         this.fixationIndex = 0;
 
         this.pointer = document.createElement( 'div' );
-        this.pointer.classList.add( 'track_pointer' );
+        this.pointer.classList.add( 'pointer' );
         this.pointer.classList.add( 'invisible' );
         this.root.appendChild( this.pointer );
 
@@ -327,9 +284,9 @@
         if (word) {
             this.onWordFixated( word, duration, this.pointer );
 
-            const y = this.y + word.id * this.height;
-            this.pointer.style = `left: ${this.x + (this.width - this.pointerSize) / 2}px;
-                                  top: ${y + (this.height - this.pointerSize) / 2}px`;
+            // const y = this.y + word.id * this.height;
+            // this.pointer.style = `left: ${this.x + (this.width - this.pointerSize) / 2}px;
+            //                       top: ${y + (this.height - this.pointerSize) / 2}px`;
             this.pointer.classList.remove( 'invisible' );
 
             this.fixationTimer = setTimeout( () => {
@@ -386,6 +343,8 @@
 
         return result;
     };
+
+    let _wordReplay;
 
     app.WordReplay = WordReplay;
 
