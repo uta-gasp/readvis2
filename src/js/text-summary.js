@@ -81,8 +81,9 @@
 
         const ctx = this._getCanvas2D();
         const words = this._data.text[ this._pageIndex ];
-
         const metricRange = app.Metric.compute( words, this.colorMetric );
+
+        this._setCanvasFont( ctx, this._data.sessions[0].meta.font );
         this._drawWords( ctx, words, metricRange, false, false );
 
         this._data.sessions.forEach( session => {

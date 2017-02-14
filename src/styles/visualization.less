@@ -11,47 +11,83 @@
         display: none;
     }
 
-    .menu {
+    .top-panel {
         position: absolute;
         top: 8px;
         right: 8px;
-        font-size: 32px;
 
-        .navigation {
+        .props {
+            margin-right: 32px;
             display: inline-block;
+            font-size: 16px;
+            line-height: 64px;
+            text-align: center;
+            vertical-align: top;
 
             &.invisible {
                 display: none;
             }
+
+            .prop {
+                min-width: 32px;
+                margin: 0 12px;
+                display: inline-block;
+                user-select: none;
+                background-position: center top;
+                background-repeat: no-repeat;
+
+                &.speech {
+                    background-image: url("img/speech.png");
+                    &.off {
+                        background-image: url("img/speech-no.png");
+                    }
+                }
+
+                &.syllab {
+                    background-image: url("img/syllab.png");
+                    &.off {
+                        background-image: url("img/syllab-no.png");
+                    }
+                }
+            }
         }
 
-        .btn {
-            width: 32px;
-            height: 32px;
-            z-index: 2;
-            cursor: pointer;
+        .menu {
+            font-size: 32px;
             display: inline-block;
-            user-select: none;
-            background-color: rgba(255,255,255,0.3);
-            background-position: center;
-            background-repeat: no-repeat;
 
-            &.close {
-                background-image: url("img/close.png");
+            .navigation {
+                display: inline-block;
             }
 
-            &.prev {
-                background-image: url("img/prev.png");
-            }
+            .btn {
+                width: 32px;
+                height: 32px;
+                z-index: 2;
+                cursor: pointer;
+                display: inline-block;
+                user-select: none;
+                background-color: rgba(255,255,255,0.3);
+                background-position: center;
+                background-repeat: no-repeat;
 
-            &.next {
-                background-image: url("img/next.png");
-            }
+                &.close {
+                    background-image: url("img/close.png");
+                }
 
-            &.disabled {
-                opacity: 0.3;
-                cursor: auto;
-                pointer-events: none;
+                &.prev {
+                    background-image: url("img/prev.png");
+                }
+
+                &.next {
+                    background-image: url("img/next.png");
+                }
+
+                &.disabled {
+                    opacity: 0.3;
+                    cursor: auto;
+                    pointer-events: none;
+                }
             }
         }
     }

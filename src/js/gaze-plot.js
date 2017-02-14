@@ -91,6 +91,17 @@
 
             app.WordList.instance.show();
 
+            this._setProps({
+                speech: {
+                    enabled: session.meta.interaction.speech.enabled,
+                    value: Math.round( session.meta.interaction.speech.threshold )
+                },
+                syllab: {
+                    enabled: session.meta.interaction.syllabification.enabled,
+                    value: Math.round( session.meta.interaction.syllabification.threshold )
+                }
+            });
+
             this._pageIndex = 0;
             this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );
             this._remapAndShow();
@@ -124,6 +135,7 @@
         const metricRange = app.Metric.compute( data.words, this.colorMetric );
 
         const ctx = this._getCanvas2D();
+        this._setCanvasFont( ctx, this._data.session.meta.font );
 
         this._drawWords( ctx, data.words, metricRange, this.showIDs, (this.showIDs && !this.showConnections) );
         if (this.showFixations && fixations) {

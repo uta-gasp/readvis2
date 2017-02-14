@@ -13,7 +13,6 @@
     // Arguments:
     //      options: {
     //          wordColor           - word color
-    //          wordFont      c     - word font
     //          wordHighlightColor  - mapped word rectangle color
     //          wordStrokeColor     - word rectable border color
     //          infoColor           - info text color
@@ -21,9 +20,8 @@
     //          colorMetric         - word background coloring metric
     //          mapping             - mapping type
     //      }
-    function Visualization (options) {
-        this.wordColor = options.wordColor || '#080'//'#CCC';
-        this.wordFont = options.wordFont || '22pt Calibri, Arial, sans-serif';
+    function Visualization( options ) {
+        this.wordColor = options.wordColor || '#222';
         this.wordHighlightColor = options.wordHighlightColor || '#606';
         this.wordStrokeColor = options.wordStrokeColor || '#888';
         this.infoColor = options.infoColor || '#444';
@@ -40,12 +38,13 @@
     // Initialization routine, to be called prior constructing any visualization object
     //  Arguments:
     //      root              - selector for the element that contains visualizations
-    Visualization.init = function (root) {
+    Visualization.init = function( root ) {
         _view = document.querySelector( root );
         _wait = _view.querySelector( '.wait' );
         _canvas = _view.querySelector( 'canvas');
         _sessionPrompt = _view.querySelector( '#session' );
         _navigationBar = _view.querySelector( '.menu .navigation' );
+        _propsBar = _view.querySelector( '.props' );
         _prev = _navigationBar.querySelector( '.prev' );
         _next = _navigationBar.querySelector( '.next' );
 
@@ -113,7 +112,7 @@
     };
 
     // returns map of textID = { title, session = [...] }
-    Visualization.prototype._getTexts = function (users) {
+    Visualization.prototype._getTexts = function( users ) {
         const texts = new Map();
         users.forEach( user => {
             const sessions = user.val()['sessions'];
@@ -138,7 +137,7 @@
     }
 
     // returns promise, or a cached text
-    Visualization.prototype._loadText = function (id, title) {
+    Visualization.prototype._loadText = function( id, title ) {
         return this._texts[ id ] || new Promise( (resolve, reject) => {
             const textRef = app.firebase.child( 'texts/' + id );
             textRef.once( 'value', snapshot => {
@@ -160,7 +159,7 @@
         });
     }
 
-    Visualization.prototype._loadSession = function (id, meta) {
+    Visualization.prototype._loadSession = function( id, meta ) {
         return this._sessions[ id ] || new Promise( (resolve, reject) => {
             const sessionRef = app.firebase.child( 'sessions/' + id );
             sessionRef.once( 'value', snapshot => {
@@ -182,9 +181,33 @@
         });
     }
 
+    Visualization.prototype._setProps = function( props ) {
+        if (props) {
+            _propsBar.classList.remove( 'invisible' );
+        }
+        else {
+            _propsBar.classList.add( 'invisible' );
+            return;
+        }
+
+        for (let propID in props) {
+            const el = _propsBar.querySelector( '.' + propID );
+            if (el) {
+                const prop = props[ propID ];
+                if (prop.enabled) {
+                    el.classList.remove( 'off' );
+                    el.textContent = prop.value;
+                }
+                else {
+                    el.classList.add( 'off' );
+                    el.textContent = '.';
+                }
+            }
+        }
+    }
     // Drawing
 
-    Visualization.prototype._getCanvas2D = function () {
+    Visualization.prototype._getCanvas2D = function() {
         if (!_width || !_height) {
             _width = parseInt( window.getComputedStyle( _canvas ).width );
             _height = parseInt( window.getComputedStyle( _canvas ).height );
@@ -194,21 +217,24 @@
 
         const ctx = _canvas.getContext('2d');
 
-        ctx.font = this.wordFont;
         ctx.clearRect(0, 0, _width, _height);
 
         return ctx;
     };
 
-    Visualization.prototype._drawTitle = function (ctx, title) {
+    Visualization.prototype._setCanvasFont = function ( ctx, font ) {
+        ctx.font = `${font.style} ${font.weight} ${font.size} ${font.family}`;
+    }
+
+    Visualization.prototype._drawTitle = function( ctx, title ) {
+        ctx.textAlign = 'center';
         ctx.fillStyle = this.infoColor;
         ctx.font = this.infoFont;
 
-        const textWidth = ctx.measureText( title ).width;
-        ctx.fillText( title, (_width - textWidth) / 2, 52);
+        ctx.fillText( title, _width / 2, 52);
     };
 
-    Visualization.prototype._drawWords = function (ctx, words, metricRange, showIDs, hideBoundingBox) {
+    Visualization.prototype._drawWords = function( ctx, words, metricRange, showIDs, hideBoundingBox ) {
         ctx.strokeStyle = this.wordStrokeColor;
         ctx.lineWidth = 1;
 
@@ -222,14 +248,13 @@
         });
     };
 
-    Visualization.prototype._drawWord = function (ctx, word, backgroundAlpha, indexes, hideBoundingBox) {
+    Visualization.prototype._drawWord = function( ctx, word, backgroundAlpha, indexes, hideBoundingBox ) {
         if (backgroundAlpha > 0) {
             //backgroundAlpha = Math.sin( backgroundAlpha * Math.PI / 2);
             // ctx.fillStyle = app.Colors.rgb2rgba( this.wordHighlightColor, backgroundAlpha);
             // ctx.fillRect( Math.round( word.x ), Math.round( word.y ), Math.round( word.width ), Math.round( word.height ) );
         }
 
-        ctx.font = this.wordFont;
         ctx.textAlign = 'start';
         ctx.textBaseline = 'alphabetic';
         ctx.fillStyle = this.wordColor;
@@ -253,27 +278,13 @@
         }
 
         if (!hideBoundingBox) {
-            if (word.participants) {
-                ctx.font = '12px Arial';
-                word.participants.forEach( (participant, index) => {
-                    if (index > 2) {
-                        return;
-                    }
-                    const id = +participant.name.substr(1);
-                    ctx.fillStyle = '#004' //`rgb(${10*id},0,0)`;
-                    ctx.fillText( participant.name, word.x, word.y + index * 15 - 20);
-                });
-                ctx.font = this.wordFont;
-            }
-            else {
-                ctx.strokeRect( word.x, word.y, word.width, word.height);
-            }
+            ctx.strokeRect( word.x, word.y, word.width, word.height);
         }
     };
 
     // Paging
 
-    Visualization.prototype._addOption = function ( list, value, text, data ) {
+    Visualization.prototype._addOption = function( list, value, text, data ) {
         return addOption( list, value, text, data );
     }
 
@@ -311,6 +322,7 @@
     let _wait;
     let _canvas;
     let _sessionPrompt;
+    let _propsBar;
     let _navigationBar;
     let _prev;
     let _next;
@@ -322,7 +334,7 @@
 
     let _waiting = false;
 
-    const IndexComputer = function () {
+    const IndexComputer = function() {
         let lastX = -1;
         let lastY = -1;
         let currentWordIndex = -1;
@@ -351,7 +363,6 @@
 
     function clickClose() {
         _view.classList.add( 'invisible' );
-        _navigationBar.classList.add( 'invisible' );
 
         const ctx = _canvas.getContext('2d');
         ctx.clearRect( 0, 0, _width, _height );
@@ -368,14 +379,19 @@
         const sessionsList = _sessionPrompt.querySelector( '#sessions' );
 
         if (sessionsList.multiple) {
-            const sessions = new Map();
-            for (let i = 0; i < sessionsList.selectedOptions.length; i++) {
-                const item = sessionsList.selectedOptions[i];
-                sessions.set( item.value, item.data );
+            if (sessionsList.selectedOptions.length) {
+                const sessions = new Map();
+                for (let i = 0; i < sessionsList.selectedOptions.length; i++) {
+                    const item = sessionsList.selectedOptions[i];
+                    sessions.set( item.value, item.data );
+                }
+                const textID = categoriesList.options[ categoriesList.selectedIndex ].value;
+                const textTitle = categoriesList.options[ categoriesList.selectedIndex ].textContent;
+                _sessionPromtCallback( removeWaitImage, textID, sessions, textTitle );
             }
-            const textID = categoriesList.options[ categoriesList.selectedIndex ].value;
-            const textTitle = categoriesList.options[ categoriesList.selectedIndex ].textContent;
-            _sessionPromtCallback( removeWaitImage, textID, sessions, textTitle );
+            else {
+                clickClose();
+            }
         }
         else {
             const selectedUser = categoriesList.options[ categoriesList.selectedIndex ];
@@ -384,7 +400,6 @@
         }
 
         _wait.classList.remove( 'invisible' );
-        _navigationBar.classList.remove( 'invisible' );
     }
 
     function categoryChanged( e ) {

@@ -98,6 +98,7 @@
 
         const words = this._data.text[ this._pageIndex ];
 
+        this._setCanvasFont( ctx, this._data.sessions[0].meta.font );
         this._drawWords( ctx, words, null, false, true );
         this._drawNames( ctx );
 
