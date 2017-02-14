@@ -116,19 +116,19 @@
 
     // private
 
-    var _values;
-    var _utils;
+    let _values;
+    let _utils;
 
-    function loadSettings (cssRules) {
-        var options = JSON.parse( localStorage.getItem('options') );
+    function loadSettings( cssRules ) {
+        const options = JSON.parse( localStorage.getItem('options') );
         if (!options) {
             return;
         }
 
-        var values = _values;
+        const values = _values;
 
-        var pop = function (storage, srv) {
-            for (var name in storage) {
+        const pop = function (storage, srv) {
+            for (let name in storage) {
                 if (name === 'css') {
                     continue;
                 }
@@ -146,31 +146,25 @@
 
         pop( options, values );
 
-        // for (var name in options) {
-        //     if (_values[ name ]) {
-        //         _values[ name ]( options[name] );
-        //     }
-        // }
-
         if (options.css) {
-            var ruleInitilization = (rule) => {
+            const ruleInitilization = (rule) => {
                 if (rule.selector === parts[0] && rule.name === parts[1]) {
                     rule.initial = options.css[ savedRule ];
                 }
             };
-            for (var savedRule in options.css) {
-                var parts = savedRule.split( '____' );
+            for (let savedRule in options.css) {
+                const parts = savedRule.split( '____' );
                 cssRules.forEach( ruleInitilization );
             }
         }
     }
 
-    function saveSettings(cssRules) {
-        var options = {};
-        var values = _values;
+    function saveSettings( cssRules ) {
+        const options = {};
+        const values = _values;
 
-        var push = function (storage, srv) {
-            for (var name in srv) {
+        const push = function (storage, srv) {
+            for (let name in srv) {
                 if (typeof srv[ name ] === 'function') {
                     storage[ name ] = srv[ name ]();
                 }
@@ -192,7 +186,7 @@
     }
 
     function componentToHex( c ) {
-        var hex = c.toString(16);
+        const hex = c.toString(16);
         return hex.length == 1 ? "0" + hex : hex;
     }
 
@@ -201,9 +195,8 @@
     }
 
     function cssColorToHex( cssColor ) {
-
-        var colorRegex = /^\D+(\d+)\D+(\d+)\D+(\d+)\D+$/gim;
-        var colorComps = colorRegex.exec( cssColor );
+        const colorRegex = /^\D+(\d+)\D+(\d+)\D+(\d+)\D+$/gim;
+        const colorComps = colorRegex.exec( cssColor );
 
         return rgbToHex(
             parseInt( colorComps[ 1 ] ),
@@ -212,10 +205,9 @@
     }
 
     function cssToJS( cssName ) {
-
-        var dashIndex = cssName.indexOf( '-' );
+        let dashIndex = cssName.indexOf( '-' );
         while (dashIndex >= 0) {
-            var char = cssName.charAt( dashIndex + 1);
+            const char = cssName.charAt( dashIndex + 1);
             cssName = cssName.replace( '-' + char,  char.toUpperCase() );
             dashIndex = cssName.indexOf( '-' );
         }
@@ -223,9 +215,8 @@
     }
 
     function obtainInitialRules( rules ) {
-
-        for (var s = 0; s < document.styleSheets.length; s++) {
-            var sheet = document.styleSheets[ s ];
+        for (let s = 0; s < document.styleSheets.length; s++) {
+            const sheet = document.styleSheets[ s ];
             let cssRules;
             try {
                 cssRules = sheet.cssRules;
@@ -234,10 +225,10 @@
                 continue;
             }
 
-            for (var r = 0; r < cssRules.length; r++) {
-                var rule = cssRules[ r ];
-                for (var c = 0; c < rules.length; c++) {
-                    var customRule = rules[ c ];
+            for (let r = 0; r < cssRules.length; r++) {
+                const rule = cssRules[ r ];
+                for (let c = 0; c < rules.length; c++) {
+                    const customRule = rules[ c ];
                     if (rule.selectorText === customRule.selector) {
                         if (customRule.initial === undefined) {
                             if (customRule.type === 'color') {
@@ -255,9 +246,8 @@
     }
 
     function bindRulesToEditors( rules, root ) {
-
-        for (var i = 0; i < rules.length; i++) {
-            var rule = rules[ i ];
+        for (let i = 0; i < rules.length; i++) {
+            const rule = rules[ i ];
             rule.editor = root.querySelector( '#' + rule.id );
 
             if (rule.type === 'color') {
@@ -270,10 +260,9 @@
     }
 
     function getRulesFromEditors( style, rules ) {
-
-        var styleText = '';
-        for (var i = 0; i < rules.length; i++) {
-            var rule = rules[ i ];
+        let styleText = '';
+        for (let i = 0; i < rules.length; i++) {
+            const rule = rules[ i ];
             if (rule.type === 'color') {
                 rule.value = rule.editor.value; //'#' + rule.editor.color;
             }
@@ -286,9 +275,8 @@
     }
 
     function setRulesToEditors( rules ) {
-
-        for (var i = 0; i < rules.length; i++) {
-            var rule = rules[ i ];
+        for (let i = 0; i < rules.length; i++) {
+            const rule = rules[ i ];
             if (rule.type === 'color') {
                 rule.editor.value = rule.value;//color.fromString( rules.value );
             }
@@ -299,35 +287,35 @@
     }
 
     function bindSettingsToEditors( root ) {
-        var bindCheckbox = (id, service) => {
-            var flag = root.querySelector( '#' + id );
+        const bindCheckbox = (id, service) => {
+            const flag = root.querySelector( '#' + id );
             flag.checked = service();
-            flag.addEventListener( 'click', function () {
+            flag.addEventListener( 'click', function (e) {
                 service( this.checked );
             });
         };
 
-        var bindSelect = (id, service) => {
-            var select = root.querySelector( '#' + id );
+        const bindSelect = (id, service) => {
+            const select = root.querySelector( '#' + id );
             select.selectedIndex = service();
-            select.addEventListener( 'change', function () {
+            select.addEventListener( 'change', function (e) {
                 service( this.selectedIndex );
             });
         };
 
-        var bindValue = (id, service) => {
-            var text = root.querySelector( '#' + id );
+        const bindValue = (id, service) => {
+            const text = root.querySelector( '#' + id );
             text.value = service();
-            text.addEventListener( 'change', function () {
+            text.addEventListener( 'change', function (e) {
                 service( this.value );
             });
         };
 
-        var bindRadios = (name, service) => {
-            var radioButtons = Array.from( root.querySelectorAll( `input[name=${name}]` ) );
+        const bindRadios = (name, service) => {
+            const radioButtons = Array.from( root.querySelectorAll( `input[name=${name}]` ) );
             radioButtons.forEach( (radio, index) => {
                 radio.checked = service() === index;
-                radio.addEventListener( 'change', function () {
+                radio.addEventListener( 'change', function (e) {
                     service( this.value );
                 });
             });

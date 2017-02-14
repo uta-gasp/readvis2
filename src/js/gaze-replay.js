@@ -27,7 +27,7 @@
 
         this._data = null;
         this._tracks = null;
-        this._tracksLegendLocation = {x: this.nameFontSize + 2, y: 80};
+        this._tracksLegendLocation = {x: this.nameFontSize + 2, y: 8};
     }
 
     app.loaded( () => { // we have to defer the prototype definition until the Visualization mudule is loaded
@@ -94,10 +94,10 @@
         }
 
         const ctx = this._getCanvas2D();
+        this._drawTitle( ctx, `"${this._data.text.title}" for ${this._data.sessions.length} sessions` );
 
         const words = this._data.text[ this._pageIndex ];
 
-        // var words = tracks[0].words;
         this._drawWords( ctx, words, null, false, true );
         this._drawNames( ctx );
 
@@ -120,7 +120,7 @@
                  // done
                 () => {
                     ctx.textAlign = 'left';
-                    ctx.textBaseline = 'bottom';
+                    ctx.textBaseline = 'top';
                     ctx.strokeStyle = '#000';
                     ctx.fillStyle = track.color;
                     ctx.font = this.nameFont;
@@ -155,7 +155,7 @@
     GazeReplay.prototype._drawNames = function( ctx ) {
         this._tracks.forEach( (track, ti) => {
             ctx.textAlign = 'left';
-            ctx.textBaseline = 'bottom';
+            ctx.textBaseline = 'top';
             ctx.fillStyle = track.color;
             ctx.font = this.nameFont;
 
@@ -265,7 +265,7 @@
         this.fixationIndex = 0;
 
         this.pointer = document.createElement( 'div' );
-        this.pointer.classList.add( 'track_pointer' );
+        this.pointer.classList.add( 'track-pointer' );
         this.pointer.classList.add( 'invisible' );
         this.root.appendChild( this.pointer );
 

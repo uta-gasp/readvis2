@@ -3,7 +3,7 @@
         controls: 'controls',
         options: 'options',
         visualization: 'visualization',
-        wordlist: 'wordlist',
+        wordList: 'word-list',
         wordReplay: 'word-replay',
     };
 
@@ -44,8 +44,8 @@ html
         include ./components/visualization.jade
         +visualization( ids.visualization )
 
-        include ./components/wordlist.jade
-        +wordlist( ids.wordlist )
+        include ./components/word-list.jade
+        +word-list( ids.wordList )
 
         include ./components/word-replay.jade
         +word-replay( ids.wordReplay )
@@ -54,8 +54,8 @@ html
         script.
             Reading.init({
                 visualization: '##{ids.visualization}',
-                wordlist: '##{ids.wordlist}',
                 controls: '##{ids.controls}',
                 options: '##{ids.options}',
                 wordReplay: '##{ids.wordReplay}',
+                wordList: '##{ids.wordList}',
             });

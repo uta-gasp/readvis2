@@ -20,24 +20,24 @@ Reading.init = function (components) {
     Reading.Visualization.init( components.visualization );
 
     Reading.WordList.instance = new Reading.WordList({
-        container: components.wordlist
+        container: components.wordList
     });
 
-    var gazePlot = new Reading.GazePlot({
+    const gazePlot = new Reading.GazePlot({
         root: components.visualization
     });
-    var textSummary = new Reading.TextSummary({
+    const textSummary = new Reading.TextSummary({
         root: components.visualization
     });
-    var wordReplay = new Reading.WordReplay({
+    const wordReplay = new Reading.WordReplay({
         root: components.visualization,
         container: components.wordReplay
     });
-    var gazeReplay = new Reading.GazeReplay({
+    const gazeReplay = new Reading.GazeReplay({
         root: components.visualization
     });
 
-    var controls = new Reading.Controls({
+    const controls = new Reading.Controls({
         root: components.controls
     }, {
         displaySession: gazePlot.queryData.bind( gazePlot ),
@@ -46,7 +46,7 @@ Reading.init = function (components) {
         wordReplay: wordReplay.queryData.bind( wordReplay ),
     });
 
-    var options = new Reading.Options({
+    const options = new Reading.Options({
         root: components.options,
         text: components.textContainer + ' ' + components.text
     }, {    // services

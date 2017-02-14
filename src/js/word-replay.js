@@ -9,18 +9,14 @@
     //      }
     function WordReplay (options) {
 
-        this._container = document.querySelector( options.container || '#word-list' );
+        this._container = document.querySelector( options.container );
 
         this._longFixationThreshold = 1000;
-
-        this.wordHeight = 20;
-        this.wordPaddingY = 4;
 
         app.Visualization.call( this, options );
 
         this._data = null;
         this._tracks = null;
-        this._tracksLegendLocation = {x: 8, y: 8};
     }
 
     app.loaded( () => { // we have to defer the prototype definition until the Visualization mudule is loaded
@@ -90,6 +86,9 @@
             return;
         }
 
+        const ctx = this._getCanvas2D();
+        this._drawTitle( ctx, `"${this._data.text.title}" for ${this._data.sessions.length} sessions` );
+
         const table = this._createTable( this._data.text[ this._pageIndex ], this._tracks );
         this._run( table );
     };
@@ -124,7 +123,9 @@
 
         tracks.forEach( track => {
             headerRow.insertCell().textContent = track.name;
-            footerRow.insertCell().textContent = '-';
+            const doneCell = footerRow.insertCell();
+            doneCell.textContent = 'done';
+            doneCell.classList.add( 'hidden' );
         });
 
         this._container.classList.remove( 'invisible' );
@@ -157,7 +158,7 @@
                 () => {
                     const row = rows[ pageText.length + 1 ];
                     const cell = row.cells[ track.id + 1 ];
-                    cell.textContent = 'done';
+                    cell.classList.remove( 'hidden' );
                 }
             );
         })
@@ -188,10 +189,6 @@
         this.name = session.meta.user;
         this.id = id;
 
-        this.x = 0;
-        this.y = 0;
-        this.width = 0;
-        this.heigth = 0;
         this.pointerSize = 8;
         this.fixationTimer = null;
         this.nextTimer = null;
@@ -204,13 +201,6 @@
 
         this.__next = this._next.bind( this );
     }
-
-    Track.prototype.setRect = function (x, y, width, height) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
-    };
 
     Track.prototype.start = function (pageIndex, words, onWordFixated, onCompleted) {
         this.onWordFixated = onWordFixated;
@@ -284,9 +274,6 @@
         if (word) {
             this.onWordFixated( word, duration, this.pointer );
 
-            // const y = this.y + word.id * this.height;
-            // this.pointer.style = `left: ${this.x + (this.width - this.pointerSize) / 2}px;
-            //                       top: ${y + (this.height - this.pointerSize) / 2}px`;
             this.pointer.classList.remove( 'invisible' );
 
             this.fixationTimer = setTimeout( () => {

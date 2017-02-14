@@ -1,6 +1,6 @@
 (function (app) {
 
-    var Logger = {
+    const Logger = {
         enabled: true
     };
 
@@ -15,7 +15,7 @@
     };
 
     Logger.moduleLogPrinter = (moduleName) => {
-        var print = (item) => {
+        const print = (item) => {
             console.log( item );
         };
 
@@ -30,8 +30,8 @@
 
             console.log( '\n', moduleName );
             console.log( title );
-            for (var i = 1; i < arguments.length; i += 1) {
-                var data = arguments[i];
+            for (let i = 1; i < arguments.length; i += 1) {
+                const data = arguments[i];
                 if (data === undefined) {
                     continue;
                 }
@@ -92,8 +92,8 @@
     Record.padding = '    ';
 
     Record.prototype.push = function () {
-        var levelPadding = '';
-        for (var i = 0; i < this.level; i += 1) {
+        let levelPadding = '';
+        for (let i = 0; i < this.level; i += 1) {
             levelPadding += Record.padding;
         }
         //this._record.push( padding + Array.prototype.join.call( arguments, ' ' ) );
@@ -128,7 +128,7 @@
         console.log( Record.padding + this.generalPadding + this._record.join( '\n' + Record.padding ) );
     };
 
-    var records = new Map();
+    const records = new Map();
 
     app.Logger = Logger;
 

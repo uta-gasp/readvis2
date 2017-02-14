@@ -21,13 +21,11 @@
 
         _services = services;
 
-        var logError = app.Logger.moduleErrorPrinter( 'Controls' );
+        const logError = app.Logger.moduleErrorPrinter( 'Controls' );
         _services.displaySession = _services.displaySession || logError( 'displaySession' );
         _services.displayTextSummary = _services.displayTextSummary || logError( 'displayTextSummary' );
         _services.wordReplay = _services.wordReplay || logError( 'wordReplay' );
         _services.gazeReplay = _services.gazeReplay || logError( 'gazeReplay' );
-
-        //var container = document.querySelector( this.root );
 
         const gazePlot = this.root.querySelector( '.gaze-plot' );
         gazePlot.addEventListener('click', function () {
@@ -52,7 +50,7 @@
 
     // private
 
-    var _services;
+    let _services;
 
     app.Controls = Controls;
 
