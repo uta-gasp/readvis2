@@ -263,6 +263,11 @@
         this.onCompleted = onCompleted;
 
         this.fixations = this.session[ pageIndex ].fixations;
+        if (!this.fixations) {
+            onCompleted();
+            return;
+        }
+
         this.fixationIndex = 0;
 
         this.pointer = document.createElement( 'div' );

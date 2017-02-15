@@ -2,6 +2,9 @@
 //
 // Requires:
 //      app,Colors
+//      app.Metric
+//      app.Syllabifier
+//      app.firebase
 //
 // Interface to implement by its descendants:
 //        _load
@@ -17,6 +20,10 @@
     //          wordStrokeColor     - word rectable border color
     //          infoColor           - info text color
     //          infoFont            - info text font
+    //          syllabification: {
+    //              background
+    //              color
+    //          }
     //          colorMetric         - word background coloring metric
     //          mapping             - mapping type
     //      }
@@ -26,6 +33,10 @@
         this.wordStrokeColor = options.wordStrokeColor || '#888';
         this.infoColor = options.infoColor || '#444';
         this.infoFont = options.infoFont || '18px Arial';
+        this.syllabification = Object.assign({
+            background: '#fcc',
+            color: '#060'
+        }, options.syllabification );
 
         this.colorMetric = options.colorMetric !== undefined ? options.colorMetric : app.Metric.Type.DURATION;
         this.mapping = options.mapping !== undefined ? options.mapping : Visualization.Mapping.STATIC;
@@ -234,50 +245,62 @@
         ctx.fillText( title, _width / 2, 52);
     };
 
-    Visualization.prototype._drawWords = function( ctx, words, metricRange, showIDs, hideBoundingBox ) {
+    Visualization.prototype._drawSyllabifications = function( ctx, events, hyphen ) {
+        events.forEach( event => {
+            const rc = event.rect;
+            const word = app.Syllabifier.syllabify( event.text, hyphen );
+            ctx.fillStyle = this.syllabification.background;
+            ctx.fillRect( rc.x, rc.y, rc.width, rc.height);
+            ctx.fillStyle = this.syllabification.color;
+            ctx.fillText( word, rc.x, rc.y + 0.8 * rc.height);
+        });
+    };
+
+    Visualization.prototype._drawWords = function( ctx, words, settings ) {
         ctx.strokeStyle = this.wordStrokeColor;
         ctx.lineWidth = 1;
 
         const indexComputer = IndexComputer();
 
         words.forEach( (word, index) => {
-            const alpha = app.Metric.getAlpha( word, this.colorMetric, metricRange );
-            this._drawWord( ctx, word, alpha,
-                showIDs ? indexComputer.feed( word.x, word.y ) : null,
-                hideBoundingBox);
+            const wordSettings = Object.assign({
+                alpha: app.Metric.getAlpha( word, this.colorMetric, settings.metricRange ),
+                indexes: settings.showIDs ? indexComputer.feed( word.x, word.y ) : null
+            }, settings );
+            this._drawWord( ctx, word, wordSettings);
         });
     };
 
-    Visualization.prototype._drawWord = function( ctx, word, backgroundAlpha, indexes, hideBoundingBox ) {
-        if (backgroundAlpha > 0) {
-            //backgroundAlpha = Math.sin( backgroundAlpha * Math.PI / 2);
-            // ctx.fillStyle = app.Colors.rgb2rgba( this.wordHighlightColor, backgroundAlpha);
+    Visualization.prototype._drawWord = function( ctx, word, settings ) {
+        if (settings.backgroundAlpha > 0) {
+            //settings.backgroundAlpha = Math.sin( settings.backgroundAlpha * Math.PI / 2);
+            // ctx.fillStyle = app.Colors.rgb2rgba( this.wordHighlightColor, settings.backgroundAlpha);
             // ctx.fillRect( Math.round( word.x ), Math.round( word.y ), Math.round( word.width ), Math.round( word.height ) );
         }
 
         ctx.textAlign = 'start';
         ctx.textBaseline = 'alphabetic';
         ctx.fillStyle = this.wordColor;
-        ctx.fillText( word.text, word.x, word.y + 0.8 * word.height);
+        ctx.fillText( word.text, word.x, word.y + 0.8 * word.height );
 
-        if (backgroundAlpha > 0) {
-            ctx.fillStyle = app.Colors.rgb2rgba( this.wordHighlightColor, backgroundAlpha);
+        if (settings.backgroundAlpha > 0) {
+            ctx.fillStyle = app.Colors.rgb2rgba( this.wordHighlightColor, settings.backgroundAlpha);
             ctx.fillText( word.text, word.x, word.y + 0.8 * word.height);
         }
 
-        if (indexes) {
-            if (indexes.word === 0) {
+        if (settings.indexes) {
+            if (settings.indexes.word === 0) {
                 ctx.fillStyle = '#080';
                 ctx.textAlign = 'end';
-                ctx.fillText( '' + indexes.line, word.x - 20, word.y + 0.8 * word.height );
+                ctx.fillText( '' + settings.indexes.line, word.x - 20, word.y + 0.8 * word.height );
             }
 
             ctx.fillStyle = '#008';
             ctx.textAlign = 'center';
-            ctx.fillText( '' + indexes.word, word.x + word.width / 2, word.y );
+            ctx.fillText( '' + settings.indexes.word, word.x + word.width / 2, word.y );
         }
 
-        if (!hideBoundingBox) {
+        if (!settings.hideBoundingBox) {
             ctx.strokeRect( word.x, word.y, word.width, word.height);
         }
     };

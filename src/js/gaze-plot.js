@@ -119,11 +119,23 @@
     };
 
     GazePlot.prototype._remapAndShow = function() {
+        const sessionPage = this._data.session[ this._pageIndex ];
+        const hyphen = this._data.session.meta.interaction.syllabification.hyphen;
+
+        app.WordList.instance.fill(
+            sessionPage.records, {
+                hyphen: hyphen
+            }
+        );
 
         const data = {
-            fixations: this._data.session[ this._pageIndex ].fixations,
+            fixations: sessionPage.fixations,
             words: this._data.text[ this._pageIndex ],
         };
+
+        if (!data.fixations) {
+            return;
+        }
 
         let fixations;
         switch (this.mapping) {
@@ -137,18 +149,19 @@
         const ctx = this._getCanvas2D();
         this._setCanvasFont( ctx, this._data.session.meta.font );
 
-        this._drawWords( ctx, data.words, metricRange, this.showIDs, (this.showIDs && !this.showConnections) );
+        this._drawWords( ctx, data.words, {
+            metricRange: metricRange,
+            showIDs: this.showIDs,
+            hideBoundingBox: (this.showIDs && !this.showConnections)
+        });
+        if (sessionPage.syllabifications) {
+            this._drawSyllabifications( ctx, sessionPage.syllabifications, hyphen );
+        }
         if (this.showFixations && fixations) {
             this._drawFixations( ctx, fixations );
         }
 
         this._drawTitle( ctx, `${this._data.user} at ${this._data.sessionName}` );
-
-        app.WordList.instance.fill(
-            this._data.session[ this._pageIndex ].records, {
-                hyphen: this._data.session.meta.interaction.syllabification.hyphen
-            }
-        );
     };
 
     GazePlot.prototype._drawFixations = function (ctx, fixations) {

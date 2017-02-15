@@ -211,6 +211,11 @@
             words: words,
         };
 
+        if (!data.fixations) {
+            onCompleted();
+            return;
+        }
+
         const mappingResult = this._remapStatic( data );
 
         this.fixations = mappingResult.fixations;
