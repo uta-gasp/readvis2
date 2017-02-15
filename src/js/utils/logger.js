@@ -10,7 +10,7 @@
         }
 
         return missingService => {
-            console.error( 'Missing "${missingService}" service for "${moduleName}"' );
+            console.error( `Missing "${missingService}" service for "${moduleName}"` );
         };
     };
 

@@ -15,6 +15,7 @@
     //          displayTextSummary ()
     //          gazeReplay ()
     //          wordReplay ()
+    //          studentSummary ()
     //      }
     function Controls( options, services ) {
         this.root = document.querySelector( options.root );
@@ -26,6 +27,7 @@
         _services.displayTextSummary = _services.displayTextSummary || logError( 'displayTextSummary' );
         _services.wordReplay = _services.wordReplay || logError( 'wordReplay' );
         _services.gazeReplay = _services.gazeReplay || logError( 'gazeReplay' );
+        _services.studentSummary = _services.studentSummary || logError( 'studentSummary' );
 
         const gazePlot = this.root.querySelector( '.gaze-plot' );
         gazePlot.addEventListener('click', e => {
@@ -45,6 +47,11 @@
         const wordReplay = this.root.querySelector( '.word-replay' );
         wordReplay.addEventListener('click', e => {
             _services.wordReplay( true );
+        });
+
+        const studentSummary = this.root.querySelector( '.student-summary' );
+        studentSummary.addEventListener('click', e => {
+            _services.studentSummary( true );
         });
     }
 

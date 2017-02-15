@@ -8,7 +8,7 @@
 //
 // Interface to implement by its descendants:
 //        _load
-//        _fillCategories
+//        _fillCategories || _fillSessions
 
 (function( app ) { 'use strict';
 
@@ -53,19 +53,19 @@
         _view = document.querySelector( root );
         _wait = _view.querySelector( '.wait' );
         _canvas = _view.querySelector( 'canvas');
-        _sessionPrompt = _view.querySelector( '#session' );
+        _prompt = _view.querySelector( '.prompt' );
         _navigationBar = _view.querySelector( '.menu .navigation' );
         _propsBar = _view.querySelector( '.props' );
         _prev = _navigationBar.querySelector( '.prev' );
         _next = _navigationBar.querySelector( '.next' );
 
-        _sessionPrompt.classList.add( 'invisible' );
+        _prompt.classList.add( 'invisible' );
 
         Visualization.root = _view;
 
         _view.querySelector( '.close' ).addEventListener( 'click', clickClose );
         _view.querySelector( '.select' ).addEventListener( 'click', clickSelect );
-        _view.querySelector( '#categories' ).addEventListener( 'change', categoryChanged );
+        _prompt.querySelector( '.categories' ).addEventListener( 'change', categoryChanged );
 
         _prev.addEventListener( 'click', prevPage );
         _next.addEventListener( 'click', nextPage );
@@ -107,19 +107,27 @@
     Visualization.prototype._showDataSelectionDialog = function( multiple, users ) {
         _wait.classList.add( 'invisible' );
 
-        const categoriesList = _sessionPrompt.querySelector( '#categories' );
+        const categoriesList = _prompt.querySelector( '.categories' );
         categoriesList.innerHTML = '';
 
-        this._fillCategories( categoriesList, users );
-
-        const sessionsList = _sessionPrompt.querySelector( '#sessions' );
+        const sessionsList = _prompt.querySelector( '.sessions' );
+        sessionsList.innerHTML = '';
         sessionsList.multiple = !!multiple;
 
-        const event = new Event( 'change' );
-        categoriesList.dispatchEvent( event );
+        if (this._fillCategories) {
+            this._fillCategories( categoriesList, users );
 
-        _sessionPromtCallback = this._load.bind( this );
-        _sessionPrompt.classList.remove( 'invisible' );
+            const event = new Event( 'change' );
+            categoriesList.dispatchEvent( event );
+            categoriesList.classList.remove( 'invisible' );
+        }
+        else if (this._fillSessions) {
+            categoriesList.classList.add( 'invisible' );
+            this._fillSessions( sessionsList, users );
+        }
+
+        _promtCallback = this._load.bind( this );
+        _prompt.classList.remove( 'invisible' );
     };
 
     // returns map of textID = { title, session = [...] }
@@ -355,13 +363,13 @@
     let _view;
     let _wait;
     let _canvas;
-    let _sessionPrompt;
+    let _prompt;
     let _propsBar;
     let _navigationBar;
     let _prev;
     let _next;
 
-    let _sessionPromtCallback;
+    let _promtCallback;
     let _prevPageCallback;
     let _nextPageCallback;
     let _closeCallback;
@@ -407,30 +415,32 @@
     }
 
     function clickSelect() {
-        _sessionPrompt.classList.add( 'invisible' );
+        _prompt.classList.add( 'invisible' );
 
-        const categoriesList = _sessionPrompt.querySelector( '#categories' );
-        const sessionsList = _sessionPrompt.querySelector( '#sessions' );
+        const categoriesList = _prompt.querySelector( '.categories' );
+        const sessionsList = _prompt.querySelector( '.sessions' );
 
         if (sessionsList.multiple) {
             if (sessionsList.selectedOptions.length) {
-                const sessions = new Map();
+                const data = new Map();
                 for (let i = 0; i < sessionsList.selectedOptions.length; i++) {
                     const item = sessionsList.selectedOptions[i];
-                    sessions.set( item.value, item.data );
+                    data.set( item.value, item.data );
                 }
-                const textID = categoriesList.options[ categoriesList.selectedIndex ].value;
-                const textTitle = categoriesList.options[ categoriesList.selectedIndex ].textContent;
-                _sessionPromtCallback( removeWaitImage, textID, sessions, textTitle );
+                const id = categoriesList.selectedIndex < 0 ? null :
+                    categoriesList.options[ categoriesList.selectedIndex ].value;
+                const title = categoriesList.selectedIndex < 0 ? null :
+                    categoriesList.options[ categoriesList.selectedIndex ].textContent;
+                _promtCallback( removeWaitImage, id, data, title );
             }
             else {
                 clickClose();
             }
         }
         else {
-            const selectedUser = categoriesList.options[ categoriesList.selectedIndex ];
-            const selectedSession = sessionsList.options[ sessionsList.selectedIndex ];
-            _sessionPromtCallback( removeWaitImage, selectedSession.value, selectedSession.textContent, selectedSession.data, selectedUser.value );
+            const category = categoriesList.options[ categoriesList.selectedIndex ];
+            const session = sessionsList.options[ sessionsList.selectedIndex ];
+            _promtCallback( removeWaitImage, session.value, session.textContent, session.data, category.value );
         }
 
         _wait.classList.remove( 'invisible' );
@@ -440,7 +450,7 @@
         const category = e.target.options[ e.target.selectedIndex ];
 
         if (category && category.data) {
-            const sessionsList = _sessionPrompt.querySelector( '#sessions' );
+            const sessionsList = _prompt.querySelector( '.sessions' );
             sessionsList.innerHTML = '';
 
             const sessions = category.data;

@@ -192,7 +192,7 @@
         });
     };
 
-    TextSummary.prototype._prevPage = function () {
+    TextSummary.prototype._prevPage = function() {
         if (this._data && this._pageIndex > 0) {
             this._pageIndex--;
             this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );

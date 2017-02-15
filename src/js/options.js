@@ -101,7 +101,7 @@
 
         window.addEventListener( 'load', e => {
             loadSettings( cssRules );
-            this._style.innerHTML = cssRules.reduce( function (css, rule) {
+            this._style.innerHTML = cssRules.reduce( (css, rule) => {
                 return css + rule.selector + ' { ' + rule.name + ': ' + rule.initial + rule.suffix + ' !important; } ';
             }, '');
 

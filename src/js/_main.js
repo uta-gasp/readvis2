@@ -29,12 +29,16 @@ ReadVis2.init = function( components ) {
     const textSummary = new ReadVis2.TextSummary({
         root: components.visualization
     });
+    const gazeReplay = new ReadVis2.GazeReplay({
+        root: components.visualization
+    });
     const wordReplay = new ReadVis2.WordReplay({
         root: components.visualization,
         container: components.wordReplay
     });
-    const gazeReplay = new ReadVis2.GazeReplay({
-        root: components.visualization
+    const studentSummary = new ReadVis2.StudentSummary({
+        root: components.visualization,
+        container: components.studentSummary
     });
 
     const controls = new ReadVis2.Controls({
@@ -44,6 +48,7 @@ ReadVis2.init = function( components ) {
         displayTextSummary: textSummary.queryData.bind( textSummary ),
         gazeReplay: gazeReplay.queryData.bind( gazeReplay ),
         wordReplay: wordReplay.queryData.bind( wordReplay ),
+        studentSummary: studentSummary.queryData.bind( studentSummary ),
     });
 
     const options = new ReadVis2.Options({

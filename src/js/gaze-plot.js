@@ -261,7 +261,7 @@
     };
 
     /*
-    GazePlot.prototype._remapDynamic = function (session) {
+    GazePlot.prototype._remapDynamic = function( session ) {
         app.Logger.enabled = false;
 
         const fixations = app.Fixations;
@@ -278,7 +278,7 @@
             }
         });
 
-        const layout = session.words.map( function (word) {
+        const layout = session.words.map( function( word ) {
             return new Word({ left: word.x, top: word.y, right: word.x + word.width, bottom: word.y + word.height });
         });
 
@@ -286,7 +286,7 @@
         model.reset( layout );
 
         const result = [];
-        session.fixations.forEach( function (fix) {
+        session.fixations.forEach( function( fix ) {
             const fixation = fixations.add( fix.x, fix.y, fix.duration );
             if (fixation) {
                 model.feedFixation( fixation );

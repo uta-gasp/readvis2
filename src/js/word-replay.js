@@ -25,7 +25,7 @@
     WordReplay.prototype.base = app.Visualization.prototype;
     WordReplay.prototype.constructor = WordReplay;
 
-    WordReplay.prototype._fillCategories = function (list, users) {
+    WordReplay.prototype._fillCategories = function( list, users ) {
         const texts = this._getTexts( users );
         texts.forEach( (text, id) => {
             const option = this._addOption( list, id, text.title, text.sessions );
