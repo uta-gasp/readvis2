@@ -12,9 +12,9 @@
         this._container = document.querySelector( options.container );
         this._statistics = [
             'Sessions',
-            'Reading time',
-            'Reading speed',
-            'Avg fixation',
+            'Reading time, s',
+            'Time per word, ms',
+            'Avg fixation, ms',
         ];
 
         app.Visualization.call( this, options );
