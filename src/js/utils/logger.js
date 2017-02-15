@@ -1,4 +1,4 @@
-(function (app) {
+(function( app ) {
 
     const Logger = {
         enabled: true

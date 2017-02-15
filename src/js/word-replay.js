@@ -1,13 +1,13 @@
 // Requires:
 
-(function (app) { 'use strict';
+(function( app ) { 'use strict';
 
     // Real-time visualization constructor
     // Arguments:
     //      options: {
     //          container    - selecotr of the table
     //      }
-    function WordReplay (options) {
+    function WordReplay( options ) {
 
         this._container = document.querySelector( options.container );
 
@@ -35,7 +35,7 @@
         });
     };
 
-    WordReplay.prototype._load = function (cbLoaded, textID, sessions, textTitle) {
+    WordReplay.prototype._load = function( cbLoaded, textID, sessions, textTitle ) {
 
         const textPromise = this._loadText( textID, textTitle );
         const promises = [ textPromise ];
@@ -81,7 +81,7 @@
         });
     };
 
-    WordReplay.prototype._start = function () {
+    WordReplay.prototype._start = function() {
         if (!this._tracks.length) {
             return;
         }
@@ -93,13 +93,13 @@
         this._run( table );
     };
 
-    WordReplay.prototype._stopAll = function () {
+    WordReplay.prototype._stopAll = function() {
         if (this._tracks) {
             this._tracks.forEach( track => track.stop() );
         }
     }
 
-    WordReplay.prototype._createTable = function (words, tracks) {
+    WordReplay.prototype._createTable = function( words, tracks ) {
         const table = this._container.querySelector( 'table' );
         table.innerHTML = '';
 
@@ -164,7 +164,7 @@
         })
     };
 
-    WordReplay.prototype._prevPage = function () {
+    WordReplay.prototype._prevPage = function() {
         this._stopAll();
         if (this._data && this._pageIndex > 0) {
             this._pageIndex--;
@@ -173,7 +173,7 @@
         }
     };
 
-    WordReplay.prototype._nextPage = function () {
+    WordReplay.prototype._nextPage = function() {
         this._stopAll();
         if (this._data && this._pageIndex < this._data.text.length - 1) {
             this._pageIndex++;
@@ -184,7 +184,7 @@
 
     }); // end of delayed call
 
-    function Track (root, session, id) {
+    function Track( root, session, id ) {
         this.root = root;
         this.name = session.meta.user;
         this.id = id;
@@ -202,7 +202,7 @@
         this.__next = this._next.bind( this );
     }
 
-    Track.prototype.start = function (pageIndex, words, onWordFixated, onCompleted) {
+    Track.prototype.start = function( pageIndex, words, onWordFixated, onCompleted ) {
         this.onWordFixated = onWordFixated;
         this.onCompleted = onCompleted;
 
@@ -235,7 +235,7 @@
         this.nextTimer = setTimeout( this.__next, 1500);
     };
 
-    Track.prototype.stop = function () {
+    Track.prototype.stop = function() {
         if (this.nextTimer) {
             clearTimeout( this.nextTimer );
             this.nextTimer = null;
@@ -252,7 +252,7 @@
         }
     };
 
-    Track.prototype._next = function () {
+    Track.prototype._next = function() {
         let fixation = this.fixations[ this.fixationIndex ];
 
         this._moveFixation( fixation.word, fixation.duration );
@@ -270,7 +270,7 @@
         }
     };
 
-    Track.prototype._moveFixation = function (word, duration) {
+    Track.prototype._moveFixation = function( word, duration ) {
         if (this.fixationTimer) {
             clearTimeout( this.fixationTimer );
             this.fixationTimer = null;
@@ -293,7 +293,7 @@
         }
     };
 
-    Track.prototype._remapStatic = function (session) {
+    Track.prototype._remapStatic = function( session ) {
         let settings;
 
         settings = new SGWM.FixationProcessorSettings();
@@ -335,8 +335,6 @@
 
         return result;
     };
-
-    let _wordReplay;
 
     app.WordReplay = WordReplay;
 

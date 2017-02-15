@@ -4,7 +4,7 @@
 var ReadVis2 = ReadVis2 || {};
 
 // "components" contains selectors for each component
-ReadVis2.init = function (components) {
+ReadVis2.init = function( components ) {
 
     ReadVis2.loadingCallbacks.forEach( callback => { callback(); } );
 
@@ -51,49 +51,45 @@ ReadVis2.init = function (components) {
         text: components.textContainer + ' ' + components.text
     }, {    // services
         gazePlot: {
-            mapping: function (value) { return value === undefined ?
+            mapping: value => { return value === undefined ?
                 gazePlot.mapping :
                 (gazePlot.mapping = value);
             },
-            colorMetric: function (value) { return value === undefined ?
+            colorMetric: value => { return value === undefined ?
                 gazePlot.colorMetric :
                 (gazePlot.colorMetric = value);
             },
-            showIDs: function (value) { return value === undefined ?
+            showIDs: value => { return value === undefined ?
                 gazePlot.showIDs :
                 (gazePlot.showIDs = value);
             },
-            showConnections: function (value) { return value === undefined ?
+            showConnections: value => { return value === undefined ?
                 gazePlot.showConnections :
                 (gazePlot.showConnections = value);
             },
-            showSaccades: function (value) { return value === undefined ?
+            showSaccades: value => { return value === undefined ?
                 gazePlot.showSaccades :
                 (gazePlot.showSaccades = value);
             },
-            showFixations: function (value) { return value === undefined ?
+            showFixations: value => { return value === undefined ?
                 gazePlot.showFixations :
                 (gazePlot.showFixations = value);
             },
-            showOriginalFixLocation: function (value) { return value === undefined ?
+            showOriginalFixLocation: value => { return value === undefined ?
                 gazePlot.showOriginalFixLocation :
                 (gazePlot.showOriginalFixLocation = value);
             }
         },
         textSummary: {
-            colorMetric: function (value) { return value === undefined ?
+            colorMetric: value => { return value === undefined ?
                 textSummary.colorMetric :
                 (textSummary.colorMetric = value);
             },
-            showFixations: function (value) { return value === undefined ?
+            showFixations: value => { return value === undefined ?
                 textSummary.showFixations :
                 (textSummary.showFixations = value);
             },
-            uniteSpacings: function (value) { return value === undefined ?
-                textSummary.uniteSpacings :
-                (textSummary.uniteSpacings = value);
-            },
-            showRegressions: function (value) { return value === undefined ?
+            showRegressions: value => { return value === undefined ?
                 textSummary.showRegressions :
                 (textSummary.showRegressions = value);
             }
@@ -102,7 +98,7 @@ ReadVis2.init = function (components) {
     });
 };
 
-ReadVis2.loaded = function (callback) {
+ReadVis2.loaded = function( callback ) {
     ReadVis2.loadingCallbacks.push( callback );
 };
 

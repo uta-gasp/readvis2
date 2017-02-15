@@ -1,7 +1,7 @@
 // Requires:
 //      app.Metric
 
-(function (app) { 'use strict';
+(function( app ) { 'use strict';
 
     // Real-time visualization constructor
     // Arguments:
@@ -12,7 +12,7 @@
     //          nameFont,
     //          basePointerSize (Number) - minimum pointer size
     //      }
-    function GazeReplay (options) {
+    function GazeReplay( options ) {
 
         this.nameFontFamily = options.nameFontFamily || 'Calibri, Arial, sans-serif';
         this.nameFontSize = options.nameFontSize || 20;
@@ -36,7 +36,7 @@
     GazeReplay.prototype.base = app.Visualization.prototype;
     GazeReplay.prototype.constructor = GazeReplay;
 
-    GazeReplay.prototype._fillCategories = function (list, users) {
+    GazeReplay.prototype._fillCategories = function( list, users ) {
         const texts = this._getTexts( users );
         texts.forEach( (text, id) => {
             const option = this._addOption( list, id, text.title, text.sessions );
@@ -46,7 +46,7 @@
         });
     };
 
-    GazeReplay.prototype._load = function (cbLoaded, textID, sessions, textTitle) {
+    GazeReplay.prototype._load = function( cbLoaded, textID, sessions, textTitle ) {
 
         const textPromise = this._loadText( textID, textTitle );
         const promises = [ textPromise ];
@@ -88,7 +88,7 @@
         });
     };
 
-    GazeReplay.prototype._start = function () {
+    GazeReplay.prototype._start = function() {
         if (!this._tracks.length) {
             return;
         }
@@ -99,13 +99,18 @@
         const words = this._data.text[ this._pageIndex ];
 
         this._setCanvasFont( ctx, this._data.sessions[0].meta.font );
-        this._drawWords( ctx, words, null, false, true );
+        this._drawWords( ctx, words, {
+            metricRange: null,
+            showIDs: false,
+            hideBoundingBox: true
+        });
+
         this._drawNames( ctx );
 
         this._run( ctx );
     };
 
-    GazeReplay.prototype._stopAll = function () {
+    GazeReplay.prototype._stopAll = function() {
         if (this._tracks) {
             this._tracks.forEach( track => track.stop() );
         }
@@ -135,7 +140,7 @@
         })
     };
 
-    GazeReplay.prototype._prevPage = function () {
+    GazeReplay.prototype._prevPage = function() {
         this._stopAll();
         if (this._data && this._pageIndex > 0) {
             this._pageIndex--;
@@ -144,7 +149,7 @@
         }
     };
 
-    GazeReplay.prototype._nextPage = function () {
+    GazeReplay.prototype._nextPage = function() {
         this._stopAll();
         if (this._data && this._pageIndex < this._data.text.length - 1) {
             this._pageIndex++;
@@ -170,7 +175,7 @@
 
     }); // end of delayed call
 
-    function Track (root, session) {
+    function Track( root, session ) {
         this.root = root;
         this.name = session.meta.user;
         this.session = session;
@@ -258,7 +263,7 @@
         // '#333333',
     ];
 
-    Track.prototype.start = function (pageIndex, onFixation, onCompleted) {
+    Track.prototype.start = function( pageIndex, onFixation, onCompleted ) {
         this.onFixation = onFixation;
         this.onCompleted = onCompleted;
 
@@ -278,7 +283,7 @@
         this.nextTimer = setTimeout( this.__next, 1500);
     }
 
-    Track.prototype.stop = function () {
+    Track.prototype.stop = function() {
         if (this.nextTimer) {
             clearTimeout( this.nextTimer );
             this.nextTimer = null;
@@ -295,7 +300,7 @@
         }
     }
 
-    Track.prototype._next = function () {
+    Track.prototype._next = function() {
         let fixation = this.fixations[ this.fixationIndex ];
 
         this._moveFixation( fixation );
@@ -313,7 +318,7 @@
         }
     }
 
-    Track.prototype._moveFixation = function (fixation) {
+    Track.prototype._moveFixation = function( fixation ) {
         if (this.fixationTimer) {
             clearTimeout( this.fixationTimer );
             this.fixationTimer = null;

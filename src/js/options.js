@@ -1,7 +1,7 @@
 // Requires:
 //      utils/logger
 
-(function (app) { 'use strict';
+(function( app ) { 'use strict';
 
     // Controller for the text options side-slider
     // Constructor arguments:
@@ -22,13 +22,12 @@
     //          textSummary {
     //              colorMetric (index)
     //              showFixations (bool)
-    //              uniteSpacings (bool)
     //              showRegressions (bool)
     //          }
     //      }
     //      utils: {
     //      }
-    function Options (options, values, utils) {
+    function Options( options, values, utils ) {
 
         const root = options.root || '#options';
 
@@ -36,7 +35,7 @@
 
         const logError = app.Logger.moduleErrorPrinter( 'Options' );
 
-        _values = values;
+        _values = values || {};
 
         _values.gazePlot = _values.gazePlot || {};
         _values.gazePlot.colorMetric = _values.gazePlot.colorMetric || logError( 'gazePlot.colorMetric"' );
@@ -49,7 +48,6 @@
         _values.textSummary = _values.textSummary || {};
         _values.textSummary.colorMetric = _values.textSummary.colorMetric || logError( 'textSummary.colorMetric' );
         _values.textSummary.showFixations = _values.textSummary.showFixations || logError( 'textSummary.showFixations' );
-        _values.textSummary.uniteSpacings = _values.textSummary.uniteSpacings || logError( 'textSummary.uniteSpacings' );
         _values.textSummary.showRegressions = _values.textSummary.showRegressions || logError( 'textSummary.showRegressions' );
 
         _utils = utils;
@@ -76,7 +74,7 @@
         document.body.appendChild( this._style );
 
         const save = this._slideout.querySelector( '.save' );
-        save.addEventListener( 'click', () => {
+        save.addEventListener( 'click', e => {
             getRulesFromEditors( this._style, cssRules );
             this._slideout.classList.remove( 'expanded' );
 
@@ -84,24 +82,24 @@
         });
 
         const close = this._slideout.querySelector( '.close' );
-        close.addEventListener( 'click', () => {
+        close.addEventListener( 'click', e => {
             getRulesFromEditors( this._style, cssRules );
             this._slideout.classList.remove( 'expanded' );
         });
 
         const reset = this._slideout.querySelector( '.reset' );
-        reset.addEventListener( 'click', () => {
+        reset.addEventListener( 'click', e => {
             localStorage.removeItem( 'options' );
             location.reload();
         });
 
         const slideoutTitle = this._slideout.querySelector( '.title');
-        slideoutTitle.addEventListener( 'click', () => {
+        slideoutTitle.addEventListener( 'click', e => {
             this._slideout.classList.toggle( 'expanded' );
             setRulesToEditors( cssRules );
         });
 
-        window.addEventListener( 'load', () => {
+        window.addEventListener( 'load', e => {
             loadSettings( cssRules );
             this._style.innerHTML = cssRules.reduce( function (css, rule) {
                 return css + rule.selector + ' { ' + rule.name + ': ' + rule.initial + rule.suffix + ' !important; } ';
@@ -125,35 +123,34 @@
             return;
         }
 
-        const values = _values;
-
-        const pop = function (storage, srv) {
+        const pop = (storage, values) => {
             for (let name in storage) {
                 if (name === 'css') {
                     continue;
                 }
                 else if (Array.isArray( storage[ name ] )) {
-                    srv[ name ]( storage[ name ] );
+                    values[ name ]( storage[ name ] );
                 }
                 else if (typeof storage[ name ] === 'object') {
-                    pop( storage[ name ], srv[ name ] );
+                    pop( storage[ name ], values[ name ] );
                 }
-                else if (srv[ name ]) {
-                    srv[ name ]( storage[ name ] );
+                else if (values[ name ]) {
+                    values[ name ]( storage[ name ] );
                 }
             }
         };
 
-        pop( options, values );
+        pop( options, _values );
 
         if (options.css) {
-            const ruleInitilization = (rule) => {
+            let parts;
+            const ruleInitilization = rule => {
                 if (rule.selector === parts[0] && rule.name === parts[1]) {
                     rule.initial = options.css[ savedRule ];
                 }
             };
             for (let savedRule in options.css) {
-                const parts = savedRule.split( '____' );
+                parts = savedRule.split( '____' );
                 cssRules.forEach( ruleInitilization );
             }
         }
@@ -161,24 +158,23 @@
 
     function saveSettings( cssRules ) {
         const options = {};
-        const values = _values;
 
-        const push = function (storage, srv) {
-            for (let name in srv) {
-                if (typeof srv[ name ] === 'function') {
-                    storage[ name ] = srv[ name ]();
+        const push = (storage, values) => {
+            for (let name in values) {
+                if (typeof values[ name ] === 'function') {
+                    storage[ name ] = values[ name ]();
                 }
-                else if (typeof srv[ name ] === 'object') {
+                else if (typeof values[ name ] === 'object') {
                     storage[ name ] = { };
-                    push( storage[ name ], srv[ name ] );
+                    push( storage[ name ], values[ name ] );
                 }
             }
         };
 
-        push( options, values );
+        push( options, _values );
 
         options.css = {};
-        cssRules.forEach( function (rule) {
+        cssRules.forEach( rule => {
             options.css[ rule.selector + '____' + rule.name ] = rule.value;
         });
 
@@ -290,24 +286,24 @@
         const bindCheckbox = (id, service) => {
             const flag = root.querySelector( '#' + id );
             flag.checked = service();
-            flag.addEventListener( 'click', function (e) {
-                service( this.checked );
+            flag.addEventListener( 'click', e => {
+                service( e.target.checked );
             });
         };
 
         const bindSelect = (id, service) => {
             const select = root.querySelector( '#' + id );
             select.selectedIndex = service();
-            select.addEventListener( 'change', function (e) {
-                service( this.selectedIndex );
+            select.addEventListener( 'change', e => {
+                service( e.target.selectedIndex );
             });
         };
 
         const bindValue = (id, service) => {
             const text = root.querySelector( '#' + id );
             text.value = service();
-            text.addEventListener( 'change', function (e) {
-                service( this.value );
+            text.addEventListener( 'change', e => {
+                service( e.target.value );
             });
         };
 
@@ -315,8 +311,8 @@
             const radioButtons = Array.from( root.querySelectorAll( `input[name=${name}]` ) );
             radioButtons.forEach( (radio, index) => {
                 radio.checked = service() === index;
-                radio.addEventListener( 'change', function (e) {
-                    service( this.value );
+                radio.addEventListener( 'change', e => {
+                    service( e.target.value );
                 });
             });
         };
@@ -332,7 +328,6 @@
 
         bindSelect( 'gaze-plots_color-metric', _values.textSummary.colorMetric );
         bindCheckbox( 'gaze-plots_show-fixations', _values.textSummary.showFixations );
-        bindCheckbox( 'gaze-plots_unite-spacings', _values.textSummary.uniteSpacings );
         bindCheckbox( 'gaze-plots_show-regressions', _values.textSummary.showRegressions );
     }
 

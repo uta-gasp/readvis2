@@ -10,7 +10,7 @@
 //        _load
 //        _fillCategories
 
-(function (app) { 'use strict';
+(function( app ) { 'use strict';
 
     // Visualization constructor
     // Arguments:
@@ -28,7 +28,7 @@
     //          mapping             - mapping type
     //      }
     function Visualization( options ) {
-        this.wordColor = options.wordColor || '#222';
+        this.wordColor = options.wordColor || '#666';
         this.wordHighlightColor = options.wordHighlightColor || '#606';
         this.wordStrokeColor = options.wordStrokeColor || '#888';
         this.infoColor = options.infoColor || '#444';
@@ -96,7 +96,7 @@
                 this._showDataSelectionDialog( multiple, users );
             }
 
-        }, function (err) {
+        }, err => {
             _waiting = false;
             window.alert( err );
         });
@@ -233,12 +233,13 @@
         return ctx;
     };
 
-    Visualization.prototype._setCanvasFont = function ( ctx, font ) {
+    Visualization.prototype._setCanvasFont = function( ctx, font ) {
         ctx.font = `${font.style} ${font.weight} ${font.size} ${font.family}`;
     }
 
     Visualization.prototype._drawTitle = function( ctx, title ) {
         ctx.textAlign = 'center';
+        ctx.textBaseline = 'alphabetic';
         ctx.fillStyle = this.infoColor;
         ctx.font = this.infoFont;
 
@@ -272,9 +273,9 @@
     };
 
     Visualization.prototype._drawWord = function( ctx, word, settings ) {
-        if (settings.backgroundAlpha > 0) {
-            //settings.backgroundAlpha = Math.sin( settings.backgroundAlpha * Math.PI / 2);
-            // ctx.fillStyle = app.Colors.rgb2rgba( this.wordHighlightColor, settings.backgroundAlpha);
+        if (settings.alpha > 0) {
+            //settings.alpha = Math.sin( settings.alpha * Math.PI / 2);
+            // ctx.fillStyle = app.Colors.rgb2rgba( this.wordHighlightColor, settings.alpha);
             // ctx.fillRect( Math.round( word.x ), Math.round( word.y ), Math.round( word.width ), Math.round( word.height ) );
         }
 
@@ -283,8 +284,8 @@
         ctx.fillStyle = this.wordColor;
         ctx.fillText( word.text, word.x, word.y + 0.8 * word.height );
 
-        if (settings.backgroundAlpha > 0) {
-            ctx.fillStyle = app.Colors.rgb2rgba( this.wordHighlightColor, settings.backgroundAlpha);
+        if (settings.alpha > 0) {
+            ctx.fillStyle = app.Colors.rgb2rgba( this.wordHighlightColor, settings.alpha);
             ctx.fillText( word.text, word.x, word.y + 0.8 * word.height);
         }
 
@@ -364,7 +365,7 @@
         let currentLineIndex = -1;
 
         return {
-            feed: function (x, y) {
+            feed: (x, y) => {
                 if (y > lastY) {
                     currentLineIndex++;
                     currentWordIndex = 0;

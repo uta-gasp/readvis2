@@ -1,4 +1,4 @@
-(function (app) { 'use strict';
+(function( app ) { 'use strict';
 
     const _hyphen = String.fromCharCode( 0x00B7 );//DOTS: 00B7 2010 2022 2043 LINES: 2758 22EE 205E 237F
 

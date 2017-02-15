@@ -3,7 +3,7 @@
 //      app.Metric
 //      app.Visualization
 
-(function (app) { 'use strict';
+(function( app ) { 'use strict';
 
     // Text gazing display routine
     // Constructor arguments:
@@ -12,7 +12,7 @@
     //          showFixations       - fixation display flag
     //          showRegressions     - regression display flag
     //      }
-    function TextSummary (options) {
+    function TextSummary( options ) {
 
         this.fixationColor = options.fixationColor || '#000';
 
@@ -30,7 +30,7 @@
     TextSummary.prototype.base = app.Visualization.prototype;
     TextSummary.prototype.constructor = TextSummary;
 
-    TextSummary.prototype._fillCategories = function (list, users) {
+    TextSummary.prototype._fillCategories = function( list, users ) {
         const texts = this._getTexts( users );
         texts.forEach( (text, id) => {
             const option = this._addOption( list, id, text.title, text.sessions );
@@ -84,7 +84,11 @@
         const metricRange = app.Metric.compute( words, this.colorMetric );
 
         this._setCanvasFont( ctx, this._data.sessions[0].meta.font );
-        this._drawWords( ctx, words, metricRange, false, false );
+        this._drawWords( ctx, words, {
+            metricRange: metricRange,
+            showIDs: false,
+            hideBoundingBox: true
+        });
 
         this._data.sessions.forEach( session => {
             const sessionPage = session[ this._pageIndex ];
@@ -116,7 +120,7 @@
         this._drawTitle( ctx, `"${this._data.text.title}" for ${this._data.sessions.length} sessions` );
     };
 
-    TextSummary.prototype._remapStatic = function (session, words) {
+    TextSummary.prototype._remapStatic = function( session, words ) {
         let settings;
 
         settings = new SGWM.FixationProcessorSettings();
@@ -160,10 +164,10 @@
     };
 
     // Overriden from Visualization._drawWord
-    TextSummary.prototype._drawWord = function (ctx, word, backgroundAlpha, indexes) {
-        this.base._drawWord.call( this, ctx, word, backgroundAlpha, indexes );
+    TextSummary.prototype._drawWord = function( ctx, word, settings ) {
+        this.base._drawWord.call( this, ctx, word, settings );
 
-        if (!indexes) {
+        if (!settings.indexes) {
             if (this.showRegressions && word.regressionCount) {
                 ctx.lineWidth = word.regressionCount + 1;
                 ctx.strokeRect( word.x, word.y, word.width, word.height);
@@ -172,7 +176,7 @@
         }
     };
 
-    TextSummary.prototype._drawFixations = function (ctx, fixations) {
+    TextSummary.prototype._drawFixations = function( ctx, fixations ) {
         ctx.fillStyle = this.fixationColor;
 
         fixations.forEach( fixation => {
@@ -194,7 +198,7 @@
         }
     };
 
-    TextSummary.prototype._nextPage = function () {
+    TextSummary.prototype._nextPage = function() {
         if (this._data && this._pageIndex < this._data.text.length - 1) {
             this._pageIndex++;
             this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );

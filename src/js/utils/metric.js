@@ -1,7 +1,7 @@
 // Requires:
 //      app.Syllabifier
 
-(function (app) { 'use strict';
+(function( app ) { 'use strict';
 
     const Metric = { };
 

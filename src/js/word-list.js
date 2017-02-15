@@ -1,21 +1,21 @@
-(function (app) { 'use strict';
+(function( app ) { 'use strict';
 
 	// Word statistic list
     // Arguments:
     //      options: {
     //          container   - container selector
-    function WordList (options) {
+    function WordList( options ) {
         this._container = document.querySelector( options.container );
         this._words = new Map();
 
         const close = app.Visualization.root.querySelector( '.close' );
-        close.addEventListener( 'click', () => {
+        close.addEventListener( 'click', e => {
             this._container.classList.add( 'invisible' );
         });
 
         const drowpdown = this._container.querySelector( '.button' );
         const table = this._container.querySelector( '.table' );
-        drowpdown.addEventListener( 'click', () => {
+        drowpdown.addEventListener( 'click', e => {
             drowpdown.classList.toggle( 'dropped' );
             table.classList.toggle( 'invisible' );
         });

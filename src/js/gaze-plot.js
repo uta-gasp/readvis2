@@ -3,7 +3,7 @@
 //      app.Metric
 //      app.Visualization
 
-(function (app) { 'use strict';
+(function( app ) { 'use strict';
 
     // Gaze plot visualization constructor
     // Arguments:
@@ -22,7 +22,7 @@
     //          greyFixationSize    - size of grey fixations
     //          numberFont          - fixation number font
     //      }
-    function GazePlot (options) {
+    function GazePlot( options ) {
 
         this.fixationColor = options.fixationColor || '#000';
         this.saccadeColor = options.saccadeColor || '#08F';
@@ -154,6 +154,7 @@
             showIDs: this.showIDs,
             hideBoundingBox: (this.showIDs && !this.showConnections)
         });
+
         if (sessionPage.syllabifications) {
             this._drawSyllabifications( ctx, sessionPage.syllabifications, hyphen );
         }
@@ -164,7 +165,7 @@
         this._drawTitle( ctx, `${this._data.user} at ${this._data.sessionName}` );
     };
 
-    GazePlot.prototype._drawFixations = function (ctx, fixations) {
+    GazePlot.prototype._drawFixations = function( ctx, fixations ) {
         ctx.fillStyle = this.fixationColor;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -196,7 +197,7 @@
         }
     };
 
-    GazePlot.prototype._drawGreyFixation = function (ctx, fixation, id) {
+    GazePlot.prototype._drawGreyFixation = function( ctx, fixation, id ) {
         ctx.fillStyle = this.greyFixationColor;
         ctx.beginPath();
         ctx.arc( fixation._x ? fixation._x : fixation.x, fixation.y, this.greyFixationSize, 0, 2*Math.PI);
@@ -206,7 +207,7 @@
         ctx.fillText( '' + id, fixation._x ? fixation._x : fixation.x, fixation.y );
     }
 
-    GazePlot.prototype._drawFixation = function (ctx, fixation, id) {
+    GazePlot.prototype._drawFixation = function( ctx, fixation, id ) {
         let circleSize;
 
         if (this.showIDs) {
@@ -244,14 +245,14 @@
         }
     };
 
-    GazePlot.prototype._drawSaccade = function (ctx, from, to) {
+    GazePlot.prototype._drawSaccade = function( ctx, from, to ) {
         ctx.beginPath();
         ctx.moveTo( this.showIDs ? (from._x ? from._x : from.x) : from.x, from.y );
         ctx.lineTo( this.showIDs ? (to._x ? to._x : to.x) : to.x, to.y );
         ctx.stroke();
     };
 
-    GazePlot.prototype._drawConnection = function (ctx, from, to) {
+    GazePlot.prototype._drawConnection = function( ctx, from, to ) {
         ctx.beginPath();
         ctx.moveTo( this.showIDs ? (from._x ? from._x : from.x) : from.x, from.y );
         ctx.lineTo( to.x, to.y );
@@ -295,7 +296,7 @@
         return result;
     };*/
 
-    GazePlot.prototype._remapStatic = function (session) {
+    GazePlot.prototype._remapStatic = function( session ) {
         let settings;
 
         settings = new SGWM.FixationProcessorSettings();
@@ -338,7 +339,7 @@
         return result.fixations;
     };
 
-    GazePlot.prototype._prevPage = function () {
+    GazePlot.prototype._prevPage = function() {
         if (this._data && this._pageIndex > 0) {
             this._pageIndex--;
             this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );
@@ -346,7 +347,7 @@
         }
     };
 
-    GazePlot.prototype._nextPage = function () {
+    GazePlot.prototype._nextPage = function() {
         if (this._data && this._pageIndex < this._data.text.length - 1) {
             this._pageIndex++;
             this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );
@@ -357,14 +358,14 @@
     }); // end of delayed call
 
     /*
-    function Word (rect) {
+    function Word( rect ) {
         this.left = rect.left;
         this.top = rect.top;
         this.right = rect.right;
         this.bottom = rect.bottom;
     }
 
-    Word.prototype.getBoundingClientRect = function () {
+    Word.prototype.getBoundingClientRect = function() {
         return this;
     };*/
 
