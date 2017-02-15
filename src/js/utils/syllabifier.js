@@ -100,6 +100,19 @@
             const h = hyphen || _hyphen;
             const cleanWord = Syllabifier.clean( word, h );
             return Syllabifier.syllables( cleanWord ).join( h );
+        },
+
+        getPrefixAndSuffix: function( word, hyphen ) {
+            const chars = Array.from( word );
+            const prefix = [];
+            const postfix = [];
+
+            let i = 0;
+            while (i < chars.length && chars[i++] === hyphen) { prefix.push( hyphen ); }
+            i = chars.length - 1;
+            while (i >= 0 && chars[i--] === hyphen) { postfix.push( hyphen ); }
+
+            return [ prefix.join(''), postfix.join('') ];
         }
     };
 

@@ -80,14 +80,16 @@
         app.WordList.instance.clear();
 
         const ctx = this._getCanvas2D();
+        const meta = this._data.sessions[0].meta;
         const words = this._data.text[ this._pageIndex ];
         const metricRange = app.Metric.compute( words, this.colorMetric );
 
-        this._setCanvasFont( ctx, this._data.sessions[0].meta.font );
+        this._setCanvasFont( ctx, meta.font );
         this._drawWords( ctx, words, {
             metricRange: metricRange,
             showIDs: false,
-            hideBoundingBox: true
+            hideBoundingBox: true,
+            hyphen: meta.interaction.syllabification.hyphen
         });
 
         this._data.sessions.forEach( session => {

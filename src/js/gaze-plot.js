@@ -152,7 +152,8 @@
         this._drawWords( ctx, data.words, {
             metricRange: metricRange,
             showIDs: this.showIDs,
-            hideBoundingBox: (this.showIDs && !this.showConnections)
+            hideBoundingBox: (this.showIDs && !this.showConnections),
+            hyphen: hyphen
         });
 
         if (sessionPage.syllabifications) {

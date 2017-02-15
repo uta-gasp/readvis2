@@ -17,10 +17,10 @@
         this.nameFontFamily = options.nameFontFamily || 'Calibri, Arial, sans-serif';
         this.nameFontSize = options.nameFontSize || 20;
         this.nameFont = options.nameFontFamily || `bold ${this.nameFontSize}px ${this.nameFontFamily}`;
+        this.nameSpacing = 1.5;
 
         Track.basePointerSize = options.basePointerSize || Track.basePointerSize;
 
-        options.wordColor = options.wordColor || '#222';
         options.colorMetric = app.Metric.Type.NONE;
 
         app.Visualization.call( this, options );
@@ -96,13 +96,15 @@
         const ctx = this._getCanvas2D();
         this._drawTitle( ctx, `"${this._data.text.title}" for ${this._data.sessions.length} sessions` );
 
+        const meta = this._data.sessions[0].meta;
         const words = this._data.text[ this._pageIndex ];
 
-        this._setCanvasFont( ctx, this._data.sessions[0].meta.font );
+        this._setCanvasFont( ctx, meta.font );
         this._drawWords( ctx, words, {
             metricRange: null,
             showIDs: false,
-            hideBoundingBox: true
+            hideBoundingBox: true,
+            hyphen: meta.interaction.syllabification.hyphen
         });
 
         this._drawNames( ctx );
@@ -133,7 +135,7 @@
                     ctx.fillText(
                         String.fromCharCode( 0x2713 ),
                         this._tracksLegendLocation.x - this.nameFontSize,
-                        this._tracksLegendLocation.y + (1.8 * this.nameFontSize) * ti
+                        this._tracksLegendLocation.y + (this.nameSpacing * this.nameFontSize) * ti
                     );
                 }
             );
@@ -168,7 +170,7 @@
             ctx.fillText(
                 track.name,
                 this._tracksLegendLocation.x,
-                this._tracksLegendLocation.y + (1.8 * this.nameFontSize) * ti
+                this._tracksLegendLocation.y + (this.nameSpacing * this.nameFontSize) * ti
             );
         });
     };
@@ -179,89 +181,24 @@
         this.root = root;
         this.name = session.meta.user;
         this.session = session;
-        this.color = Track.colors[ Track.colorIndex++ % Track.colors.length ];
+        this.color = app.Colors.colors[ Track.colorIndex++ % app.Colors.colors.length ];
 
         this.pointerSize = 8;
-        this.fixationTimer = null;
+        this.fixationEndTimer = null;
+        this.fixationGrowTimer = null;
         this.nextTimer = null;
 
         this.fixations = null;
-
+        this.currentFixation = null;
+        this.currentDuration = 0;
         this.fixationIndex = -1;
 
         this.__next = this._next.bind( this );
     }
 
     Track.basePointerSize = 6;
-
+    Track.fixationGrowInterval = 100;
     Track.colorIndex = 0;
-
-    Track.colors = [
-        '#4D4D4D',
-        '#5DA5DA',
-        '#FAA43A',
-        '#60BD68',
-        '#F17CB0',
-        '#B2912F',
-        '#B276B2',
-        '#DECF3F',
-        '#F15854',
-
-        // '#FF0000',
-        // '#00FF00',
-        // '#0000FF',
-        // '#FFFF00',
-        // '#FF00FF',
-        // '#00FFFF',
-        // '#800000',
-        // '#008000',
-        // '#000080',
-        // '#808000',
-        // '#800080',
-        // '#008080',
-        // '#C0C0C0',
-        // '#808080',
-        // '#9999FF',
-        // '#993366',
-        // '#FFFFCC',
-        // '#CCFFFF',
-        // '#660066',
-        // '#FF8080',
-        // '#0066CC',
-        // '#CCCCFF',
-        // '#000080',
-        // '#FF00FF',
-        // '#FFFF00',
-        // '#00FFFF',
-        // '#800080',
-        // '#800000',
-        // '#008080',
-        // '#0000FF',
-        // '#00CCFF',
-        // '#CCFFFF',
-        // '#CCFFCC',
-        // '#FFFF99',
-        // '#99CCFF',
-        // '#FF99CC',
-        // '#CC99FF',
-        // '#FFCC99',
-        // '#3366FF',
-        // '#33CCCC',
-        // '#99CC00',
-        // '#FFCC00',
-        // '#FF9900',
-        // '#FF6600',
-        // '#666699',
-        // '#969696',
-        // '#003366',
-        // '#339966',
-        // '#003300',
-        // '#333300',
-        // '#993300',
-        // '#993366',
-        // '#333399',
-        // '#333333',
-    ];
 
     Track.prototype.start = function( pageIndex, onFixation, onCompleted ) {
         this.onFixation = onFixation;
@@ -284,14 +221,11 @@
     }
 
     Track.prototype.stop = function() {
+        this._stopFixationTimers();
+
         if (this.nextTimer) {
             clearTimeout( this.nextTimer );
             this.nextTimer = null;
-        }
-
-        if (this.fixationTimer) {
-            clearTimeout( this.fixationTimer );
-            this.fixationTimer = null;
         }
 
         if (this.pointer) {
@@ -299,6 +233,20 @@
             this.pointer = null;
         }
     }
+
+    // private
+
+    Track.prototype._stopFixationTimers = function() {
+        if (this.fixationEndTimer) {
+            clearTimeout( this.fixationEndTimer );
+            this.fixationEndTimer = null;
+        }
+
+        if (this.fixationGrowTimer) {
+            clearInterval( this.fixationGrowTimer );
+            this.fixationGrowTimer = null;
+        }
+    };
 
     Track.prototype._next = function() {
         let fixation = this.fixations[ this.fixationIndex ];
@@ -319,36 +267,51 @@
     }
 
     Track.prototype._moveFixation = function( fixation ) {
-        if (this.fixationTimer) {
-            clearTimeout( this.fixationTimer );
-            this.fixationTimer = null;
-        }
+        this._stopFixationTimers();
 
         if (fixation) {
             this.onFixation( fixation, this.pointer );
 
             if (fixation.x > 0 && fixation.y > 0) {
-                const size = Track.basePointerSize + Math.sqrt( fixation.duration / 30 );
-                this.pointer.style = `left: ${fixation.x - size / 2}px;
-                                      top: ${fixation.y - size / 2}px;
-                                      width: ${size}px;
-                                      height: ${size}px;
-                                      border-radius: ${size / 2}px;
-                                      background-color: ${this.color};`;
+                // const size = Track.basePointerSize + Math.sqrt( fixation.duration / 30 );
+                this.currentDuration = 100;
+                this._updatePointer();
                 this.pointer.classList.remove( 'invisible' );
             }
 
-            this.fixationTimer = setTimeout( () => {
-                this.fixationTimer = null;
+            this.fixationEndTimer = setTimeout( () => {
+                this._stopFixationTimers();
                 if (this.pointer) {
                     this.pointer.classList.add( 'invisible' );
                 }
-            }, fixation.duration);
+            }, fixation.duration );
+
+            this.fixationGrowTimer = setInterval( () => {
+                this._updatePointer();
+            }, Track.fixationGrowInterval );
         }
         else {
             this.pointer.classList.add( 'invisible' );
         }
+
+        this.currentFixation = fixation;
     }
+
+    Track.prototype._updatePointer = function() {
+        if (!this.currentFixation || !this.pointer) {
+            return;
+        }
+
+        const size = Math.round( Math.sqrt( this.currentDuration ) ) / 2;
+        this.pointer.style = `left: ${this.currentFixation.x - size / 2}px;
+                              top: ${this.currentFixation.y - size / 2}px;
+                              width: ${size}px;
+                              height: ${size}px;
+                              border-radius: ${size / 2}px;
+                              background-color: ${this.color};`;
+
+        this.currentDuration += Track.fixationGrowInterval;
+    };
 
     app.GazeReplay = GazeReplay;
 

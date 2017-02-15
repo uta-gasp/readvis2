@@ -289,6 +289,16 @@
             ctx.fillText( word.text, word.x, word.y + 0.8 * word.height);
         }
 
+        ctx.fillStyle = '#fff';
+        let [prefix, suffix] = app.Syllabifier.getPrefixAndSuffix( word.text, settings.hyphen );
+        if (prefix) {
+            ctx.fillText( prefix, word.x, word.y + 0.8 * word.height );
+        }
+        if (suffix) {
+            ctx.textAlign = 'end';
+            ctx.fillText( suffix, word.x + word.width, word.y + 0.8 * word.height );
+        }
+
         if (settings.indexes) {
             if (settings.indexes.word === 0) {
                 ctx.fillStyle = '#080';
