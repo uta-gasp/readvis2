@@ -4,69 +4,68 @@
         enabled: true
     };
 
-    Logger.moduleErrorPrinter = (moduleName) => {
-        if (this.Reading !== undefined) {
+    Logger.moduleErrorPrinter = function( moduleName ) {
+        if (this.ReadVis2 !== undefined) {
             return () => { };
         }
 
-        return (missingService) => {
+        return missingService => {
             console.error( 'Missing "${missingService}" service for "${moduleName}"' );
         };
     };
 
-    Logger.moduleLogPrinter = (moduleName) => {
-        const print = (item) => {
+    Logger.moduleLogPrinter = function( moduleName ) {
+        const print = item => {
             console.log( item );
         };
 
-        if (this.Reading !== undefined) {
+        if (this.ReadVis2 !== undefined) {
             return () => { };
         }
 
-        return (title) => {
+        return (title, ...params) => {
             if (!Logger.enabled) {
                 return;
             }
 
             console.log( '\n', moduleName );
             console.log( title );
-            for (let i = 1; i < arguments.length; i += 1) {
-                const data = arguments[i];
-                if (data === undefined) {
-                    continue;
+            params.forEach( param => {
+                if (param === undefined) {
+                    return;
                 }
-                if (data instanceof Array) {
-                    data.forEach( print );
+                if (param instanceof Array) {
+                    param.forEach( print );
                 }
                 else {
-                    console.log( data );
+                    console.log( param );
                 }
-            }
+            });
         };
     };
 
     Logger.forModule = (moduleName) => {
-        // if (this.Reading !== undefined) {
+        // if (this.ReadVis2 !== undefined) {
         //     return () => { };
         // }
 
         return {
-            start: (title) => {
+            start: title => {
                 return new Record( moduleName, title );
             },
-            end: (record) => {
+            end: record => {
                 records.delete( record.id );
             },
-            log: function () {
+            log: (...params) => {
                 if (!Logger.enabled) {
                     return;
                 }
-                console.log( moduleName, ...arguments );
+                console.log( moduleName, params );
             }
         };
     };
 
-    function Record (module, title) {
+    function Record( module, title ) {
         this.id = Symbol( title );
         this._record = []; //title ? [ title ] : [];
         this.level = 0;
@@ -91,7 +90,7 @@
 
     Record.padding = '    ';
 
-    Record.prototype.push = function () {
+    Record.prototype.push = function() {
         let levelPadding = '';
         for (let i = 0; i < this.level; i += 1) {
             levelPadding += Record.padding;
@@ -103,25 +102,25 @@
         console.log( Record.padding + this.generalPadding + levelPadding + Array.prototype.join.call( arguments, ' ' ) );
     };
 
-    Record.prototype.levelUp = function (text) {
+    Record.prototype.levelUp = function( text ) {
         if (text !== undefined) {
             this.push( text );
         }
         this.level += 1;
     };
 
-    Record.prototype.levelDown = function () {
+    Record.prototype.levelDown = function() {
         this.level -= 1;
         if (this.level < 0) {
             this.level = 0;
         }
     };
 
-    Record.prototype.notEmpty = function () {
+    Record.prototype.notEmpty = function() {
         return this._record.length > 0;
     };
 
-    Record.prototype.print = function () {
+    Record.prototype.print = function() {
         if (!Logger.enabled) {
             return;
         }
@@ -132,4 +131,4 @@
 
     app.Logger = Logger;
 
-})( this.Reading || module.exports );
+})( this.ReadVis2 || module.exports );

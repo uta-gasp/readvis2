@@ -1,54 +1,54 @@
 (function (app) { 'use strict';
 
     const _hyphen = String.fromCharCode( 0x00B7 );//DOTS: 00B7 2010 2022 2043 LINES: 2758 22EE 205E 237F
-    const h = _hyphen;
-    const _exceptions = {
-        'krokotiili': 'kro'+h+'ko'+h+'tii'+h+'li',
-        'talviunille': 'tal'+h+'vi'+h+'u'+h+'nil'+h+'le',
-        'hankien': 'han'+h+'ki'+h+'en',
-        'metsien': 'met'+h+'si'+h+'en',
-        'talviyön': 'tal'+h+'vi'+h+'yön',
-        'avantouinnille': 'a'+h+'van'+h+'to'+h+'uin'+h+'nil'+h+'le',
-        'kreikassa': 'krei'+h+'kas'+h+'sa',
-        'maanosaa': 'maan'+h+'o'+h+'saa',
-        'kansanedustajaa': 'kan'+h+'san'+h+'e'+h+'dus'+h+'ta'+h+'jaa',
-        'kuntien': 'Kun'+h+'ti'+h+'en',
-        'vuodenaikaa': 'vuo'+h+'den'+h+'ai'+h+'kaa',
-        'kaikkien': 'kaik'+h+'ki'+h+'en',
-        'finlandia-talossa': 'fin'+h+'lan'+h+'di'+h+'a-ta'+h+'los'+h+'sa',
-        'weegee:ssä': 'weegee:ssä',
-        'käsityöläisalue': 'kä'+h+'si'+h+'työ'+h+'läis'+h+'a'+h+'lu'+h+'e',
-        'talviurheilukeskus': 'tal'+h+'vi'+h+'ur'+h+'hei'+h+'lu'+h+'kes'+h+'kus',
-        'mualiman': 'mua'+h+'li'+h+'man',
-        'kattokruunuun': 'kat'+h+'to'+h+'kruu'+h+'nuun',
-        'unien': 'u'+h+'ni'+h+'en',
-        'ikkunanpielien': 'ik'+h+'ku'+h+'nan'+h+'pie'+h+'li'+h+'en',
-        'pohjois-suomessa': 'poh'+h+'jois-suo'+h+'mes'+h+'sa',
-    };
+
+    const _exceptions = (function( h ) {
+        return {
+            'krokotiili': 'kro'+h+'ko'+h+'tii'+h+'li',
+            'talviunille': 'tal'+h+'vi'+h+'u'+h+'nil'+h+'le',
+            'hankien': 'han'+h+'ki'+h+'en',
+            'metsien': 'met'+h+'si'+h+'en',
+            'talviyön': 'tal'+h+'vi'+h+'yön',
+            'avantouinnille': 'a'+h+'van'+h+'to'+h+'uin'+h+'nil'+h+'le',
+            'kreikassa': 'krei'+h+'kas'+h+'sa',
+            'maanosaa': 'maan'+h+'o'+h+'saa',
+            'kansanedustajaa': 'kan'+h+'san'+h+'e'+h+'dus'+h+'ta'+h+'jaa',
+            'kuntien': 'Kun'+h+'ti'+h+'en',
+            'vuodenaikaa': 'vuo'+h+'den'+h+'ai'+h+'kaa',
+            'kaikkien': 'kaik'+h+'ki'+h+'en',
+            'finlandia-talossa': 'fin'+h+'lan'+h+'di'+h+'a-ta'+h+'los'+h+'sa',
+            'weegee:ssä': 'weegee:ssä',
+            'käsityöläisalue': 'kä'+h+'si'+h+'työ'+h+'läis'+h+'a'+h+'lu'+h+'e',
+            'talviurheilukeskus': 'tal'+h+'vi'+h+'ur'+h+'hei'+h+'lu'+h+'kes'+h+'kus',
+            'mualiman': 'mua'+h+'li'+h+'man',
+            'kattokruunuun': 'kat'+h+'to'+h+'kruu'+h+'nuun',
+            'unien': 'u'+h+'ni'+h+'en',
+            'ikkunanpielien': 'ik'+h+'ku'+h+'nan'+h+'pie'+h+'li'+h+'en',
+            'pohjois-suomessa': 'poh'+h+'jois-suo'+h+'mes'+h+'sa',
+        };
+    })( _hyphen );
+
+    const _vowels = [ 'a', 'o', 'u', 'i', 'e', 'ä', 'ö', 'y' ];
+    const _consonants = [ 'b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm',
+                        'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'z' ];
+    const _diftongs = [ 'ai', 'ei', 'oi', 'ui', 'yi', 'äi', 'öi', 'au', 'eu',
+                        'iu', 'ou', 'ey', 'iy', 'äy', 'öy', 'ie', 'uo', 'yö' ];
 
     const Syllabifier = {
         clean: function( word, hyphen ) {
-            const hyphenRegExp = new RegExp( `${hyphen}`, 'g' );
+            const h = hyphen || _hyphen;
+            const hyphenRegExp = new RegExp( `${h}`, 'g' );
             return word.replace( hyphenRegExp, '');
         },
 
-        syllabify: function( word, hyphen ) {
-            word = Syllabifier.clean( word, hyphen );
-
+        syllables: function( word ) {
             const exception = Object.keys( _exceptions ).find( exception => isException( word, exception ));
             if (exception) {
-                return formatException( word, exception, _exceptions[ exception ], hyphen );
+                return exceptionSyllables( word, exception, _exceptions[ exception ] );
             }
 
-            const vowels = [ 'a', 'o', 'u', 'i', 'e', 'ä', 'ö', 'y' ];
-            const consonants = [ 'b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm',
-                                'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'z' ];
-            const diftongs = [ 'ai', 'ei', 'oi', 'ui', 'yi', 'äi', 'öi', 'au', 'eu',
-                                'iu', 'ou', 'ey', 'iy', 'äy', 'öy', 'ie', 'uo', 'yö' ];
-
-            const getType = c => vowels.includes( c ) ? 'V' : ( consonants.includes( c ) ? 'C' : '_' );
-
             const result = [];
+            let str = '';
 
             let hasVowel = false;
             for (let i = word.length - 1; i >= 0; i--) {
@@ -60,8 +60,11 @@
                         const charPrevious = word[ i + 1 ];
                         const typePrevious = getType( charPrevious );
                         if (charPrevious !== char && typePrevious === type
-                            && !diftongs.includes( char + charPrevious)) {
-                            result.unshift( hyphen );
+                            && !_diftongs.includes( char + charPrevious)) {
+                            if (str) {
+                                result.unshift( str );
+                            }
+                            str = '';
                         }
                     }
                     hasVowel = true;
@@ -76,28 +79,47 @@
                         }
                     }
                 }
-                result.unshift( char );
+
+                str = char + str;
 
                 if (separate) {
-                    result.unshift( hyphen );
+                    result.unshift( str );
+                    str = '';
                     hasVowel = false;
                 }
             }
 
-            return result.join('');
+            if (str) {
+                result.unshift( str );
+            }
+
+            return result;
+        },
+
+        syllabify: function( word, hyphen ) {
+            const h = hyphen || _hyphen;
+            const cleanWord = Syllabifier.clean( word, h );
+            return Syllabifier.syllables( cleanWord ).join( h );
         }
     };
+
+    function getType( c ) {
+        return _vowels.includes( c ) ? 'V' : ( _consonants.includes( c ) ? 'C' : '_' );
+    }
 
     function isException( word, exception ) {
         return word.toLowerCase().indexOf( exception ) >= 0;
     }
 
-    function formatException( word, exception, syllabified, hyphen ) {
+    function exceptionSyllables( word, exception, syllabified ) {
         const start = word.toLowerCase().indexOf( exception );
         const length = exception.length;
         const prefix = word.substr( 0, start );
         const postfix = word.substr( start + length );
         const chars = Array.from( syllabified );
+
+        const result = [];
+        let str = '';
 
         for (let i = start, j = 0; i < start + length; i++) {
             let c = word.charAt( i );
@@ -105,20 +127,32 @@
                 chars[j] = c;
             }
 
-            while (chars[ ++j ]=== _hyphen) { }
+            str += chars[j];
+
+            while (chars[ ++j ] === _hyphen) {
+                if (str) {
+                    result.push( str );
+                }
+                str = '';
+            }
         }
 
-        let result = chars.join('');
-        if (_hyphen !== hyphen) {
-            const re = new RegExp( _hyphen, 'g' );
-            result = result.replace( re, hyphen );
+        if (str) {
+            result.push( str );
         }
 
-        return prefix + result + postfix;
+        result[0] = prefix + result[0];
+        result[ result.length - 1 ] = result[ result.length - 1 ] + postfix;
+
+        return result;
+    }
+
+    function formatException( word, exception, syllabified, hyphen ) {
+        return exceptionSyllables( word, exception, syllabified ).join( hyphen );
     }
 
     // export
 
     app.Syllabifier = Syllabifier;
 
-})( this.Reading || module.exports );
+})( this.ReadVis2 || module.exports );

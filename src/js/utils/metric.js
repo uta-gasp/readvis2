@@ -1,8 +1,11 @@
+// Requires:
+//      app.Syllabifier
+
 (function (app) { 'use strict';
 
     const Metric = { };
 
-    Metric.compute = function (words, metricType) {
+    Metric.compute = function( words, metricType ) {
 
         let maxRange = 0;
 
@@ -17,10 +20,12 @@
                     regressionCount: 0
                 } );
 
+                const wordText = app.Syllabifier.clean( word.text );
                 word.duration = params.duration;
                 word.regressionCount = params.regressionCount;
-                word.charSpeed = 1000 * word.text.length / word.duration;
-                word.syllableSpeed = 1000 * app.WordSplit.syllables( word.text ).length / word.duration;
+                word.charSpeed = 1000 * wordText.length / word.duration;
+                word.syllableSpeed = 1000 * app.Syllabifier.syllables( wordText ).length / word.duration;
+                //word.syllableSpeed = 1000 * app.WordSplit.syllables( word.text ).length / word.duration;
 
                 let metricValue = 0;
                 switch (metricType) {
@@ -44,11 +49,11 @@
         return maxRange;
     };
 
-    Metric.getAlpha = function (word, metricType, metricRange) {
+    Metric.getAlpha = function( word, metricType, metricRange ) {
         return alphaComputers[ metricType ]( word, metricRange );
     };
 
-    function mapDurationToAlpha (word, maxDuration) {
+    function mapDurationToAlpha( word, maxDuration ) {
         let result = 0;
         if (word.duration > DURATION_TRANSPARENT) {
             result = (word.duration - DURATION_TRANSPARENT) / (maxDuration - DURATION_TRANSPARENT);
@@ -56,7 +61,7 @@
         return result;
     }
 
-    function mapCharSpeedTAlpha (word, maxCharSpeed) {
+    function mapCharSpeedTAlpha( word, maxCharSpeed ) {
         let result = 0;
         if (word.charSpeed > 0) {
             result = 1 - word.charSpeed / maxCharSpeed;
@@ -64,7 +69,7 @@
         return result;
     }
 
-    function mapSyllableSpeedToAlpha (word, maxSyllableSpeed) {
+    function mapSyllableSpeedToAlpha( word, maxSyllableSpeed ) {
         let result = 0;
         if (word.syllableSpeed > 0) {
             result = 1 - word.syllableSpeed / maxSyllableSpeed;
@@ -73,7 +78,7 @@
     }
 
     const alphaComputers = [
-        function () { return 0; },      // for NONE
+        () => 0,      // for NONE
         mapDurationToAlpha,
         mapCharSpeedTAlpha,
         mapSyllableSpeedToAlpha,
@@ -90,4 +95,4 @@
 
     app.Metric = Metric;
 
-})( this.Reading || module.exports );
+})( this.ReadVis2 || module.exports );

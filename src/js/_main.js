@@ -1,43 +1,43 @@
 // Requires:
 //      Firebase
 
-var Reading = Reading || {};
+var ReadVis2 = ReadVis2 || {};
 
 // "components" contains selectors for each component
-Reading.init = function (components) {
+ReadVis2.init = function (components) {
 
-    Reading.loadingCallbacks.forEach( callback => { callback(); } );
+    ReadVis2.loadingCallbacks.forEach( callback => { callback(); } );
 
     // DB
     if (typeof firebase !== 'undefined') {
-        Reading.firebase = firebase.database().ref( 'school2' );
+        ReadVis2.firebase = firebase.database().ref( 'school2' );
     }
     else {
         alert( 'Please connect to the internet and reload the page' );
     }
 
     // setup
-    Reading.Visualization.init( components.visualization );
+    ReadVis2.Visualization.init( components.visualization );
 
-    Reading.WordList.instance = new Reading.WordList({
+    ReadVis2.WordList.instance = new ReadVis2.WordList({
         container: components.wordList
     });
 
-    const gazePlot = new Reading.GazePlot({
+    const gazePlot = new ReadVis2.GazePlot({
         root: components.visualization
     });
-    const textSummary = new Reading.TextSummary({
+    const textSummary = new ReadVis2.TextSummary({
         root: components.visualization
     });
-    const wordReplay = new Reading.WordReplay({
+    const wordReplay = new ReadVis2.WordReplay({
         root: components.visualization,
         container: components.wordReplay
     });
-    const gazeReplay = new Reading.GazeReplay({
+    const gazeReplay = new ReadVis2.GazeReplay({
         root: components.visualization
     });
 
-    const controls = new Reading.Controls({
+    const controls = new ReadVis2.Controls({
         root: components.controls
     }, {
         displaySession: gazePlot.queryData.bind( gazePlot ),
@@ -46,7 +46,7 @@ Reading.init = function (components) {
         wordReplay: wordReplay.queryData.bind( wordReplay ),
     });
 
-    const options = new Reading.Options({
+    const options = new ReadVis2.Options({
         root: components.options,
         text: components.textContainer + ' ' + components.text
     }, {    // services
@@ -102,8 +102,8 @@ Reading.init = function (components) {
     });
 };
 
-Reading.loaded = function (callback) {
-    Reading.loadingCallbacks.push( callback );
+ReadVis2.loaded = function (callback) {
+    ReadVis2.loadingCallbacks.push( callback );
 };
 
-Reading.loadingCallbacks = [];
+ReadVis2.loadingCallbacks = [];

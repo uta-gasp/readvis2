@@ -340,4 +340,4 @@
 
     app.WordReplay = WordReplay;
 
-})( this.Reading || module.exports );
+})( this.ReadVis2 || module.exports );

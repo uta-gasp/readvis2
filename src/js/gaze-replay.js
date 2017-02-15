@@ -347,4 +347,4 @@
 
     app.GazeReplay = GazeReplay;
 
-})( this.Reading || module.exports );
+})( this.ReadVis2 || module.exports );

@@ -481,4 +481,4 @@
 
     app.Visualization = Visualization;
 
-})( this.Reading || module.exports );
+})( this.ReadVis2 || module.exports );

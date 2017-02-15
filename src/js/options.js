@@ -338,4 +338,4 @@
 
     app.Options = Options;
 
-})( this.Reading || module.this.exports );
+})( this.ReadVis2 || module.this.exports );

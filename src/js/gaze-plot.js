@@ -370,4 +370,4 @@
 
     app.GazePlot = GazePlot;
 
-})( this.Reading || module.exports );
+})( this.ReadVis2 || module.exports );
