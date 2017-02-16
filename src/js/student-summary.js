@@ -13,9 +13,24 @@
         this._statistics = [
             'Sessions',
             'Reading time, s',
-            'Time per word, ms',
+            'Time per word, s',
             'Avg fixation, ms',
         ];
+
+        this._gradeTexts = {
+            '2nd grade': [
+                'Krokotiili hiihtää kevääseen',
+                'Heinähattu, Vilttitossu ja iso Elsa',
+                'Muumilaaksossa',
+                'Olympialaiset'
+            ],
+            '3rd grade': [
+                'Suomi on tasavalta',
+                'Suomi ja suomalaisuus',
+                'Helsinki on Suomen pääkaupunki',
+                'Suomen kaupunkeja'
+            ]
+        };
 
         app.Visualization.call( this, options );
 
@@ -28,14 +43,44 @@
     StudentSummary.prototype.base = app.Visualization.prototype;
     StudentSummary.prototype.constructor = StudentSummary;
 
-    StudentSummary.prototype._fillSessions = function( list, users ) {
+    StudentSummary.prototype._fillCategories = function( list, users ) {
+        const gradeUsers = {};
+        for (let grade in this._gradeTexts) {
+            gradeUsers[ grade ] = [];
+        }
+
         users.forEach( userSnapshot => {
             const userName = userSnapshot.key;
             const user = userSnapshot.val();
             user.name = userName;
-            const option = this._addOption( list, userName, userName, user );
+
+            for (let sessionID in user.sessions) {
+                const textTitle = user.sessions[ sessionID ].textTitle;
+                for (let grade in this._gradeTexts) {
+                    const gradeTexts = this._gradeTexts[ grade ];
+                    gradeTexts.forEach( gradeText => {
+                        if (textTitle === gradeText && gradeUsers[ grade ].indexOf( user ) < 0) {
+                            user.grade = grade[0];
+                            gradeUsers[ grade ].push( user );
+                        }
+                    });
+                }
+            }
         });
+
+        for (let grade in gradeUsers) {
+            this._addOption( list, grade, grade, gradeUsers[ grade ] );
+        }
     };
+
+    // StudentSummary.prototype._fillSessions = function( list, users ) {
+    //     users.forEach( userSnapshot => {
+    //         const userName = userSnapshot.key;
+    //         const user = userSnapshot.val();
+    //         user.name = userName;
+    //         const option = this._addOption( list, userName, userName, user );
+    //     });
+    // };
 
     StudentSummary.prototype._load = function( cbLoaded, id, users, title ) {
 
@@ -129,6 +174,8 @@
             headerRow.insertCell().textContent = stat;
         });
 
+        table.scrollTo( 0, 0 );
+
         this._container.classList.remove( 'invisible' );
     };
 
@@ -179,8 +226,9 @@
             sessionCount++;
         });
 
-        result.push( Math.round( duration / 1000 ) );
-        result.push( Math.round( duration / wordCount ) );
+        const totalDuration = new Date( 0, 0, 0, 0, 0, Math.round( duration / 1000 ) );
+        result.push( `${totalDuration.getHours()}h ${totalDuration.getMinutes()}m ${totalDuration.getSeconds()}s` );
+        result.push( (duration / wordCount / 1000).toFixed(2) );
         result.push( Math.round( fixations.duration / fixations.count ) );
 
         return result;

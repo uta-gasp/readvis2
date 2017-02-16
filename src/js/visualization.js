@@ -453,16 +453,23 @@
             const sessionsList = _prompt.querySelector( '.sessions' );
             sessionsList.innerHTML = '';
 
-            const sessions = category.data;
-            sessions.forEach( (session, id ) => {
-                const date = new Date( session.date );
-                let textToDisplay = `${date.getDate()}.${date.getMonth()}.${date.getFullYear()}, ${date.getHours()}:${date.getMinutes()} `;
-                if (session.user) {
-                    textToDisplay += new Array( Math.max( 0, 17 - textToDisplay.length ) ).join( String.fromCharCode( 0x2012 ) );
-                    textToDisplay += ' ' + session.user;
-                }
+            const dataItems = category.data;
+            dataItems.forEach( (item, id ) => {
+                if (item.date) {
+                    const session = item;
+                    const date = new Date( session.date );
+                    let textToDisplay = `${date.getDate()}.${date.getMonth()}.${date.getFullYear()}, ${date.getHours()}:${date.getMinutes()} `;
+                    if (session.user) {
+                        textToDisplay += new Array( Math.max( 0, 17 - textToDisplay.length ) ).join( String.fromCharCode( 0x2012 ) );
+                        textToDisplay += ' ' + session.user;
+                    }
 
-                addOption( sessionsList, id, textToDisplay, session );
+                    addOption( sessionsList, id, textToDisplay, session );
+                }
+                else if (item.sessions) {
+                    const user = item;
+                    addOption( sessionsList, user.name, user.name, user );
+                }
             });
         }
     }
