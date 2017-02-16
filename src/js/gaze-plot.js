@@ -61,21 +61,45 @@
     GazePlot.prototype.constructor = GazePlot;
 
     GazePlot.prototype._fillCategories = function( list, users ) {
-        users.forEach( user => {
-            const userSessions = user.val()['sessions'];
-            const sessions = new Map();
-            for (let key of Object.keys( userSessions )) {
-                sessions.set( key, userSessions[ key ] );
-            }
-
-            const option = this._addOption( list, user.key, user.key, sessions );
-            if (this._data && this._data.user === user.key) {
-                option.selected = true;
-            }
+        const userData = [];
+        users.forEach( userSnapshot => {
+            const user = userSnapshot.val();
+            user.name = userSnapshot.key;
+            userData.push( user );
         });
+
+        const gradeUsers = this._classifyUsersByGrade( userData );
+
+        for (let grade in gradeUsers) {
+            this._addOption( list, grade, grade, gradeUsers[ grade ] );
+        }
+
+        return 'Select a student';
+        // users.forEach( user => {
+        //     const userSessions = user.val()['sessions'];
+        //     const sessions = new Map();
+        //     for (let key of Object.keys( userSessions )) {
+        //         sessions.set( key, userSessions[ key ] );
+        //     }
+
+        //     const option = this._addOption( list, user.key, user.key, sessions );
+        //     if (this._data && this._data.user === user.key) {
+        //         option.selected = true;
+        //     }
+        // });
     };
 
-    GazePlot.prototype._load = function( cbLoaded, sessionID, sessionName, sessionMeta, userName ) {
+    // GazePlot.prototype._load = function( cbLoaded, sessionID, sessionName, sessionMeta, userName ) {
+    GazePlot.prototype._load = function( cbLoaded, _, userName, user, grade ) {
+
+        const sessionIDs = [];
+        for (let sessionID in user.sessions) {
+            sessionIDs.push( sessionID );
+        }
+
+        const sessionID = sessionIDs[0];
+        const sessionMeta = user.sessions[ sessionID ];
+        const sessionName = app.Visualization.formatDate( sessionMeta.date );
 
         const sessionPromise = this._loadSession( sessionID, sessionMeta );
         const textPromise = this._loadText( sessionMeta.text );
@@ -91,7 +115,7 @@
 
             app.WordList.instance.show();
 
-            this._setProps({
+            this._setSessionProps({
                 speech: {
                     enabled: session.meta.interaction.speech.enabled,
                     value: Math.round( session.meta.interaction.speech.threshold )

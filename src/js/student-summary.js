@@ -17,21 +17,6 @@
             'Fixation, ms',
         ];
 
-        this._gradeTexts = {
-            '2nd grade': [
-                'Krokotiili hiihtää kevääseen',
-                'Heinähattu, Vilttitossu ja iso Elsa',
-                'Muumilaaksossa',
-                'Olympialaiset'
-            ],
-            '3rd grade': [
-                'Suomi on tasavalta',
-                'Suomi ja suomalaisuus',
-                'Helsinki on Suomen pääkaupunki',
-                'Suomen kaupunkeja'
-            ]
-        };
-
         app.Visualization.call( this, options );
 
         this._users = null;
@@ -44,33 +29,20 @@
     StudentSummary.prototype.constructor = StudentSummary;
 
     StudentSummary.prototype._fillCategories = function( list, users ) {
-        const gradeUsers = {};
-        for (let grade in this._gradeTexts) {
-            gradeUsers[ grade ] = [];
-        }
-
+        const userData = [];
         users.forEach( userSnapshot => {
-            const userName = userSnapshot.key;
             const user = userSnapshot.val();
-            user.name = userName;
-
-            for (let sessionID in user.sessions) {
-                const textTitle = user.sessions[ sessionID ].textTitle;
-                for (let grade in this._gradeTexts) {
-                    const gradeTexts = this._gradeTexts[ grade ];
-                    gradeTexts.forEach( gradeText => {
-                        if (textTitle === gradeText && gradeUsers[ grade ].indexOf( user ) < 0) {
-                            user.grade = grade[0];
-                            gradeUsers[ grade ].push( user );
-                        }
-                    });
-                }
-            }
+            user.name = userSnapshot.key;
+            userData.push( user );
         });
+
+        const gradeUsers = this._classifyUsersByGrade( userData );
 
         for (let grade in gradeUsers) {
             this._addOption( list, grade, grade, gradeUsers[ grade ] );
         }
+
+        return 'Select students';
     };
 
     // StudentSummary.prototype._fillSessions = function( list, users ) {

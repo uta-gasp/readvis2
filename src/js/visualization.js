@@ -7,8 +7,8 @@
 //      app.firebase
 //
 // Interface to implement by its descendants:
-//        _load
-//        _fillCategories || _fillSessions
+//        _load( onloaded, id, data, title )
+//        _fillCategories( htmlList, users ) || _fillItems( htmlList, users ) - returns a prompt title
 
 (function( app ) { 'use strict';
 
@@ -41,8 +41,24 @@
         this.colorMetric = options.colorMetric !== undefined ? options.colorMetric : app.Metric.Type.DURATION;
         this.mapping = options.mapping !== undefined ? options.mapping : Visualization.Mapping.STATIC;
 
+        this._gradeTexts = {
+            '2nd grade': [
+                'Krokotiili hiihtää kevääseen',
+                'Heinähattu, Vilttitossu ja iso Elsa',
+                'Muumilaaksossa',
+                'Olympialaiset'
+            ],
+            '3rd grade': [
+                'Suomi on tasavalta',
+                'Suomi ja suomalaisuus',
+                'Helsinki on Suomen pääkaupunki',
+                'Suomen kaupunkeja'
+            ]
+        };
+
         this._sessions = {};
         this._texts = {};
+
         this._pageIndex = 0;
     }
 
@@ -53,9 +69,15 @@
         _view = document.querySelector( root );
         _wait = _view.querySelector( '.wait' );
         _canvas = _view.querySelector( 'canvas');
+
         _prompt = _view.querySelector( '.prompt' );
+        _categoriesList = _prompt.querySelector( '.categories' );
+        _itemsList = _prompt.querySelector( '.items' );
+        _selectButton = _prompt.querySelector( '.select' );
+
+        _sessionProps = _view.querySelector( '.props' );
+
         _navigationBar = _view.querySelector( '.menu .navigation' );
-        _propsBar = _view.querySelector( '.props' );
         _prev = _navigationBar.querySelector( '.prev' );
         _next = _navigationBar.querySelector( '.next' );
 
@@ -64,12 +86,20 @@
         Visualization.root = _view;
 
         _view.querySelector( '.close' ).addEventListener( 'click', clickClose );
-        _view.querySelector( '.select' ).addEventListener( 'click', clickSelect );
-        _prompt.querySelector( '.categories' ).addEventListener( 'change', categoryChanged );
+
+        _categoriesList.addEventListener( 'change', categoryChanged );
+        _selectButton.addEventListener( 'click', clickSelect );
 
         _prev.addEventListener( 'click', prevPage );
         _next.addEventListener( 'click', nextPage );
     };
+
+    Visualization.formatDate = function( dateString ) {
+        const date = new Date( dateString );
+        return `${date.getDate()}.${date.getMonth()}.${date.getFullYear()}, ${date.getHours()}:${date.getMinutes()} `;
+    };
+
+    // public
 
     Visualization.prototype.queryData = function( multiple ) {
         if (_waiting) {
@@ -107,24 +137,26 @@
     Visualization.prototype._showDataSelectionDialog = function( multiple, users ) {
         _wait.classList.add( 'invisible' );
 
-        const categoriesList = _prompt.querySelector( '.categories' );
-        categoriesList.innerHTML = '';
+        _categoriesList.innerHTML = '';
 
-        const sessionsList = _prompt.querySelector( '.sessions' );
-        sessionsList.innerHTML = '';
-        sessionsList.multiple = !!multiple;
+        _itemsList.innerHTML = '';
+        _itemsList.multiple = !!multiple;
 
+        let titleString;
         if (this._fillCategories) {
-            this._fillCategories( categoriesList, users );
+            titleString = this._fillCategories( _categoriesList, users );
 
             const event = new Event( 'change' );
-            categoriesList.dispatchEvent( event );
-            categoriesList.classList.remove( 'invisible' );
+            _categoriesList.dispatchEvent( event );
+            _categoriesList.classList.remove( 'invisible' );
         }
-        else if (this._fillSessions) {
-            categoriesList.classList.add( 'invisible' );
-            this._fillSessions( sessionsList, users );
+        else if (this._fillItems) {
+            titleString = this._fillSessions( _itemsList, users );
+            _categoriesList.classList.add( 'invisible' );
         }
+
+        const title = _prompt.querySelector( '.title' );
+        title.textContent = titleString || 'Select students';
 
         _promtCallback = this._load.bind( this );
         _prompt.classList.remove( 'invisible' );
@@ -153,7 +185,31 @@
         });
 
         return texts;
-    }
+    };
+
+    Visualization.prototype._classifyUsersByGrade = function( userData ) {
+        const gradeUsers = {};
+        for (let grade in this._gradeTexts) {
+            gradeUsers[ grade ] = [];
+        }
+
+        userData.forEach( user => {
+            for (let sessionID in user.sessions) {
+                const textTitle = user.sessions[ sessionID ].textTitle;
+                for (let grade in this._gradeTexts) {
+                    const gradeTexts = this._gradeTexts[ grade ];
+                    gradeTexts.forEach( gradeText => {
+                        if (textTitle === gradeText && gradeUsers[ grade ].indexOf( user ) < 0) {
+                            user.grade = grade[0];
+                            gradeUsers[ grade ].push( user );
+                        }
+                    });
+                }
+            }
+        });
+
+        return gradeUsers;
+    };
 
     // returns promise, or a cached text
     Visualization.prototype._loadText = function( id, title ) {
@@ -176,7 +232,7 @@
                 reject( err );
             });
         });
-    }
+    };
 
     Visualization.prototype._loadSession = function( id, meta ) {
         return this._sessions[ id ] || new Promise( (resolve, reject) => {
@@ -198,19 +254,19 @@
                 reject( err );
             });
         });
-    }
+    };
 
-    Visualization.prototype._setProps = function( props ) {
+    Visualization.prototype._setSessionProps = function( props ) {
         if (props) {
-            _propsBar.classList.remove( 'invisible' );
+            _sessionProps.classList.remove( 'invisible' );
         }
         else {
-            _propsBar.classList.add( 'invisible' );
+            _sessionProps.classList.add( 'invisible' );
             return;
         }
 
         for (let propID in props) {
-            const el = _propsBar.querySelector( '.' + propID );
+            const el = _sessionProps.querySelector( '.' + propID );
             if (el) {
                 const prop = props[ propID ];
                 if (prop.enabled) {
@@ -223,7 +279,7 @@
                 }
             }
         }
-    }
+    };
     // Drawing
 
     Visualization.prototype._getCanvas2D = function() {
@@ -243,7 +299,7 @@
 
     Visualization.prototype._setCanvasFont = function( ctx, font ) {
         ctx.font = `${font.style} ${font.weight} ${font.size} ${font.family}`;
-    }
+    };
 
     Visualization.prototype._drawTitle = function( ctx, title ) {
         ctx.textAlign = 'center';
@@ -255,6 +311,8 @@
     };
 
     Visualization.prototype._drawSyllabifications = function( ctx, events, hyphen ) {
+        ctx.textAlign = 'start';
+        ctx.textBaseline = 'alphabetic';
         events.forEach( event => {
             const rc = event.rect;
             const word = app.Syllabifier.syllabify( event.text, hyphen );
@@ -328,7 +386,7 @@
 
     Visualization.prototype._addOption = function( list, value, text, data ) {
         return addOption( list, value, text, data );
-    }
+    };
 
     Visualization.prototype._setPrevPageCallback = function( cb ) {
         _prevPageCallback = cb;
@@ -360,11 +418,18 @@
 
     let _height;
     let _width;
+
     let _view;
     let _wait;
     let _canvas;
+
     let _prompt;
-    let _propsBar;
+    let _categoriesList;
+    let _itemsList;
+    let _selectButton;
+
+    let _sessionProps;
+
     let _navigationBar;
     let _prev;
     let _next;
@@ -405,7 +470,7 @@
 
     function clickClose() {
         _view.classList.add( 'invisible' );
-        _propsBar.classList.add( 'invisible' );
+        _sessionProps.classList.add( 'invisible' );
 
         const ctx = _canvas.getContext('2d');
         ctx.clearRect( 0, 0, _width, _height );
@@ -418,20 +483,17 @@
     function clickSelect() {
         _prompt.classList.add( 'invisible' );
 
-        const categoriesList = _prompt.querySelector( '.categories' );
-        const sessionsList = _prompt.querySelector( '.sessions' );
-
-        if (sessionsList.multiple) {
-            if (sessionsList.selectedOptions.length) {
+        if (_itemsList.multiple) {
+            if (_itemsList.selectedOptions.length) {
                 const data = new Map();
-                for (let i = 0; i < sessionsList.selectedOptions.length; i++) {
-                    const item = sessionsList.selectedOptions[i];
+                for (let i = 0; i < _itemsList.selectedOptions.length; i++) {
+                    const item = _itemsList.selectedOptions[i];
                     data.set( item.value, item.data );
                 }
-                const id = categoriesList.selectedIndex < 0 ? null :
-                    categoriesList.options[ categoriesList.selectedIndex ].value;
-                const title = categoriesList.selectedIndex < 0 ? null :
-                    categoriesList.options[ categoriesList.selectedIndex ].textContent;
+                const id = _categoriesList.selectedIndex < 0 ? null :
+                    _categoriesList.options[ _categoriesList.selectedIndex ].value;
+                const title = _categoriesList.selectedIndex < 0 ? null :
+                    _categoriesList.options[ _categoriesList.selectedIndex ].textContent;
                 _promtCallback( removeWaitImage, id, data, title );
             }
             else {
@@ -439,9 +501,9 @@
             }
         }
         else {
-            const category = categoriesList.options[ categoriesList.selectedIndex ];
-            const session = sessionsList.options[ sessionsList.selectedIndex ];
-            _promtCallback( removeWaitImage, session.value, session.textContent, session.data, category.value );
+            const category = _categoriesList.options[ _categoriesList.selectedIndex ];
+            const item = _itemsList.options[ _itemsList.selectedIndex ];
+            _promtCallback( removeWaitImage, item.value, item.textContent, item.data, category.value );
         }
 
         _wait.classList.remove( 'invisible' );
@@ -451,25 +513,25 @@
         const category = e.target.options[ e.target.selectedIndex ];
 
         if (category && category.data) {
-            const sessionsList = _prompt.querySelector( '.sessions' );
-            sessionsList.innerHTML = '';
+            _itemsList.innerHTML = '';
 
             const dataItems = category.data;
             dataItems.forEach( (item, id ) => {
+                // category.data : sessions
                 if (item.date) {
                     const session = item;
-                    const date = new Date( session.date );
-                    let textToDisplay = `${date.getDate()}.${date.getMonth()}.${date.getFullYear()}, ${date.getHours()}:${date.getMinutes()} `;
+                    let textToDisplay = Visualization.formatDate( session.date );
                     if (session.user) {
                         textToDisplay += new Array( Math.max( 0, 17 - textToDisplay.length ) ).join( String.fromCharCode( 0x2012 ) );
                         textToDisplay += ' ' + session.user;
                     }
 
-                    addOption( sessionsList, id, textToDisplay, session );
+                    addOption( _itemsList, id, textToDisplay, session );
                 }
+                // category.data : users
                 else if (item.sessions) {
                     const user = item;
-                    addOption( sessionsList, user.name, user.name, user );
+                    addOption( _itemsList, user.name, user.name, user );
                 }
             });
         }

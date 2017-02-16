@@ -302,7 +302,7 @@
             return;
         }
 
-        const size = Math.round( Math.sqrt( this.currentDuration ) ) / 2;
+        const size = Math.round( Math.sqrt( this.currentDuration ) );
         this.pointer.style = `left: ${this.currentFixation.x - size / 2}px;
                               top: ${this.currentFixation.y - size / 2}px;
                               width: ${size}px;
