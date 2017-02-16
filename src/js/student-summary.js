@@ -12,9 +12,9 @@
         this._container = document.querySelector( options.container );
         this._statistics = [
             'Sessions',
-            'Reading time, s',
-            'Time per word, s',
-            'Avg fixation, ms',
+            'Reading time',
+            'Seconds per word',
+            'Fixation, ms',
         ];
 
         this._gradeTexts = {
@@ -227,7 +227,7 @@
         });
 
         const totalDuration = new Date( 0, 0, 0, 0, 0, Math.round( duration / 1000 ) );
-        result.push( `${totalDuration.getHours()}h ${totalDuration.getMinutes()}m ${totalDuration.getSeconds()}s` );
+        result.push( `${totalDuration.getMinutes()}:${totalDuration.getSeconds()}` );
         result.push( (duration / wordCount / 1000).toFixed(2) );
         result.push( Math.round( fixations.duration / fixations.count ) );
 

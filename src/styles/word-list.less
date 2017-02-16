@@ -1,36 +1,39 @@
 #word-list {
     position: fixed;
     left: 8px;
-    top: 8px;
+    top: 0;
+    bottom: 64px;
     width: 20vw;
 
     &.invisible {
     	display: none;
     }
 
+    @import "mixins/button.less";
+
     .button {
-    	cursor: pointer;
-    	line-height: 32px;
-    	text-align: center;
-    	vertical-align: middle;
-    	color: #266;
-    	background: #ddd url('img/down.png') no-repeat right top;
+        background-image: url('img/down.png');
+        background-repeat: no-repeat;
+        background-position: right -6px;
     	background-origin: content-box;
-    	padding-right: 8px;
-    	box-sizing: border-box;
-    	border-radius: 5px;
+        box-sizing: border-box;
+        width: 100%;
+        margin: 0;
 
     	&.dropped {
+            color: #474545;
+            background-color: #ccc;
     		background-image: url('img/up.png');
-    		background-color: #cee;
     	}
     }
 
     .table {
-    	height: 90vh;
     	background-color: rgba(255,255,220,0.8);
-		transition: height 0.25s ease-in;
+        border: solid 1px;
+        border-top-width: 0;
 
+        height: 100%;
+		transition: height 0.25s ease-in;
 		overflow-y: auto;
 
     	&.invisible {
@@ -39,7 +42,7 @@
     	}
 
     	.record {
-    		widht: 100%;
+    		width: 100%;
 
 	    	.word {
 	    		display: inline-block;
@@ -47,6 +50,7 @@
 	    		overflow-x: hidden;
 	    		padding-left: 0.5em;
 	    		box-sizing: border-box;
+                text-overflow: ellipsis;
 	    	}
 
 	    	.duration {

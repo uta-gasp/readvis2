@@ -236,7 +236,7 @@
 
         const ctx = _canvas.getContext('2d');
 
-        ctx.clearRect(0, 0, _width, _height);
+        ctx.clearRect( 0, 0, _width, _height );
 
         return ctx;
     };
@@ -405,6 +405,7 @@
 
     function clickClose() {
         _view.classList.add( 'invisible' );
+        _propsBar.classList.add( 'invisible' );
 
         const ctx = _canvas.getContext('2d');
         ctx.clearRect( 0, 0, _width, _height );
