@@ -108,6 +108,7 @@
 
         _view.classList.remove( 'invisible' );
         _wait.classList.remove( 'invisible' );
+        this._enableNavigationButtons( false, false );
 
         _waiting = true;
 

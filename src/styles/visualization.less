@@ -13,8 +13,8 @@
 
     .top-panel {
         position: absolute;
-        top: 8px;
-        right: 8px;
+        top: 0px;
+        right: 0px;
 
         .props {
             margin-right: 32px;
@@ -61,15 +61,25 @@
             }
 
             .btn {
-                width: 32px;
-                height: 32px;
-                z-index: 2;
-                cursor: pointer;
                 display: inline-block;
-                user-select: none;
-                background-color: rgba(255,255,255,0.3);
+                box-sizing: content-box;
+                padding: 4px;
+                width: 40px;
+                height: 40px;
+                z-index: 2;
+
+                // background-color: #fff;
                 background-position: center;
                 background-repeat: no-repeat;
+                background-origin: content-box;
+                outline-color: #fff;
+                outline-style: solid;
+                outline-width: 1px;
+                // transition: background-color 0.25s ease-in;
+                transition: outline-color 0.25s ease-in;
+
+                cursor: pointer;
+                user-select: none;
 
                 &.close {
                     background-image: url("img/close.png");
@@ -87,6 +97,11 @@
                     opacity: 0.3;
                     cursor: auto;
                     pointer-events: none;
+                }
+
+                &:hover:not([class~=disabled]) {
+                    outline-color: #888;
+                    // background-color: #eee;
                 }
             }
         }
@@ -169,24 +184,4 @@
             display: none;
         }
     }
-
-    // .navigation {
-    //     position: fixed;
-    //     bottom: 0;
-    //     margin: 0 auto;
-    //     padding: 0.3em;
-    //     left: 0;
-    //     right: 0;
-
-    //     &.invisible {
-    //         display: none;
-    //     }
-
-    //     @import "mixins/button.less";
-
-    //     .button {
-    //         width: 7em;
-    //         line-height: 2em;
-    //     }
-    // }
 }
