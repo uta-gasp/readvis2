@@ -1,10 +1,10 @@
 //- requires:
 //-     slideout.less
 
-mixin options(id, lists)
-    div(id=id).slideout.left
-        .title Options
-        .slideout_inner
+mixin options(id)
+    div(id=id).invisible
+        .inner
+            .title Options
             .options
                 //---- example of the content
                 //- .group
@@ -17,6 +17,7 @@ mixin options(id, lists)
                 //-     .row
                 //-         .label [LABEL]
                 //-         input.value.id(type="checkbox")
-            input.save(type="button", value="Save")
-            input.close(type="button", value="Close")
-            input.reset(type="button", value="Reset")
+            .buttons
+                .button.save Save and close
+                .button.apply Apply
+                .button.reset Reset

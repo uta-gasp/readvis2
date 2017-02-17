@@ -41,6 +41,12 @@
     TextSummary.prototype.base = app.Visualization.prototype;
     TextSummary.prototype.constructor = TextSummary;
 
+    TextSummary.prototype.update = function() {
+        if (this._pageIndex >= 0) {
+            this._mapAndShow();
+        }
+    };
+
     TextSummary.prototype._fillCategories = function( list, users ) {
         const texts = this._getTexts( users );
         texts.forEach( (text, id) => {

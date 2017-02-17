@@ -8,18 +8,15 @@
         studentSummary: 'student-summary',
     };
 
-    // the order must match the corresponding enums
-    var optionLists = {
-        colorMetrics: [ 'none', 'duration', 'char speed', 'syllable speed' ]   // Matric@utils/metric.js
-    };
-
 doctype html
 html
     head
         title School Reading Visualization 2
         meta(charset="utf-8")
+
+        link(href="https://fonts.googleapis.com/css?family=Oxygen+Mono|Open+Sans|Roboto+Condensed" rel="stylesheet")
         link(rel='stylesheet', href='app.css')
-        link(href="https://fonts.googleapis.com/css?family=Oxygen+Mono" rel="stylesheet")
+
         script(src="./libs/sgwm.js")
         script(src="https://www.gstatic.com/firebasejs/3.6.6/firebase.js")
         script.
@@ -51,7 +48,7 @@ html
         +student-summary( ids.studentSummary )
 
         include ./components/options.jade
-        +options( ids.options, optionLists )
+        +options( ids.options )
 
         script(src='app.js')
         script.

@@ -1,111 +1,129 @@
-@import "slideout";
-
 #options {
-    user-select: none;
-    max-height: 100vh;
-    overflow: auto;
-    z-index: 100;
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    z-index: 10;
+    background-color: rgba(255,255,255,0.35);
 
-    &.expanded {
-        width: 22em;
+    &.invisible {
+        display: none;
     }
 
-    .group {
-        font-size: 14pt;
+    .inner {
+        font-size: 18px;
         font-family: Arial, sans-serif;
-        font-weight: bold;
-        margin-bottom: 0.9em;
+        max-width: 20em;
+        max-height: 100%;
+        margin: 0 0 0 auto;
+        border: solid 1px #aaa;
+        background-color: #ffe;
+    }
 
-        &.inner {
-            padding-left: 2em;
+    .title {
+        font-size: 1.75em;
+        font-family: 'Open Sans', sans-serif;
+        padding: 0.2em 0.5em 0.4em;
+    }
+
+    .options {
+        background-color: #eee;
+        font-family: 'Roboto Condensed', sans-serif;
+        max-height: ~"calc(100vh - 6em)";
+        overflow: auto;
+
+        @import "mixins/form.less";
+
+        .group {
+            font-weight: bold;
+            margin-bottom: 0.9em;
+
+            &.inner {
+                padding-left: 2em;
+            }
+
+            &.hidden {
+                display: none;
+            }
+
+            .name {
+                color: #ffd;
+                background: #444;
+                margin-bottom: 0.5em;
+                padding: 0.3em 0.5em;
+                position: sticky;
+            }
+
+            .row {
+                font-size: 12pt;
+                font-weight: normal;
+                height: 1.5em;
+                padding: 0.2em 0.5em;
+
+                display: flex;
+                flex-wrap: nowrap;
+                justify-content: space-between;
+
+                .cell {
+                    display: inline-block;
+
+                    span {
+                        padding: 0 0.2em;
+                    }
+                }
+
+                label, .label {
+                    display: inline-block;
+                }
+
+                .value {
+                    width: 4em;
+                    text-align: right;
+                }
+
+                input.value[type="color"] {
+                    width: 4.5em;
+                }
+
+                select.value, input.value[type="text"] {
+                    width: 10em;
+                    text-align: left;
+                }
+
+                input.value[type="number"] {
+                    text-align: center;
+                }
+
+                input[type="radio"] {
+                    margin: 0;
+                    padding: 0;
+                    height: 24px;
+                }
+
+                .listItem {
+                    cursor: pointer;
+                    background-size: contain;
+                    background-repeat: no-repeat;
+                    display: inline-block;
+                    transition: all 400ms ease-in;
+                    width: 24px;
+                    height: 24px;
+
+                    // &.text-align-left {
+                    //     background-image: url("img/align-left.png");
+                    // }
+                }
+            }
         }
+    }
 
-        &.hidden {
-            display: none;
-        }
+    .buttons {
+        display: flex;
+        justify-content: center;
+        padding: 8px;
+        box-sizing: border-box;
 
-        .name {
-            color: #ffd;
-            background: lighten(@back, 5%);
-            margin-bottom: 0.5em;
-        }
+        border-top: solid 1px #ccc;
 
-        .row {
-            font-size: 12pt;
-            font-weight: normal;
-            height: 1.5em;
-
-            display: flex;
-            flex-wrap: nowrap;
-            justify-content: space-between;
-
-            .cell {
-                display: inline-block;
-
-                span {
-                    padding: 0 0.2em;
-                }
-            }
-
-            label, .label {
-                display: inline-block;
-            }
-
-            .value {
-                width: 4em;
-                text-align: right;
-            }
-
-            input.value[type="color"] {
-                width: 4.5em;
-            }
-
-            select.value, input.value[type="text"] {
-                width: 6em;
-                text-align: left;
-            }
-
-            input.value[type="number"] {
-                text-align: center;
-            }
-
-            input[type="radio"] {
-                margin: 0;
-                padding: 0;
-                height: 24px;
-            }
-
-            .listItem {
-                cursor: pointer;
-                background-size: contain;
-                background-repeat: no-repeat;
-                display: inline-block;
-                transition: all 400ms ease-in;
-                width: 24px;
-                height: 24px;
-
-                &.text-align-left {
-                    background-image: url("img/align-left.png");
-                }
-                &.text-align-center {
-                    background-image: url("img/align-center.png");
-                }
-                &.line-spacing-0 {
-                    background-image: url("img/line-spacing-0.png");
-                }
-                &.line-spacing-1 {
-                    background-image: url("img/line-spacing-1.png");
-                }
-                &.line-spacing-2 {
-                    background-image: url("img/line-spacing-2.png");
-                }
-                &.line-spacing-3 {
-                    background-image: url("img/line-spacing-3.png");
-                }
-                &.line-spacing-4 {
-                    background-image: url("img/line-spacing-4.png");
-                }
-            }
-        }
+        @import "mixins/button.less";
     }
 }

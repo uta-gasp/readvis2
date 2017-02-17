@@ -16,9 +16,7 @@
     function Options( options, values, utils ) {
         Options.instance = this;
 
-        const root = options.root || '#options';
-
-        _slideout = document.querySelector( root );
+        _root = document.querySelector( options.root );
 
         _values = values || {};
         _utils = utils || {};
@@ -44,30 +42,26 @@
         this._style = document.createElement( 'style' );
         document.body.appendChild( this._style );
 
-        const save = _slideout.querySelector( '.save' );
+        const save = _root.querySelector( '.save' );
         save.addEventListener( 'click', e => {
             getRulesFromEditors( this._style, _cssRules );
-            _slideout.classList.remove( 'expanded' );
+            _root.classList.add( 'invisible' );
 
             saveSettings( _cssRules );
             update();
         });
 
-        const close = _slideout.querySelector( '.close' );
-        close.addEventListener( 'click', e => {
+        const apply = _root.querySelector( '.apply' );
+        apply.addEventListener( 'click', e => {
             getRulesFromEditors( this._style, _cssRules );
-            _slideout.classList.remove( 'expanded' );
             update();
         });
 
-        const reset = _slideout.querySelector( '.reset' );
+        const reset = _root.querySelector( '.reset' );
         reset.addEventListener( 'click', e => {
             localStorage.removeItem( _id );
             location.reload();
         });
-
-        const slideoutTitle = _slideout.querySelector( '.title');
-        slideoutTitle.addEventListener( 'click', show );
 
         window.addEventListener( 'load', e => {
             loadSettings( _cssRules );
@@ -78,8 +72,8 @@
 
             obtainInitialRules( _cssRules );
 
-            bindSettingsToEditors( _slideout );
-            bindRulesToEditors( _cssRules, _slideout );
+            bindSettingsToEditors();
+            bindRulesToEditors( _cssRules );
         });
     }
 
@@ -94,7 +88,7 @@
     let _values;
     let _utils;
     let _cssRules;
-    let _slideout;
+    let _root;
 
     let _id = 'readvis2_options';
 
@@ -181,7 +175,7 @@
     }
 
     function show( e, activeVisID ) {
-        const groups = _slideout.querySelectorAll( '.group' );
+        const groups = _root.querySelectorAll( '.group' );
         groups.forEach( group => {
             const id = group.id;
             if (id[0] === '_' || !activeVisID || id.indexOf( activeVisID ) === 0) {
@@ -192,7 +186,8 @@
             }
         });
 
-        _slideout.classList.toggle( 'expanded' );
+        _root.classList.remove( 'invisible' );
+
         setRulesToEditors( _cssRules );
     };
 
@@ -301,10 +296,10 @@
         }
     }
 
-    function bindRulesToEditors( rules, root ) {
+    function bindRulesToEditors( rules ) {
         for (let i = 0; i < rules.length; i++) {
             const rule = rules[ i ];
-            rule.editor = root.querySelector( '#' + rule.id );
+            rule.editor = _root.querySelector( '#' + rule.id );
 
             if (rule.type === 'color') {
                 rule.editor.value = rule.initial;  //color.fromString( rule.initial );
@@ -344,39 +339,18 @@
 
     // binders
 
-    function bindCheckbox( el, ref ) {
-        el.checked = ref();
-        el.addEventListener( 'click', e => {
-            ref( e.target.checked );
-        });
-    }
-
-    function bindSelect( el, ref ) {
-        el.selectedIndex = ref();
-        el.addEventListener( 'change', e => {
-            ref( e.target.selectedIndex );
-        });
-    }
-
-    function bindValue( el, ref ) {
-        el.value = ref();
-        el.addEventListener( 'change', e => {
-            ref( e.target.value );
-        });
-    }
-
-    function bindRadios( els, ref ) {
+    // function bindRadios( els, ref ) {
         //const els = Array.from( _container.querySelectorAll( `input[name=${name}]` ) );
-        els.forEach( (radio, index) => {
-            radio.checked = ref() === index;
-            radio.addEventListener( 'change', e => {
-                ref( e.target.value );
-            });
-        });
-    }
+    //     els.forEach( (radio, index) => {
+    //         radio.checked = ref() === index;
+    //         radio.addEventListener( 'change', e => {
+    //             ref( e.target.value );
+    //         });
+    //     });
+    // }
 
-    function bindSettingsToEditors( root ) {
-        const container = root.querySelector( '.options' );
+    function bindSettingsToEditors() {
+        const container = _root.querySelector( '.options' );
 
         for (let visID in _values) {
             const vis = _values[ visID ];
@@ -423,9 +397,10 @@
                     row.appendChild( select );
                 }
                 else if (option.type instanceof Boolean) {
+                    const container = document.createElement( 'span' );
+
                     const checkbox = document.createElement( 'input' );
                     checkbox.type = 'checkbox';
-                    checkbox.classList.add( 'value' );
                     checkbox.classList.add( id );
 
                     checkbox.checked = option.ref();
@@ -433,7 +408,14 @@
                         option.ref( e.target.checked );
                     });
 
-                    row.appendChild( checkbox );
+                    const label = document.createElement( 'label' );
+                    const div = document.createElement( 'div' );
+                    div.textContent = '\u2714';
+
+                    label.appendChild( div );
+                    container.appendChild( checkbox );
+                    container.appendChild( label );
+                    row.appendChild( container );
                 }
                 else if (option.type instanceof String) {
                     const isColor = option.type[0] === '#';

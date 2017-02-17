@@ -7,13 +7,11 @@
     // Arguments:
     //      options: {
     //          // name font options
-    //          nameFontFamily
     //          nameFontSize
     //          basePointerSize (Number) - minimum pointer size
     //      }
     function GazeReplay( options ) {
 
-        this.nameFontFamily = options.nameFontFamily || 'Calibri, Arial, sans-serif';
         this.nameFontSize = options.nameFontSize || 20;
         this.nameSpacing = 1.5;
 
@@ -28,7 +26,6 @@
             title: 'Gaze replay',
             update: this.update.bind( this ),
             options: app.Visualization.createOptions({
-                nameFontFamily: { type: new String(), label: 'Font name' },
                 nameFontSize: { type: new Number(), label: 'Font size' },
                 nameSpacing: { type: new Number(0.1), label: 'Spacing' },
             }, this )
@@ -37,6 +34,8 @@
         this._data = null;
         this._tracks = null;
         this._tracksLegendLocation = {x: this.nameFontSize + 2, y: 8};
+
+        this._nameFontFamily = 'Calibri, Arial, sans-serif';
     }
 
     app.loaded( () => { // we have to defer the prototype definition until the Visualization mudule is loaded
@@ -44,9 +43,6 @@
     GazeReplay.prototype = Object.create( app.Visualization.prototype );
     GazeReplay.prototype.base = app.Visualization.prototype;
     GazeReplay.prototype.constructor = GazeReplay;
-
-    GazeReplay.prototype.update = function() {
-    };
 
     GazeReplay.prototype._fillCategories = function( list, users ) {
         const texts = this._getTexts( users );
@@ -142,7 +138,7 @@
                     ctx.textBaseline = 'top';
                     ctx.strokeStyle = '#000';
                     ctx.fillStyle = track.color;
-                    ctx.font = `bold ${this.nameFontSize}px ${this.nameFontFamily}`;
+                    ctx.font = `bold ${this.nameFontSize}px ${this._nameFontFamily}`;
                     ctx.fillText(
                         String.fromCharCode( 0x2713 ),
                         this._tracksLegendLocation.x - this.nameFontSize,
@@ -174,7 +170,7 @@
             ctx.textAlign = 'left';
             ctx.textBaseline = 'top';
             ctx.fillStyle = track.color;
-            ctx.font = `bold ${this.nameFontSize}px ${this.nameFontFamily}`;
+            ctx.font = `bold ${this.nameFontSize}px ${this._nameFontFamily}`;
 
             ctx.fillText(
                 track.name,

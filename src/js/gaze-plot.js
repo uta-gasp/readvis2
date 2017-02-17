@@ -16,7 +16,7 @@
     //          showFixations       - flag to display fixations
     //          greyFixationColor   - the color of fixation used for inspection
     //          greyFixationSize    - size of grey fixations
-    //          fixationNumberFont
+    //          fixationNumberSize
     //          fixationNumberColor
     //      }
     function GazePlot( options ) {
@@ -31,7 +31,7 @@
 
         this.greyFixationColor = options.greyFixationColor || 'rgba(0,0,0,0.5)';
         this.greyFixationSize = options.greyFixationSize || 15;
-        this.fixationNumberFont = options.fixationNumberFont || 'bold 16px Verdana';
+        this.fixationNumberSize = options.fixationNumberSize || 16;
         this.fixationNumberColor = options.fixationNumberColor || '#FF0';
 
         this.wordListUnits = options.wordListUnits || app.WordList.Units.MS;
@@ -64,7 +64,7 @@
                 greyFixationColor: { type: new String('#'), label: 'Default fixation color' },
                 greyFixationSize: { type: new Number(), label: 'Default fixation size' },
                 showIDs: { type: new Boolean(), label: 'Show IDs' },
-                fixationNumberFont: { type: new String(), label: 'ID font' },
+                fixationNumberSize: { type: new Number(), label: 'ID font size' },
                 fixationNumberColor: { type: new String('#'), label: 'ID color' },
                 wordListUnits: { type: Object.values( app.WordList.Units ), label: 'Word list units' },
             }, this )
@@ -252,7 +252,7 @@
 
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.font = this.fixationNumberFont;
+        ctx.font = `bold ${this.fixationNumberSize}px Verdana`;;
         ctx.fillStyle = this.fixationNumberColor;
         ctx.fillText( '' + id, fixation._x ? fixation._x : fixation.x, fixation.y );
     }
