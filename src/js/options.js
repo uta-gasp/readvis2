@@ -12,7 +12,6 @@
     //      values: {             - get/set values
     //          gazePlot {
     //              colorMetric (index)
-    //              mapping (index)
     //              showIDs (bool)
     //              showConnections (bool)
     //              showSaccades (bool)
@@ -33,22 +32,21 @@
 
         this._slideout = document.querySelector( root );
 
-        const logError = app.Logger.moduleErrorPrinter( 'Options' );
-
         _values = values || {};
 
-        _values.gazePlot = _values.gazePlot || {};
-        _values.gazePlot.colorMetric = _values.gazePlot.colorMetric || logError( 'gazePlot.colorMetric"' );
-        _values.gazePlot.mapping = _values.gazePlot.mapping || logError( 'gazePlot.mapping"' );
-        _values.gazePlot.showConnections = _values.gazePlot.showConnections || logError( 'gazePlot.showConnections' );
-        _values.gazePlot.showSaccades = _values.gazePlot.showSaccades || logError( 'gazePlot.showSaccades' );
-        _values.gazePlot.showFixations = _values.gazePlot.showFixations || logError( 'gazePlot.showFixations' );
-        _values.gazePlot.showOriginalFixLocation = _values.gazePlot.showOriginalFixLocation || logError( 'gazePlot.showOriginalFixLocation' );
+        // const logError = app.Logger.moduleErrorPrinter( 'Options' );
 
-        _values.textSummary = _values.textSummary || {};
-        _values.textSummary.colorMetric = _values.textSummary.colorMetric || logError( 'textSummary.colorMetric' );
-        _values.textSummary.showFixations = _values.textSummary.showFixations || logError( 'textSummary.showFixations' );
-        _values.textSummary.showRegressions = _values.textSummary.showRegressions || logError( 'textSummary.showRegressions' );
+        // _values.gazePlot = _values.gazePlot || {};
+        // _values.gazePlot.colorMetric = _values.gazePlot.colorMetric || logError( 'gazePlot.colorMetric"' );
+        // _values.gazePlot.showConnections = _values.gazePlot.showConnections || logError( 'gazePlot.showConnections' );
+        // _values.gazePlot.showSaccades = _values.gazePlot.showSaccades || logError( 'gazePlot.showSaccades' );
+        // _values.gazePlot.showFixations = _values.gazePlot.showFixations || logError( 'gazePlot.showFixations' );
+        // _values.gazePlot.showOriginalFixLocation = _values.gazePlot.showOriginalFixLocation || logError( 'gazePlot.showOriginalFixLocation' );
+
+        // _values.textSummary = _values.textSummary || {};
+        // _values.textSummary.colorMetric = _values.textSummary.colorMetric || logError( 'textSummary.colorMetric' );
+        // _values.textSummary.showFixations = _values.textSummary.showFixations || logError( 'textSummary.showFixations' );
+        // _values.textSummary.showRegressions = _values.textSummary.showRegressions || logError( 'textSummary.showRegressions' );
 
         _utils = utils;
 
@@ -118,7 +116,7 @@
     let _utils;
 
     function loadSettings( cssRules ) {
-        const options = JSON.parse( localStorage.getItem('options') );
+        const options = JSON.parse( localStorage.getItem( 'readvis2_options' ) );
         if (!options) {
             return;
         }
@@ -178,7 +176,7 @@
             options.css[ rule.selector + '____' + rule.name ] = rule.value;
         });
 
-        localStorage.setItem( 'options', JSON.stringify( options) );
+        localStorage.setItem( 'readvis2_options', JSON.stringify( options) );
     }
 
     function componentToHex( c ) {
@@ -282,53 +280,113 @@
         }
     }
 
+    // binders
+
+    function bindCheckbox( el, ref ) {
+        el.checked = ref();
+        el.addEventListener( 'click', e => {
+            ref( e.target.checked );
+        });
+    }
+
+    function bindSelect( el, ref ) {
+        el.selectedIndex = ref();
+        el.addEventListener( 'change', e => {
+            ref( e.target.selectedIndex );
+        });
+    }
+
+    function bindValue( el, ref ) {
+        el.value = ref();
+        el.addEventListener( 'change', e => {
+            ref( e.target.value );
+        });
+    }
+
+    function bindRadios( els, ref ) {
+        //const els = Array.from( _container.querySelectorAll( `input[name=${name}]` ) );
+        els.forEach( (radio, index) => {
+            radio.checked = ref() === index;
+            radio.addEventListener( 'change', e => {
+                ref( e.target.value );
+            });
+        });
+    }
+
     function bindSettingsToEditors( root ) {
-        const bindCheckbox = (id, service) => {
-            const flag = root.querySelector( '#' + id );
-            flag.checked = service();
-            flag.addEventListener( 'click', e => {
-                service( e.target.checked );
+        const container = root.querySelector( '.options' );
+
+        for (let visID in _values) {
+            const vis = _values[ visID ];
+
+            const group = document.createElement( 'div' );
+            group.classList.add( 'group' );
+
+            const name = document.createElement( 'div' );
+            name.classList.add( 'name' );
+            name.textContent = vis.name;
+            group.appendChild( name );
+
+            vis.options.forEach( option => {
+                const row = document.createElement( 'div' );
+                row.classList.add( 'row' );
+
+                const label = document.createElement( 'div' );
+                label.classList.add( 'label' );
+                label.textContent = option.label;
+                row.appendChild( label );
+
+                const id =  vis.name + '_' + option.name;
+
+                if (option.type instanceof Array) {
+                    const select = document.createElement( 'select' );
+                    select.classList.add( 'value' );
+                    select.classList.add( id );
+
+                    option.type.forEach( itemName => {
+                        const item = document.createElement( 'option' );
+                        item.value = itemName;
+                        item.textContent = itemName;
+                        select.appendChild( item );
+                    });
+
+                    select.selectedIndex = option.ref();
+                    select.addEventListener( 'change', e => {
+                        option.ref( e.target.selectedIndex );
+                    });
+
+                    row.appendChild( select );
+                }
+                else if (option.type instanceof Boolean) {
+                    const checkbox = document.createElement( 'input' );
+                    checkbox.type = 'checkbox';
+                    checkbox.classList.add( 'value' );
+                    checkbox.classList.add( id );
+
+                    checkbox.checked = option.ref();
+                    checkbox.addEventListener( 'click', e => {
+                        option.ref( e.target.checked );
+                    });
+
+                    row.appendChild( checkbox );
+                }
+
+                group.appendChild( row );
             });
-        };
 
-        const bindSelect = (id, service) => {
-            const select = root.querySelector( '#' + id );
-            select.selectedIndex = service();
-            select.addEventListener( 'change', e => {
-                service( e.target.selectedIndex );
-            });
-        };
+            container.appendChild( group );
+        }
 
-        const bindValue = (id, service) => {
-            const text = root.querySelector( '#' + id );
-            text.value = service();
-            text.addEventListener( 'change', e => {
-                service( e.target.value );
-            });
-        };
+        // bindSelect( 'gaze-plot_color-metric', _values.gazePlot.colorMetric );
+        // bindCheckbox( 'gaze-plot_show-ids', _values.gazePlot.showIDs );
+        // bindCheckbox( 'gaze-plot_show-connections', _values.gazePlot.showConnections );
+        // bindCheckbox( 'gaze-plot_show-saccades', _values.gazePlot.showSaccades );
+        // bindCheckbox( 'gaze-plot_show-fixations', _values.gazePlot.showFixations );
+        // bindCheckbox( 'gaze-plot_show-original-fix-location', _values.gazePlot.showOriginalFixLocation );
 
-        const bindRadios = (name, service) => {
-            const radioButtons = Array.from( root.querySelectorAll( `input[name=${name}]` ) );
-            radioButtons.forEach( (radio, index) => {
-                radio.checked = service() === index;
-                radio.addEventListener( 'change', e => {
-                    service( e.target.value );
-                });
-            });
-        };
-
-        bindSelect( 'gaze-plot_mapping', _values.gazePlot.mapping );
-
-        bindSelect( 'gaze-plot_color-metric', _values.gazePlot.colorMetric );
-        bindCheckbox( 'gaze-plot_show-ids', _values.gazePlot.showIDs );
-        bindCheckbox( 'gaze-plot_show-connections', _values.gazePlot.showConnections );
-        bindCheckbox( 'gaze-plot_show-saccades', _values.gazePlot.showSaccades );
-        bindCheckbox( 'gaze-plot_show-fixations', _values.gazePlot.showFixations );
-        bindCheckbox( 'gaze-plot_show-original-fix-location', _values.gazePlot.showOriginalFixLocation );
-
-        bindSelect( 'gaze-plots_color-metric', _values.textSummary.colorMetric );
-        bindCheckbox( 'gaze-plots_show-fixations', _values.textSummary.showFixations );
-        bindCheckbox( 'gaze-plots_show-regressions', _values.textSummary.showRegressions );
+        // bindSelect( 'gaze-plots_color-metric', _values.textSummary.colorMetric );
+        // bindCheckbox( 'gaze-plots_show-fixations', _values.textSummary.showFixations );
+        // bindCheckbox( 'gaze-plots_show-regressions', _values.textSummary.showRegressions );
     }
 
     app.Options = Options;

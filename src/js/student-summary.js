@@ -95,7 +95,6 @@
 
             this._users = users;
 
-            this._enableNavigationButtons( false, false );
             this._setCloseCallback( () => {
                 this._container.classList.add( 'invisible' );
             });

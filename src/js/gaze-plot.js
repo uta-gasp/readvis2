@@ -8,39 +8,34 @@
     // Gaze plot visualization constructor
     // Arguments:
     //      options: {
-    //          fixationColor       - fixation color
-    //          showIDs             - if set, fixations and words are labelled by IDs. FIxations also have single color
     //          saccadeColor        - saccade color
     //          connectionColor     - connection color
+    //          showIDs             - if set, fixations and words are labelled by IDs. FIxations also have single color
     //          showConnections     - flat to display fixation-word connections
     //          showSaccades        - flag to display saccades
     //          showFixations       - flag to display fixations
-    //          showOriginalFixLocation - flag to display original fixation location
-    //          originalFixationColor - original fixation color, if displayed
     //          greyFixationColor   - the color of fixation used for inspection
-    //          fixationNumberColor - the color of fixation number
     //          greyFixationSize    - size of grey fixations
-    //          numberFont          - fixation number font
+    //          fixationNumberFont
+    //          fixationNumberColor
     //      }
     function GazePlot( options ) {
 
-        this.fixationColor = options.fixationColor || '#000';
         this.saccadeColor = options.saccadeColor || '#08F';
         this.connectionColor = options.connectionColor || '#F00';
-        this.showIDs = options.showIDs || false;
 
+        this.showIDs = options.showIDs || false;
         this.showConnections = options.showConnections !== undefined ? options.showConnections : true;
         this.showSaccades = options.showSaccades !== undefined ? options.showSaccades : true;
         this.showFixations = options.showFixations !== undefined ? options.showFixations : true;
-        this.showOriginalFixLocation = options.showOriginalFixLocation !== undefined ? options.showOriginalFixLocation : false;
-        this.originalFixationColor = options.originalFixationColor || 'rgba(0,0,0,0.15)';
+
         this.greyFixationColor = options.greyFixationColor || 'rgba(0,0,0,0.5)';
-        this.fixationNumberColor = options.fixationNumberColor || '#FF0';
         this.greyFixationSize = options.greyFixationSize || 15;
-        this.numberFont = options.numberFont || 'bold 16px Verdana';
+        this.fixationNumberFont = options.fixationNumberFont || 'bold 16px Verdana';
+        this.fixationNumberColor = options.fixationNumberColor || '#FF0';
 
         const lineColorA = 0.5;
-        this.lineColors = [
+        this._lineColors = [
             `rgba(255,0,0,${lineColorA}`,
             `rgba(255,255,0,${lineColorA}`,
             `rgba(0,255,0,${lineColorA}`,
@@ -48,8 +43,18 @@
             `rgba(0,128,255,${lineColorA}`,
             `rgba(255,0,255,${lineColorA}`,
         ];
+        this._unmappedFixationColor = '#000';
+        this._mergedFixationBorderColor = '#808'
 
         app.Visualization.call( this, options );
+
+        this.options = this._createOptions([
+            { type: ['none', 'duration', 'char speed', 'syllable speed'], name: 'colorMetric', label: 'Word color metric' },
+            { type: new Boolean(), name: 'showIDs', label: 'Show IDs' },
+            { type: new Boolean(), name: 'showConnections', label: 'Show word-fixation connections' },
+            { type: new Boolean(), name: 'showSaccades', label: 'Show saccades' },
+            { type: new Boolean(), name: 'showFixations', label: 'Show fixations' },
+        ]);
 
         this._data = null;
     }
@@ -126,9 +131,8 @@
                 }
             });
 
-            this._pageIndex = 0;
-            this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );
-            this._remapAndShow();
+            this._setPageIndex( 0 );
+            this._mapAndShow();
 
             this._setPrevPageCallback( () => { this._prevPage(); });
             this._setNextPageCallback( () => { this._nextPage(); });
@@ -142,7 +146,7 @@
         });
     };
 
-    GazePlot.prototype._remapAndShow = function() {
+    GazePlot.prototype._mapAndShow = function() {
         const sessionPage = this._data.session[ this._pageIndex ];
         const hyphen = this._data.session.meta.interaction.syllabification.hyphen;
 
@@ -161,12 +165,7 @@
             return;
         }
 
-        let fixations;
-        switch (this.mapping) {
-            case app.Visualization.Mapping.STATIC: fixations = this._remapStatic( data ); break;
-            //case app.Visualization.Mapping.DYNAMIC: fixations = this._remapDynamic( data ); break;
-            default: console.error( 'unknown mapping type' ); return;
-        }
+        const fixations = this._map( data ).fixations;
 
         const metricRange = app.Metric.compute( data.words, this.colorMetric );
 
@@ -191,11 +190,6 @@
     };
 
     GazePlot.prototype._drawFixations = function( ctx, fixations ) {
-        ctx.fillStyle = this.fixationColor;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.font = this.numberFont;
-
         let prevFix, fix;
         let id = 0;
         for (let i = 0; i < fixations.length; i += 1) {
@@ -204,21 +198,27 @@
                 continue;
             }
 
-            ctx.strokeStyle = this.saccadeColor;
             if (this.showSaccades && prevFix) {
                 this._drawSaccade( ctx, prevFix, fix );
             }
 
             if (this.showConnections && fix.word) {
-                ctx.strokeStyle = this.connectionColor;
                 this._drawConnection( ctx, fix, {x: fix.word.left, y: fix.word.top} );
             }
 
-            ctx.strokeStyle = '#808';
             this._drawFixation( ctx, fix, fix.id );
 
             prevFix = fix;
             id++;
+        }
+    };
+
+    GazePlot.prototype._drawFixation = function( ctx, fixation, id ) {
+        if (this.showIDs) {
+            this._drawGreyFixation( ctx, fixation, id );
+        }
+        else {
+            this._drawColoredFixation( ctx, fixation, id );
         }
     };
 
@@ -228,49 +228,39 @@
         ctx.arc( fixation._x ? fixation._x : fixation.x, fixation.y, this.greyFixationSize, 0, 2*Math.PI);
         ctx.fill();
 
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.font = this.fixationNumberFont;
         ctx.fillStyle = this.fixationNumberColor;
         ctx.fillText( '' + id, fixation._x ? fixation._x : fixation.x, fixation.y );
     }
 
-    GazePlot.prototype._drawFixation = function( ctx, fixation, id ) {
-        let circleSize;
-
-        if (this.showIDs) {
-            this._drawGreyFixation( ctx, fixation, id );
-            circleSize = this.greyFixationSize;
+    GazePlot.prototype._drawColoredFixation = function( ctx, fixation, id ) {
+        if (fixation.line !== undefined) {
+            ctx.fillStyle = this._lineColors[ fixation.line % this._lineColors.length ];
         }
         else {
-            if (fixation.line !== undefined) {
-                ctx.fillStyle = this.lineColors[ fixation.line % 6 ];
-            }
-            else {
-                ctx.fillStyle = this.fixationColor;
-            }
-
-            circleSize = Math.round( Math.sqrt( fixation.duration ) ) / 2;
-
-            ctx.beginPath();
-            ctx.arc( fixation.x, fixation.y, circleSize, 0, 2*Math.PI);
-            ctx.fill();
-
-            if (fixation.merged) {
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                ctx.arc( fixation.x, fixation.y, circleSize + 3, 0, 2*Math.PI);
-                ctx.stroke();
-                ctx.lineWidth = 1;
-            }
+            ctx.fillStyle = this._unmappedFixationColor;
         }
 
-        if (this.showOriginalFixLocation /*&& fixation._x*/) {
-            ctx.fillStyle = this.originalFixationColor;
+        const circleSize = Math.round( Math.sqrt( fixation.duration ) ) / 2;
+
+        ctx.beginPath();
+        ctx.arc( fixation.x, fixation.y, circleSize, 0, 2*Math.PI);
+        ctx.fill();
+
+        if (fixation.merged) {
+            ctx.strokeStyle = this._mergedFixationBorderColor;
+            ctx.lineWidth = 3;
             ctx.beginPath();
-            ctx.arc( fixation.x, fixation.y, circleSize, 0, 2*Math.PI);
-            ctx.fill();
+            ctx.arc( fixation.x, fixation.y, circleSize + 3, 0, 2*Math.PI);
+            ctx.stroke();
+            ctx.lineWidth = 1;
         }
-    };
+    }
 
     GazePlot.prototype._drawSaccade = function( ctx, from, to ) {
+        ctx.strokeStyle = this.saccadeColor;
         ctx.beginPath();
         ctx.moveTo( this.showIDs ? (from._x ? from._x : from.x) : from.x, from.y );
         ctx.lineTo( this.showIDs ? (to._x ? to._x : to.x) : to.x, to.y );
@@ -278,121 +268,28 @@
     };
 
     GazePlot.prototype._drawConnection = function( ctx, from, to ) {
+        ctx.strokeStyle = this.connectionColor;
         ctx.beginPath();
         ctx.moveTo( this.showIDs ? (from._x ? from._x : from.x) : from.x, from.y );
         ctx.lineTo( to.x, to.y );
         ctx.stroke();
     };
 
-    /*
-    GazePlot.prototype._remapDynamic = function( session ) {
-        app.Logger.enabled = false;
-
-        const fixations = app.Fixations;
-        const model = app.Model2;
-
-        fixations.init( 80, 50 );
-        model.init({
-            linePredictor: {
-                factors: {
-                    currentLineDefDist: 0.4,
-                    currentLineMaxDist: 0.4,
-                    newLineSaccadeLengthFraction: 0.1
-                }
-            }
-        });
-
-        const layout = session.words.map( function( word ) {
-            return new Word({ left: word.x, top: word.y, right: word.x + word.width, bottom: word.y + word.height });
-        });
-
-        fixations.reset();
-        model.reset( layout );
-
-        const result = [];
-        session.fixations.forEach( function( fix ) {
-            const fixation = fixations.add( fix.x, fix.y, fix.duration );
-            if (fixation) {
-                model.feedFixation( fixation );
-                result.push( fixation );
-            }
-        });
-
-        return result;
-    };*/
-
-    GazePlot.prototype._remapStatic = function( session ) {
-        let settings;
-
-        settings = new SGWM.FixationProcessorSettings();
-        settings.location.enabled = false;
-        settings.duration.enabled = false;
-        settings.save();
-
-        settings = new SGWM.SplitToProgressionsSettings();
-        settings.bounds = { // in size of char height
-            left: -0.5,
-            right: 8,
-            verticalChar: 2,
-            verticalLine: 0.6
-        };
-        settings.angle = Math.sin( 15 * Math.PI / 180 );
-        settings.save();
-
-        settings = new SGWM.ProgressionMergerSettings();
-        settings.minLongSetLength = 2;
-        settings.fitThreshold = 0.28;       // fraction of the interline distance
-        settings.maxLinearGradient = 0.15;
-        settings.removeSingleFixationLines = false;
-        settings.correctForEmptyLines = true;
-        settings.emptyLineDetectorFactor = 1.6;
-        settings.save();
-
-        settings = new SGWM.WordMapperSettings();
-        settings.wordCharSkipStart = 3;
-        settings.wordCharSkipEnd = 6;
-        settings.scalingDiffLimit = 0.9;
-        settings.rescaleFixationX = false;
-        settings.partialLengthMaxWordLength = 2;
-        settings.effectiveLengthFactor = 0.7;
-        settings.ignoreTransitions = false;
-        settings.save();
-
-        const sgwm = new SGWM();
-        const result = sgwm.map( session );
-
-        return result.fixations;
-    };
-
     GazePlot.prototype._prevPage = function() {
         if (this._data && this._pageIndex > 0) {
-            this._pageIndex--;
-            this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );
-            this._remapAndShow();
+            this._setPageIndex( this._pageIndex - 1 );
+            this._mapAndShow();
         }
     };
 
     GazePlot.prototype._nextPage = function() {
         if (this._data && this._pageIndex < this._data.text.length - 1) {
-            this._pageIndex++;
-            this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );
-            this._remapAndShow();
+            this._setPageIndex( this._pageIndex + 1 );
+            this._mapAndShow();
         }
     };
 
     }); // end of delayed call
-
-    /*
-    function Word( rect ) {
-        this.left = rect.left;
-        this.top = rect.top;
-        this.right = rect.right;
-        this.bottom = rect.bottom;
-    }
-
-    Word.prototype.getBoundingClientRect = function() {
-        return this;
-    };*/
 
     app.GazePlot = GazePlot;
 

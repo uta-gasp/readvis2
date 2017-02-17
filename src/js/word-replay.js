@@ -61,8 +61,7 @@
                 this._tracks.push( new Track( this._container, sessionData, id ) );
             });
 
-            this._pageIndex = 0;
-            this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );
+            this._setPageIndex( 0 );
             this._start();
 
             this._setPrevPageCallback( () => { this._prevPage(); });
@@ -138,9 +137,16 @@
         const pageText = this._data.text[ this._pageIndex ];
 
         this._tracks.forEach( (track, ti) => {
+
+            const data = {
+                fixations: track.session[ this._pageIndex ].fixations,
+                words: pageText,
+            };
+
+            const mappingResult = this._map( data );
+
             track.start(
-                this._pageIndex,
-                pageText,
+                mappingResult,
                 (word, duration, pointer) => {
                     const rawWord = track.words[ word.id ];
                     rawWord.totalDuration = rawWord.totalDuration + duration;
@@ -167,8 +173,7 @@
     WordReplay.prototype._prevPage = function() {
         this._stopAll();
         if (this._data && this._pageIndex > 0) {
-            this._pageIndex--;
-            this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );
+            this._setPageIndex( this._pageIndex - 1 );
             this._start();
         }
     };
@@ -176,8 +181,7 @@
     WordReplay.prototype._nextPage = function() {
         this._stopAll();
         if (this._data && this._pageIndex < this._data.text.length - 1) {
-            this._pageIndex++;
-            this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );
+            this._setPageIndex( this._pageIndex + 1 );
             this._start();
         }
     };
@@ -202,24 +206,17 @@
         this.__next = this._next.bind( this );
     }
 
-    Track.prototype.start = function( pageIndex, words, onWordFixated, onCompleted ) {
+    Track.prototype.start = function( data, onWordFixated, onCompleted ) {
         this.onWordFixated = onWordFixated;
         this.onCompleted = onCompleted;
-
-        const data = {
-            fixations: this.session[ pageIndex ].fixations,
-            words: words,
-        };
 
         if (!data.fixations) {
             onCompleted();
             return;
         }
 
-        const mappingResult = this._remapStatic( data );
-
-        this.fixations = mappingResult.fixations;
-        this.words = mappingResult.text.words;
+        this.fixations = data.fixations;
+        this.words = data.text.words;
 
         this.words.forEach( word => {
             word.totalDuration = 0;
@@ -293,7 +290,7 @@
         }
     };
 
-    Track.prototype._remapStatic = function( session ) {
+    Track.prototype._map = function( session ) {
         let settings;
 
         settings = new SGWM.FixationProcessorSettings();

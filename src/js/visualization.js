@@ -1,6 +1,7 @@
 // Base for visualizations
 //
 // Requires:
+//      sgwm
 //      app,Colors
 //      app.Metric
 //      app.Syllabifier
@@ -25,7 +26,6 @@
     //              color
     //          }
     //          colorMetric         - word background coloring metric
-    //          mapping             - mapping type
     //      }
     function Visualization( options ) {
         this.wordColor = options.wordColor || '#666';
@@ -39,7 +39,6 @@
         }, options.syllabification );
 
         this.colorMetric = options.colorMetric !== undefined ? options.colorMetric : app.Metric.Type.DURATION;
-        this.mapping = options.mapping !== undefined ? options.mapping : Visualization.Mapping.STATIC;
 
         this._gradeTexts = {
             '2nd grade': [
@@ -59,7 +58,11 @@
         this._sessions = {};
         this._texts = {};
 
-        this._pageIndex = 0;
+        this._pageIndex = -1;
+
+        _closeCallback = () => {
+            this._onClosed();
+        };
     }
 
     // Initialization routine, to be called prior constructing any visualization object
@@ -133,7 +136,7 @@
         });
     };
 
-    // private
+    // data retrival
 
     Visualization.prototype._showDataSelectionDialog = function( multiple, users ) {
         _wait.classList.add( 'invisible' );
@@ -162,6 +165,57 @@
         _promtCallback = this._load.bind( this );
         _prompt.classList.remove( 'invisible' );
     };
+
+    Visualization.prototype._addOption = function( list, value, text, data ) {
+        return addOption( list, value, text, data );
+    };
+
+    // returns promise, or a cached text
+    Visualization.prototype._loadText = function( id, title ) {
+        return this._texts[ id ] || new Promise( (resolve, reject) => {
+            const textRef = app.firebase.child( 'texts/' + id );
+            textRef.once( 'value', snapshot => {
+
+                if (!snapshot.exists()) {
+                    reject( `Text ${id} does not exist in the database` );
+                    return;
+                }
+
+                const text = snapshot.val();
+                text.title = title;
+                this._texts[ id ] = text;
+
+                resolve( text );
+
+            }, err => {
+                reject( err );
+            });
+        });
+    };
+
+    Visualization.prototype._loadSession = function( id, meta ) {
+        return this._sessions[ id ] || new Promise( (resolve, reject) => {
+            const sessionRef = app.firebase.child( 'sessions/' + id );
+            sessionRef.once( 'value', snapshot => {
+
+                if (!snapshot.exists()) {
+                    reject( `Session ${id} does not exist in the database` );
+                    return;
+                }
+
+                const sessionData = snapshot.val();
+                sessionData.meta = meta;
+                this._sessions[ id ] = sessionData;
+
+                resolve( sessionData );
+
+            }, err => {
+                reject( err );
+            });
+        });
+    };
+
+    // data restructuring
 
     // returns map of textID = { title, session = [...] }
     Visualization.prototype._getTexts = function( users ) {
@@ -210,51 +264,6 @@
         });
 
         return gradeUsers;
-    };
-
-    // returns promise, or a cached text
-    Visualization.prototype._loadText = function( id, title ) {
-        return this._texts[ id ] || new Promise( (resolve, reject) => {
-            const textRef = app.firebase.child( 'texts/' + id );
-            textRef.once( 'value', snapshot => {
-
-                if (!snapshot.exists()) {
-                    reject( `Text ${id} does not exist in the database` );
-                    return;
-                }
-
-                const text = snapshot.val();
-                text.title = title;
-                this._texts[ id ] = text;
-
-                resolve( text );
-
-            }, err => {
-                reject( err );
-            });
-        });
-    };
-
-    Visualization.prototype._loadSession = function( id, meta ) {
-        return this._sessions[ id ] || new Promise( (resolve, reject) => {
-            const sessionRef = app.firebase.child( 'sessions/' + id );
-            sessionRef.once( 'value', snapshot => {
-
-                if (!snapshot.exists()) {
-                    reject( `Session ${id} does not exist in the database` );
-                    return;
-                }
-
-                const sessionData = snapshot.val();
-                sessionData.meta = meta;
-                this._sessions[ id ] = sessionData;
-
-                resolve( sessionData );
-
-            }, err => {
-                reject( err );
-            });
-        });
     };
 
     Visualization.prototype._setSessionProps = function( props ) {
@@ -325,9 +334,6 @@
     };
 
     Visualization.prototype._drawWords = function( ctx, words, settings ) {
-        ctx.strokeStyle = this.wordStrokeColor;
-        ctx.lineWidth = 1;
-
         const indexComputer = IndexComputer();
 
         words.forEach( (word, index) => {
@@ -379,15 +385,13 @@
         }
 
         if (!settings.hideBoundingBox) {
+            ctx.strokeStyle = this.wordStrokeColor;
+            ctx.lineWidth = 1;
             ctx.strokeRect( word.x, word.y, word.width, word.height);
         }
     };
 
     // Paging
-
-    Visualization.prototype._addOption = function( list, value, text, data ) {
-        return addOption( list, value, text, data );
-    };
 
     Visualization.prototype._setPrevPageCallback = function( cb ) {
         _prevPageCallback = cb;
@@ -395,6 +399,11 @@
 
     Visualization.prototype._setNextPageCallback = function( cb ) {
         _nextPageCallback = cb;
+    };
+
+    Visualization.prototype._setPageIndex = function( value ) {
+        this._pageIndex = value;
+        this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );
     };
 
     Visualization.prototype._enableNavigationButtons = function( prev, next ) {
@@ -413,9 +422,97 @@
         }
     };
 
-    Visualization.prototype._setCloseCallback = function( cb ) {
-        _closeCallback = cb;
+    // Data processing
+
+    Visualization.prototype._map = function( session ) {
+        let settings;
+
+        settings = new SGWM.FixationProcessorSettings();
+        settings.location.enabled = false;
+        settings.duration.enabled = false;
+        settings.save();
+
+        settings = new SGWM.SplitToProgressionsSettings();
+        settings.bounds = { // in size of char height
+            left: -0.5,
+            right: 8,
+            verticalChar: 2,
+            verticalLine: 0.6
+        };
+        settings.angle = Math.sin( 15 * Math.PI / 180 );
+        settings.save();
+
+        settings = new SGWM.ProgressionMergerSettings();
+        settings.minLongSetLength = 2;
+        settings.fitThreshold = 0.28;       // fraction of the interline distance
+        settings.maxLinearGradient = 0.15;
+        settings.removeSingleFixationLines = false;
+        settings.correctForEmptyLines = true;
+        settings.emptyLineDetectorFactor = 1.6;
+        settings.save();
+
+        settings = new SGWM.WordMapperSettings();
+        settings.wordCharSkipStart = 3;
+        settings.wordCharSkipEnd = 6;
+        settings.scalingDiffLimit = 0.9;
+        settings.rescaleFixationX = false;
+        settings.partialLengthMaxWordLength = 2;
+        settings.effectiveLengthFactor = 0.7;
+        settings.ignoreTransitions = false;
+        settings.save();
+
+        const sgwm = new SGWM();
+        const result = sgwm.map( session );
+
+        return result;
     };
+
+    // other
+
+    Visualization.prototype._update = function() {
+        if (this._pageIndex < 0) {
+            return;
+        }
+
+        console.log( 'updated' );
+    };
+
+    Visualization.prototype._createOptions = function( params ) {
+        const options = [];
+
+        params.forEach( param => {
+            const option = Object.assign( {
+                ref: value => {
+                    if (value === undefined) {
+                        return this[ param.name ];
+                    }
+                    else {
+                        this[ param.name ] = value;
+                        this._update();
+                    }
+                }
+            }, param );
+
+            options.push( option );
+        });
+
+        return options;
+    };
+
+    Visualization.prototype._setCloseCallback = function( cb ) {
+        _closeCallback = () => {
+            this._onClosed();
+            if (cb) {
+                cb();
+            }
+        };
+    };
+
+    Visualization.prototype._onClosed = function() {
+        this._pageIndex = -1;
+    };
+
+    // internal
 
     let _height;
     let _width;
@@ -565,11 +662,6 @@
     function removeWaitImage() {
         _wait.classList.add( 'invisible' );
     }
-
-    Visualization.Mapping = {
-        STATIC: 0,
-        DYNAMIC: 1
-    };
 
     app.Visualization = Visualization;
 

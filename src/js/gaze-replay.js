@@ -71,8 +71,7 @@
                 this._tracks.push( new Track( app.Visualization.root, sessionData ) );
             });
 
-            this._pageIndex = 0;
-            this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );
+            this._setPageIndex( 0 );
             this._start();
 
             this._setPrevPageCallback( () => { this._prevPage(); });
@@ -145,8 +144,7 @@
     GazeReplay.prototype._prevPage = function() {
         this._stopAll();
         if (this._data && this._pageIndex > 0) {
-            this._pageIndex--;
-            this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );
+            this._setPageIndex( this._pageIndex - 1 );
             this._start();
         }
     };
@@ -154,8 +152,7 @@
     GazeReplay.prototype._nextPage = function() {
         this._stopAll();
         if (this._data && this._pageIndex < this._data.text.length - 1) {
-            this._pageIndex++;
-            this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );
+            this._setPageIndex( this._pageIndex + 1 );
             this._start();
         }
     };

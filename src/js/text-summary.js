@@ -60,9 +60,8 @@
 
             app.WordList.instance.show();
 
-            this._pageIndex = 0;
-            this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );
-            this._remapAndShow();
+            this._setPageIndex( 0 );
+            this._mapAndShow();
 
             this._setPrevPageCallback( () => { this._prevPage(); });
             this._setNextPageCallback( () => { this._nextPage(); });
@@ -76,7 +75,7 @@
         });
     };
 
-    TextSummary.prototype._remapAndShow = function() {
+    TextSummary.prototype._mapAndShow = function() {
         app.WordList.instance.clear();
 
         const ctx = this._getCanvas2D();
@@ -107,12 +106,7 @@
                 words: words
             };
 
-            let fixations;
-            switch (this.mapping) {
-                case app.Visualization.Mapping.STATIC: fixations = this._remapStatic( data ); break;
-                //case app.Visualization.Mapping.DYNAMIC: fixations = this._remapDynamic( data ); break;
-                default: console.error( 'unknown mapping type' ); return;
-            }
+            const fixations = this._map( data ).fixations;
 
             if (this.showFixations && fixations) {
                 this._drawFixations( ctx, fixations );
@@ -120,49 +114,6 @@
         });
 
         this._drawTitle( ctx, `"${this._data.text.title}" for ${this._data.sessions.length} sessions` );
-    };
-
-    TextSummary.prototype._remapStatic = function( session, words ) {
-        let settings;
-
-        settings = new SGWM.FixationProcessorSettings();
-        settings.location.enabled = false;
-        settings.duration.enabled = false;
-        settings.save();
-
-        settings = new SGWM.SplitToProgressionsSettings();
-        settings.bounds = { // in size of char height
-            left: -0.5,
-            right: 8,
-            verticalChar: 2,
-            verticalLine: 0.6
-        };
-        settings.angle = Math.sin( 15 * Math.PI / 180 );
-        settings.save();
-
-        settings = new SGWM.ProgressionMergerSettings();
-        settings.minLongSetLength = 2;
-        settings.fitThreshold = 0.28;       // fraction of the interline distance
-        settings.maxLinearGradient = 0.15;
-        settings.removeSingleFixationLines = false;
-        settings.correctForEmptyLines = true;
-        settings.emptyLineDetectorFactor = 1.6;
-        settings.save();
-
-        settings = new SGWM.WordMapperSettings();
-        settings.wordCharSkipStart = 3;
-        settings.wordCharSkipEnd = 6;
-        settings.scalingDiffLimit = 0.9;
-        settings.rescaleFixationX = false;
-        settings.partialLengthMaxWordLength = 2;
-        settings.effectiveLengthFactor = 0.7;
-        settings.ignoreTransitions = false;
-        settings.save();
-
-        const sgwm = new SGWM();
-        const result = sgwm.map( session );
-
-        return result.fixations;
     };
 
     // Overriden from Visualization._drawWord
@@ -194,17 +145,15 @@
 
     TextSummary.prototype._prevPage = function() {
         if (this._data && this._pageIndex > 0) {
-            this._pageIndex--;
-            this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );
-            this._remapAndShow();
+            this._setPageIndex( this._pageIndex - 1 );
+            this._mapAndShow();
         }
     };
 
     TextSummary.prototype._nextPage = function() {
         if (this._data && this._pageIndex < this._data.text.length - 1) {
-            this._pageIndex++;
-            this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );
-            this._remapAndShow();
+            this._setPageIndex( this._pageIndex + 1 );
+            this._mapAndShow();
         }
     };
 

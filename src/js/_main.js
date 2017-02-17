@@ -56,49 +56,23 @@ ReadVis2.init = function( components ) {
         text: components.textContainer + ' ' + components.text
     }, {    // services
         gazePlot: {
-            mapping: value => { return value === undefined ?
-                gazePlot.mapping :
-                (gazePlot.mapping = value);
-            },
-            colorMetric: value => { return value === undefined ?
-                gazePlot.colorMetric :
-                (gazePlot.colorMetric = value);
-            },
-            showIDs: value => { return value === undefined ?
-                gazePlot.showIDs :
-                (gazePlot.showIDs = value);
-            },
-            showConnections: value => { return value === undefined ?
-                gazePlot.showConnections :
-                (gazePlot.showConnections = value);
-            },
-            showSaccades: value => { return value === undefined ?
-                gazePlot.showSaccades :
-                (gazePlot.showSaccades = value);
-            },
-            showFixations: value => { return value === undefined ?
-                gazePlot.showFixations :
-                (gazePlot.showFixations = value);
-            },
-            showOriginalFixLocation: value => { return value === undefined ?
-                gazePlot.showOriginalFixLocation :
-                (gazePlot.showOriginalFixLocation = value);
-            }
+            name: 'gaze-plot',
+            options: gazePlot.options
         },
-        textSummary: {
-            colorMetric: value => { return value === undefined ?
-                textSummary.colorMetric :
-                (textSummary.colorMetric = value);
-            },
-            showFixations: value => { return value === undefined ?
-                textSummary.showFixations :
-                (textSummary.showFixations = value);
-            },
-            showRegressions: value => { return value === undefined ?
-                textSummary.showRegressions :
-                (textSummary.showRegressions = value);
-            }
-        }
+        // textSummary: {
+        //     colorMetric: value => { return value === undefined ?
+        //         textSummary.colorMetric :
+        //         (textSummary.colorMetric = value);
+        //     },
+        //     showFixations: value => { return value === undefined ?
+        //         textSummary.showFixations :
+        //         (textSummary.showFixations = value);
+        //     },
+        //     showRegressions: value => { return value === undefined ?
+        //         textSummary.showRegressions :
+        //         (textSummary.showRegressions = value);
+        //     }
+        // }
     }, {    // utils
     });
 };
