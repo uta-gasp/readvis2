@@ -15,9 +15,14 @@
 
         app.Visualization.call( this, options );
 
-        this.options = app.Visualization.createOptions({
-            longFixationThreshold: { type: new Number(100), label: 'Level duration, ms' },
-        }, this );
+        this.options = {
+            id: 'word-replay',
+            title: 'Word replay',
+            update: this.update.bind( this ),
+            options: app.Visualization.createOptions({
+                longFixationThreshold: { type: new Number(100), label: 'Level duration, ms' },
+            }, this )
+        };
 
         this._data = null;
         this._tracks = null;

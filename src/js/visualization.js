@@ -7,7 +7,7 @@
 //      app.Syllabifier
 //      app.firebase
 //
-// Interface to implement by its descendants:
+// Interface to implement/overload by its descendants:
 //        _load( onloaded, id, data, title )
 //        _fillCategories( htmlList, users ) || _fillItems( htmlList, users ) - returns a prompt title
 
@@ -98,6 +98,7 @@
 
         Visualization.root = _view;
 
+        _view.querySelector( '.settings' ).addEventListener( 'click', clickSettings );
         _view.querySelector( '.close' ).addEventListener( 'click', clickClose );
 
         _categoriesList.addEventListener( 'change', categoryChanged );
@@ -143,13 +144,17 @@
     };
 
     Visualization.createCommonOptions = function() {
-        return Visualization.createOptions({
-            wordColor: { type: new String('#'), label: 'Text color' },
-            wordHighlightColor: { type: new String('#'), label: 'Highlighting color' },
-            wordRectColor: { type: new String('#'), label: 'Word frame color' },
-            'syllabification.background' : { type: new String('#'), label: 'Syllabification background' },
-            'syllabification.color' : { type: new String('#'), label: 'Syllabification word color' },
-        }, Visualization._instaces );
+        return {
+            id: '_common',
+            title: 'Common',
+            options: Visualization.createOptions({
+                wordColor: { type: new String('#'), label: 'Text color' },
+                wordHighlightColor: { type: new String('#'), label: 'Highlighting color' },
+                wordRectColor: { type: new String('#'), label: 'Word frame color' },
+                'syllabification.background' : { type: new String('#'), label: 'Syllabification background' },
+                'syllabification.color' : { type: new String('#'), label: 'Syllabification word color' },
+            }, Visualization._instaces )
+        };
     };
 
     Visualization._instaces = [];
@@ -160,6 +165,8 @@
         if (_waiting) {
             return;
         }
+
+        Visualization.active = this;
 
         _view.classList.remove( 'invisible' );
         _wait.classList.remove( 'invisible' );
@@ -536,6 +543,7 @@
 
     Visualization.prototype._onClosed = function() {
         this._pageIndex = -1;
+        Visualization.active = null;
     };
 
     // internal
@@ -592,7 +600,13 @@
         };
     };
 
-    function clickClose() {
+    function clickSettings( e ) {
+        if (Visualization.active) {
+            app.Options.instance.show( Visualization.active.options.id );
+        }
+    }
+
+    function clickClose( e ) {
         _view.classList.add( 'invisible' );
         _sessionProps.classList.add( 'invisible' );
 
@@ -604,7 +618,7 @@
         }
     }
 
-    function clickSelect() {
+    function clickSelect( e ) {
         _prompt.classList.add( 'invisible' );
 
         if (_itemsList.multiple) {

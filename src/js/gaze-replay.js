@@ -23,11 +23,16 @@
 
         app.Visualization.call( this, options );
 
-        this.options = app.Visualization.createOptions({
-            nameFontFamily: { type: new String(), label: 'Font name' },
-            nameFontSize: { type: new Number(), label: 'Font size' },
-            nameSpacing: { type: new Number(0.1), label: 'Spacing' },
-        }, this );
+        this.options = {
+            id: 'gaze-replay',
+            title: 'Gaze replay',
+            update: this.update.bind( this ),
+            options: app.Visualization.createOptions({
+                nameFontFamily: { type: new String(), label: 'Font name' },
+                nameFontSize: { type: new Number(), label: 'Font size' },
+                nameSpacing: { type: new Number(0.1), label: 'Spacing' },
+            }, this )
+        };
 
         this._data = null;
         this._tracks = null;

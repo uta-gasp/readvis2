@@ -19,6 +19,14 @@
 
         app.Visualization.call( this, options );
 
+        this.options = {
+            id: 'student-summary',
+            title: 'Student summary',
+            update: this.update.bind( this ),
+            options: app.Visualization.createOptions({
+            }, this )
+        };
+
         this._users = null;
     }
 
@@ -198,7 +206,12 @@
         });
 
         const totalDuration = new Date( 0, 0, 0, 0, 0, Math.round( duration / 1000 ) );
-        result.push( `${totalDuration.getMinutes()}:${totalDuration.getSeconds()}` );
+        let seconds = '' + totalDuration.getSeconds();
+        if (seconds.length < 2) {
+            seconds = '0' + seconds;
+        }
+
+        result.push( `${totalDuration.getMinutes()}:${seconds}` );
         result.push( (duration / wordCount / 1000).toFixed(2) );
         result.push( Math.round( fixations.duration / fixations.count ) );
 

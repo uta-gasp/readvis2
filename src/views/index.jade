@@ -38,9 +38,6 @@ html
         include ./components/controls.jade
         +controls( ids.controls )
 
-        include ./components/options.jade
-        +options( ids.options, optionLists )
-
         include ./components/visualization.jade
         +visualization( ids.visualization )
 
@@ -52,6 +49,9 @@ html
 
         include ./components/student-summary.jade
         +student-summary( ids.studentSummary )
+
+        include ./components/options.jade
+        +options( ids.options, optionLists )
 
         script(src='app.js')
         script.

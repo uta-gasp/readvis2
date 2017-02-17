@@ -4,6 +4,7 @@
     user-select: none;
     max-height: 100vh;
     overflow: auto;
+    z-index: 100;
 
     &.expanded {
         width: 22em;
@@ -17,6 +18,10 @@
 
         &.inner {
             padding-left: 2em;
+        }
+
+        &.hidden {
+            display: none;
         }
 
         .name {

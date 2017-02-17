@@ -50,20 +50,25 @@
 
         app.Visualization.call( this, options );
 
-        this.options = app.Visualization.createOptions({
-            colorMetric: { type: ['none', 'duration', 'char speed', 'syllable speed'], label: 'Word color metric' },
-            showConnections: { type: new Boolean(), label: 'Show word-fixation connections' },
-            connectionColor: { type: new String('#'), label: 'Connection color' },
-            showSaccades: { type: new Boolean(), label: 'Show saccades' },
-            saccadeColor: { type: new String('#'), label: 'Saccade color' },
-            showFixations: { type: new Boolean(), label: 'Show fixations' },
-            greyFixationColor: { type: new String('#'), label: 'Default fixation color' },
-            greyFixationSize: { type: new Number(), label: 'Default fixation size' },
-            showIDs: { type: new Boolean(), label: 'Show IDs' },
-            fixationNumberFont: { type: new String(), label: 'ID font' },
-            fixationNumberColor: { type: new String('#'), label: 'ID color' },
-            wordListUnits: { type: Object.values( app.WordList.Units ), label: 'Word list units' },
-        }, this );
+        this.options = {
+            id: 'gaze-plot',
+            title: 'Gaze plot',
+            update: this.update.bind( this ),
+            options: app.Visualization.createOptions({
+                colorMetric: { type: ['none', 'duration', 'char speed', 'syllable speed'], label: 'Word color metric' },
+                showConnections: { type: new Boolean(), label: 'Show word-fixation connections' },
+                connectionColor: { type: new String('#'), label: 'Connection color' },
+                showSaccades: { type: new Boolean(), label: 'Show saccades' },
+                saccadeColor: { type: new String('#'), label: 'Saccade color' },
+                showFixations: { type: new Boolean(), label: 'Show fixations' },
+                greyFixationColor: { type: new String('#'), label: 'Default fixation color' },
+                greyFixationSize: { type: new Number(), label: 'Default fixation size' },
+                showIDs: { type: new Boolean(), label: 'Show IDs' },
+                fixationNumberFont: { type: new String(), label: 'ID font' },
+                fixationNumberColor: { type: new String('#'), label: 'ID color' },
+                wordListUnits: { type: Object.values( app.WordList.Units ), label: 'Word list units' },
+            }, this )
+        };
 
         this._data = null;
     }

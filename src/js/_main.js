@@ -55,35 +55,12 @@ ReadVis2.init = function( components ) {
         root: components.options,
         text: components.textContainer + ' ' + components.text
     }, {    // services
-        common: {
-            name: 'common',
-            title: 'Common',
-            options: ReadVis2.Visualization.createCommonOptions()
-        },
-        gazePlot: {
-            name: 'gaze-plot',
-            title: 'Gaze plot',
-            update: gazePlot.update.bind( gazePlot ),
-            options: gazePlot.options
-        },
-        textSummary: {
-            name: 'text-summary',
-            title: 'Text summary',
-            update: textSummary.update.bind( textSummary ),
-            options: textSummary.options
-        },
-        gazeReplay: {
-            name: 'gaze-replay',
-            title: 'Gaze replay',
-            update: gazeReplay.update.bind( gazeReplay ),
-            options: gazeReplay.options
-        },
-        wordReplay: {
-            name: 'word-replay',
-            title: 'Word replay',
-            update: wordReplay.update.bind( wordReplay ),
-            options: wordReplay.options
-        },
+        _common: ReadVis2.Visualization.createCommonOptions(),
+        gazePlot: gazePlot.options,
+        textSummary: textSummary.options,
+        gazeReplay: gazeReplay.options,
+        wordReplay: wordReplay.options,
+        studentSummary: studentSummary.options,
     }, {    // utils
     });
 };

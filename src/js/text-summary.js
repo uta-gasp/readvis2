@@ -21,11 +21,16 @@
 
         app.Visualization.call( this, options );
 
-        this.options = app.Visualization.createOptions({
-            fixationColor: { type: new String('#'), label: 'Fixation color' },
-            showFixations: { type: new Boolean(), label: 'Show fixations' },
-            showRegressions: { type: new Boolean(), label: 'Highlight regressions' },
-        }, this );
+        this.options = {
+            id: 'text-summary',
+            title: 'Text summary',
+            update: this.update.bind( this ),
+            options: app.Visualization.createOptions({
+                fixationColor: { type: new String('#'), label: 'Fixation color' },
+                showFixations: { type: new Boolean(), label: 'Show fixations' },
+                showRegressions: { type: new Boolean(), label: 'Highlight regressions' },
+            }, this )
+        };
 
         this._data = null;
     }

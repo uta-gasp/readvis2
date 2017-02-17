@@ -14,15 +14,16 @@
     //      utils: {
     //      }
     function Options( options, values, utils ) {
+        Options.instance = this;
 
         const root = options.root || '#options';
 
-        this._slideout = document.querySelector( root );
+        _slideout = document.querySelector( root );
 
         _values = values || {};
         _utils = utils || {};
 
-        const cssRules = [  // global css rules
+        _cssRules = [  // global css rules
             /*{
                 name:        rule CSS name
                 type:        the type of control to represent the rule
@@ -43,52 +44,57 @@
         this._style = document.createElement( 'style' );
         document.body.appendChild( this._style );
 
-        const save = this._slideout.querySelector( '.save' );
+        const save = _slideout.querySelector( '.save' );
         save.addEventListener( 'click', e => {
-            getRulesFromEditors( this._style, cssRules );
-            this._slideout.classList.remove( 'expanded' );
+            getRulesFromEditors( this._style, _cssRules );
+            _slideout.classList.remove( 'expanded' );
 
-            saveSettings( cssRules );
+            saveSettings( _cssRules );
             update();
         });
 
-        const close = this._slideout.querySelector( '.close' );
+        const close = _slideout.querySelector( '.close' );
         close.addEventListener( 'click', e => {
-            getRulesFromEditors( this._style, cssRules );
-            this._slideout.classList.remove( 'expanded' );
+            getRulesFromEditors( this._style, _cssRules );
+            _slideout.classList.remove( 'expanded' );
             update();
         });
 
-        const reset = this._slideout.querySelector( '.reset' );
+        const reset = _slideout.querySelector( '.reset' );
         reset.addEventListener( 'click', e => {
             localStorage.removeItem( _id );
             location.reload();
         });
 
-        const slideoutTitle = this._slideout.querySelector( '.title');
-        slideoutTitle.addEventListener( 'click', e => {
-            this._slideout.classList.toggle( 'expanded' );
-            setRulesToEditors( cssRules );
-        });
+        const slideoutTitle = _slideout.querySelector( '.title');
+        slideoutTitle.addEventListener( 'click', show );
 
         window.addEventListener( 'load', e => {
-            loadSettings( cssRules );
+            loadSettings( _cssRules );
 
-            this._style.innerHTML = cssRules.reduce( (css, rule) => {
+            this._style.innerHTML = _cssRules.reduce( (css, rule) => {
                 return css + rule.selector + ' { ' + rule.name + ': ' + rule.initial + rule.suffix + ' !important; } ';
             }, '');
 
-            obtainInitialRules( cssRules );
+            obtainInitialRules( _cssRules );
 
-            bindSettingsToEditors( this._slideout );
-            bindRulesToEditors( cssRules, this._slideout );
+            bindSettingsToEditors( _slideout );
+            bindRulesToEditors( _cssRules, _slideout );
         });
+    }
+
+    Options.instance = null;
+
+    Options.prototype.show = function( activeVisID ) {
+        show( null, activeVisID );
     }
 
     // private
 
     let _values;
     let _utils;
+    let _cssRules;
+    let _slideout;
 
     let _id = 'readvis2_options';
 
@@ -173,6 +179,22 @@
             }
         }
     }
+
+    function show( e, activeVisID ) {
+        const groups = _slideout.querySelectorAll( '.group' );
+        groups.forEach( group => {
+            const id = group.id;
+            if (id[0] === '_' || !activeVisID || id.indexOf( activeVisID ) === 0) {
+                group.classList.remove( 'hidden' );
+            }
+            else {
+                group.classList.add( 'hidden' );
+            }
+        });
+
+        _slideout.classList.toggle( 'expanded' );
+        setRulesToEditors( _cssRules );
+    };
 
     // color
 
@@ -361,6 +383,7 @@
 
             const group = document.createElement( 'div' );
             group.classList.add( 'group' );
+            group.id = vis.id + '_group';
 
             const name = document.createElement( 'div' );
             name.classList.add( 'name' );
@@ -378,7 +401,7 @@
                 label.textContent = option.label;
                 row.appendChild( label );
 
-                const id =  vis.name + '_' + optionID;
+                const id =  vis.id + '_' + optionID;
 
                 if (option.type instanceof Array) {
                     const select = document.createElement( 'select' );
