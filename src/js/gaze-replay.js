@@ -9,14 +9,12 @@
     //          // name font options
     //          nameFontFamily
     //          nameFontSize
-    //          nameFont,
     //          basePointerSize (Number) - minimum pointer size
     //      }
     function GazeReplay( options ) {
 
         this.nameFontFamily = options.nameFontFamily || 'Calibri, Arial, sans-serif';
         this.nameFontSize = options.nameFontSize || 20;
-        this.nameFont = options.nameFontFamily || `bold ${this.nameFontSize}px ${this.nameFontFamily}`;
         this.nameSpacing = 1.5;
 
         Track.basePointerSize = options.basePointerSize || Track.basePointerSize;
@@ -24,6 +22,12 @@
         options.colorMetric = app.Metric.Type.NONE;
 
         app.Visualization.call( this, options );
+
+        this.options = app.Visualization.createOptions({
+            nameFontFamily: { type: new String(), label: 'Font name' },
+            nameFontSize: { type: new Number(), label: 'Font size' },
+            nameSpacing: { type: new Number(0.1), label: 'Spacing' },
+        }, this );
 
         this._data = null;
         this._tracks = null;
@@ -35,6 +39,9 @@
     GazeReplay.prototype = Object.create( app.Visualization.prototype );
     GazeReplay.prototype.base = app.Visualization.prototype;
     GazeReplay.prototype.constructor = GazeReplay;
+
+    GazeReplay.prototype.update = function() {
+    };
 
     GazeReplay.prototype._fillCategories = function( list, users ) {
         const texts = this._getTexts( users );
@@ -74,9 +81,9 @@
             this._setPageIndex( 0 );
             this._start();
 
-            this._setPrevPageCallback( () => { this._prevPage(); });
-            this._setNextPageCallback( () => { this._nextPage(); });
-            this._setCloseCallback( () => { this._stopAll(); });
+            this._setPrevPageCallback( () => { this._prevPage(); } );
+            this._setNextPageCallback( () => { this._nextPage(); } );
+            this._setCloseCallback( () => { this._stopAll(); } );
 
             if (cbLoaded) {
                 cbLoaded();
@@ -130,7 +137,7 @@
                     ctx.textBaseline = 'top';
                     ctx.strokeStyle = '#000';
                     ctx.fillStyle = track.color;
-                    ctx.font = this.nameFont;
+                    ctx.font = `bold ${this.nameFontSize}px ${this.nameFontFamily}`;
                     ctx.fillText(
                         String.fromCharCode( 0x2713 ),
                         this._tracksLegendLocation.x - this.nameFontSize,
@@ -162,7 +169,7 @@
             ctx.textAlign = 'left';
             ctx.textBaseline = 'top';
             ctx.fillStyle = track.color;
-            ctx.font = this.nameFont;
+            ctx.font = `bold ${this.nameFontSize}px ${this.nameFontFamily}`;
 
             ctx.fillText(
                 track.name,

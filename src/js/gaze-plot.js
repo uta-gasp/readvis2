@@ -34,6 +34,8 @@
         this.fixationNumberFont = options.fixationNumberFont || 'bold 16px Verdana';
         this.fixationNumberColor = options.fixationNumberColor || '#FF0';
 
+        this.wordListUnits = options.wordListUnits || app.WordList.Units.MS;
+
         const lineColorA = 0.5;
         this._lineColors = [
             `rgba(255,0,0,${lineColorA}`,
@@ -48,13 +50,20 @@
 
         app.Visualization.call( this, options );
 
-        this.options = this._createOptions([
-            { type: ['none', 'duration', 'char speed', 'syllable speed'], name: 'colorMetric', label: 'Word color metric' },
-            { type: new Boolean(), name: 'showIDs', label: 'Show IDs' },
-            { type: new Boolean(), name: 'showConnections', label: 'Show word-fixation connections' },
-            { type: new Boolean(), name: 'showSaccades', label: 'Show saccades' },
-            { type: new Boolean(), name: 'showFixations', label: 'Show fixations' },
-        ]);
+        this.options = app.Visualization.createOptions({
+            colorMetric: { type: ['none', 'duration', 'char speed', 'syllable speed'], label: 'Word color metric' },
+            showConnections: { type: new Boolean(), label: 'Show word-fixation connections' },
+            connectionColor: { type: new String('#'), label: 'Connection color' },
+            showSaccades: { type: new Boolean(), label: 'Show saccades' },
+            saccadeColor: { type: new String('#'), label: 'Saccade color' },
+            showFixations: { type: new Boolean(), label: 'Show fixations' },
+            greyFixationColor: { type: new String('#'), label: 'Default fixation color' },
+            greyFixationSize: { type: new Number(), label: 'Default fixation size' },
+            showIDs: { type: new Boolean(), label: 'Show IDs' },
+            fixationNumberFont: { type: new String(), label: 'ID font' },
+            fixationNumberColor: { type: new String('#'), label: 'ID color' },
+            wordListUnits: { type: Object.values( app.WordList.Units ), label: 'Word list units' },
+        }, this );
 
         this._data = null;
     }
@@ -64,6 +73,12 @@
     GazePlot.prototype = Object.create( app.Visualization.prototype );
     GazePlot.prototype.base = app.Visualization.prototype;
     GazePlot.prototype.constructor = GazePlot;
+
+    GazePlot.prototype.update = function() {
+        if (this._pageIndex >= 0) {
+            this._mapAndShow();
+        }
+    };
 
     GazePlot.prototype._fillCategories = function( list, users ) {
         const userData = [];
@@ -134,8 +149,9 @@
             this._setPageIndex( 0 );
             this._mapAndShow();
 
-            this._setPrevPageCallback( () => { this._prevPage(); });
-            this._setNextPageCallback( () => { this._nextPage(); });
+            this._setPrevPageCallback( () => { this._prevPage(); } );
+            this._setNextPageCallback( () => { this._nextPage(); } );
+            this._setCloseCallback( undefined );
 
             if (cbLoaded) {
                 cbLoaded();
@@ -152,7 +168,8 @@
 
         app.WordList.instance.fill(
             sessionPage.records, {
-                hyphen: hyphen
+                hyphen: hyphen,
+                units: this.wordListUnits
             }
         );
 
@@ -186,7 +203,7 @@
             this._drawFixations( ctx, fixations );
         }
 
-        this._drawTitle( ctx, `${this._data.user} reading "${this._data.session.textTitle}" at ${this._data.sessionName}` );
+        this._drawTitle( ctx, `${this._data.user} reading "${this._data.session.meta.textTitle}" at ${this._data.sessionName}` );
     };
 
     GazePlot.prototype._drawFixations = function( ctx, fixations ) {

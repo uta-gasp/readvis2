@@ -21,6 +21,12 @@
 
         app.Visualization.call( this, options );
 
+        this.options = app.Visualization.createOptions({
+            fixationColor: { type: new String('#'), label: 'Fixation color' },
+            showFixations: { type: new Boolean(), label: 'Show fixations' },
+            showRegressions: { type: new Boolean(), label: 'Highlight regressions' },
+        }, this );
+
         this._data = null;
     }
 
@@ -63,8 +69,9 @@
             this._setPageIndex( 0 );
             this._mapAndShow();
 
-            this._setPrevPageCallback( () => { this._prevPage(); });
-            this._setNextPageCallback( () => { this._nextPage(); });
+            this._setPrevPageCallback( () => { this._prevPage(); } );
+            this._setNextPageCallback( () => { this._nextPage(); } );
+            this._setCloseCallback( undefined );
 
             if (cbLoaded) {
                 cbLoaded();
@@ -120,12 +127,10 @@
     TextSummary.prototype._drawWord = function( ctx, word, settings ) {
         this.base._drawWord.call( this, ctx, word, settings );
 
-        if (!settings.indexes) {
-            if (this.showRegressions && word.regressionCount) {
-                ctx.lineWidth = word.regressionCount + 1;
-                ctx.strokeRect( word.x, word.y, word.width, word.height);
-                ctx.lineWidth = 1;
-            }
+        if (this.showRegressions && word.regressionCount) {
+            ctx.lineWidth = word.regressionCount + 1;
+            ctx.strokeRect( word.x, word.y, word.width, word.height);
+            ctx.lineWidth = 1;
         }
     };
 

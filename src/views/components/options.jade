@@ -6,38 +6,17 @@ mixin options(id, lists)
         .title Options
         .slideout_inner
             .options
+                //---- example of the content
                 //- .group
-                //-     .name Gaze plot
+                //-     .name [NAME]
                 //-     .row
-                //-         .label Word color metric
-                //-         select.value#gaze-plot_color-metric
-                //-             each metric in lists.colorMetrics
-                //-                 option(value="#{metric}") #{metric}
+                //-         .label [LABEL]
+                //-         select.value.ID
+                //-             each ITEM in LIST
+                //-                 option(value="#{ITEM}") #{ITEM}
                 //-     .row
-                //-         .label Show IDs
-                //-         input.value#gaze-plot_show-ids(type="checkbox")
-                //-     .row
-                //-         .label Show word-fixation connections
-                //-         input.value#gaze-plot_show-connections(type="checkbox")
-                //-     .row
-                //-         .label Show saccades
-                //-         input.value#gaze-plot_show-saccades(type="checkbox")
-                //-     .row
-                //-         .label Show fixations
-                //-         input.value#gaze-plot_show-fixations(type="checkbox")
-                //- .group
-                //-     .name Text summary
-                //-     .row
-                //-         .label Color metric
-                //-         select.value#gaze-plots_color-metric
-                //-             each metric in lists.colorMetrics
-                //-                 option(value="#{metric}") #{metric}
-                //-     .row
-                //-         .label Show fixations
-                //-         input.value#gaze-plots_show-fixations(type="checkbox")
-                //-     .row
-                //-         .label Show regressions
-                //-         input.value#gaze-plots_show-regressions(type="checkbox")
+                //-         .label [LABEL]
+                //-         input.value.id(type="checkbox")
             input.save(type="button", value="Save")
             input.close(type="button", value="Close")
             input.reset(type="button", value="Reset")

@@ -9,20 +9,7 @@
     //          root:   - slideout element ID
     //          text:   - full text selector
     //      }
-    //      values: {             - get/set values
-    //          gazePlot {
-    //              colorMetric (index)
-    //              showIDs (bool)
-    //              showConnections (bool)
-    //              showSaccades (bool)
-    //              showFixations (bool)
-    //              showOriginalFixLocation (bool)
-    //          }
-    //          textSummary {
-    //              colorMetric (index)
-    //              showFixations (bool)
-    //              showRegressions (bool)
-    //          }
+    //      values: {
     //      }
     //      utils: {
     //      }
@@ -33,24 +20,9 @@
         this._slideout = document.querySelector( root );
 
         _values = values || {};
+        _utils = utils || {};
 
-        // const logError = app.Logger.moduleErrorPrinter( 'Options' );
-
-        // _values.gazePlot = _values.gazePlot || {};
-        // _values.gazePlot.colorMetric = _values.gazePlot.colorMetric || logError( 'gazePlot.colorMetric"' );
-        // _values.gazePlot.showConnections = _values.gazePlot.showConnections || logError( 'gazePlot.showConnections' );
-        // _values.gazePlot.showSaccades = _values.gazePlot.showSaccades || logError( 'gazePlot.showSaccades' );
-        // _values.gazePlot.showFixations = _values.gazePlot.showFixations || logError( 'gazePlot.showFixations' );
-        // _values.gazePlot.showOriginalFixLocation = _values.gazePlot.showOriginalFixLocation || logError( 'gazePlot.showOriginalFixLocation' );
-
-        // _values.textSummary = _values.textSummary || {};
-        // _values.textSummary.colorMetric = _values.textSummary.colorMetric || logError( 'textSummary.colorMetric' );
-        // _values.textSummary.showFixations = _values.textSummary.showFixations || logError( 'textSummary.showFixations' );
-        // _values.textSummary.showRegressions = _values.textSummary.showRegressions || logError( 'textSummary.showRegressions' );
-
-        _utils = utils;
-
-        const cssRules = [
+        const cssRules = [  // global css rules
             /*{
                 name:        rule CSS name
                 type:        the type of control to represent the rule
@@ -77,17 +49,19 @@
             this._slideout.classList.remove( 'expanded' );
 
             saveSettings( cssRules );
+            update();
         });
 
         const close = this._slideout.querySelector( '.close' );
         close.addEventListener( 'click', e => {
             getRulesFromEditors( this._style, cssRules );
             this._slideout.classList.remove( 'expanded' );
+            update();
         });
 
         const reset = this._slideout.querySelector( '.reset' );
         reset.addEventListener( 'click', e => {
-            localStorage.removeItem( 'options' );
+            localStorage.removeItem( _id );
             location.reload();
         });
 
@@ -99,6 +73,7 @@
 
         window.addEventListener( 'load', e => {
             loadSettings( cssRules );
+
             this._style.innerHTML = cssRules.reduce( (css, rule) => {
                 return css + rule.selector + ' { ' + rule.name + ': ' + rule.initial + rule.suffix + ' !important; } ';
             }, '');
@@ -115,8 +90,12 @@
     let _values;
     let _utils;
 
+    let _id = 'readvis2_options';
+
+    // load-save
+
     function loadSettings( cssRules ) {
-        const options = JSON.parse( localStorage.getItem( 'readvis2_options' ) );
+        const options = JSON.parse( localStorage.getItem( _id ) );
         if (!options) {
             return;
         }
@@ -126,14 +105,20 @@
                 if (name === 'css') {
                     continue;
                 }
-                else if (Array.isArray( storage[ name ] )) {
-                    values[ name ]( storage[ name ] );
+                // else if (Array.isArray( storage[ name ] )) {
+                //     values[ name ]( storage[ name ] );
+                // }
+                const value = values[ name ];
+                const saved = storage[ name ];
+                if (!value) {
+                    continue;
                 }
-                else if (typeof storage[ name ] === 'object') {
-                    pop( storage[ name ], values[ name ] );
+
+                if (typeof saved === 'object') {
+                    pop( saved, value );
                 }
-                else if (values[ name ]) {
-                    values[ name ]( storage[ name ] );
+                else if (typeof value.ref === 'function') {
+                    value.ref( saved );
                 }
             }
         };
@@ -159,12 +144,13 @@
 
         const push = (storage, values) => {
             for (let name in values) {
-                if (typeof values[ name ] === 'function') {
-                    storage[ name ] = values[ name ]();
+                const value = values[ name ];
+                if (typeof value.ref === 'function') {
+                    storage[ name ] = value.ref();
                 }
-                else if (typeof values[ name ] === 'object') {
+                else if (typeof value === 'object') {
                     storage[ name ] = { };
-                    push( storage[ name ], values[ name ] );
+                    push( storage[ name ], value );
                 }
             }
         };
@@ -176,8 +162,19 @@
             options.css[ rule.selector + '____' + rule.name ] = rule.value;
         });
 
-        localStorage.setItem( 'readvis2_options', JSON.stringify( options) );
+        localStorage.setItem( _id, JSON.stringify( options) );
     }
+
+    function update() {
+        for (let valueID in _values) {
+            const val = _values[ valueID ];
+            if (typeof val.update === 'function') {
+                val.update();
+            }
+        }
+    }
+
+    // color
 
     function componentToHex( c ) {
         const hex = c.toString(16);
@@ -197,6 +194,49 @@
             parseInt( colorComps[ 2 ] ),
             parseInt( colorComps[ 3 ] ) );
     }
+
+    function rgbaToHex( r, g, b, a ) {
+        return {
+            hex: '#' + componentToHex( r ) + componentToHex( g ) + componentToHex( b ),
+            a: a === undefined ? 1 : a,
+        };
+    }
+
+    function hexToRgba( rgb, a ) {
+        const r = Number.parseInt( rgb.substr( 1, 2), 16 );
+        const g = Number.parseInt( rgb.substr( 3, 2), 16 );
+        const b = Number.parseInt( rgb.substr( 5, 2), 16 );
+        return `rgba(${r},${g},${b},${a})`;
+    }
+
+    function cssColorToHex2( cssColor ) {
+        const colorRegex = /^\D+(\d+)\D+(\d+)\D+(\d+)\D*(\d|.+)\D+$/gim;
+        const colorComps = colorRegex.exec( cssColor );
+
+        return rgbaToHex(
+            parseInt( colorComps[ 1 ] ),
+            parseInt( colorComps[ 2 ] ),
+            parseInt( colorComps[ 3 ] ),
+            colorComps[ 4 ] ? parseFloat( colorComps[ 4 ] ) : undefined );
+    }
+
+    function validateColor( color ) {
+        if (color[0] !== '#') {
+            return '#000000';
+        }
+        if (color.length === 7) {
+            return color;
+        }
+        if (color.length === 4) {
+            const r = color[1];
+            const g = color[2];
+            const b = color[3];
+            return `#${r}${r}${g}${g}${b}${b}`;
+        }
+        return '#000000';
+    }
+
+    // css
 
     function cssToJS( cssName ) {
         let dashIndex = cssName.indexOf( '-' );
@@ -324,10 +364,12 @@
 
             const name = document.createElement( 'div' );
             name.classList.add( 'name' );
-            name.textContent = vis.name;
+            name.textContent = vis.title;
             group.appendChild( name );
 
-            vis.options.forEach( option => {
+            for (let optionID in vis.options) {
+                const option = vis.options[ optionID ];
+
                 const row = document.createElement( 'div' );
                 row.classList.add( 'row' );
 
@@ -336,7 +378,7 @@
                 label.textContent = option.label;
                 row.appendChild( label );
 
-                const id =  vis.name + '_' + option.name;
+                const id =  vis.name + '_' + optionID;
 
                 if (option.type instanceof Array) {
                     const select = document.createElement( 'select' );
@@ -352,7 +394,7 @@
 
                     select.selectedIndex = option.ref();
                     select.addEventListener( 'change', e => {
-                        option.ref( e.target.selectedIndex );
+                        option.ref( option.type[ e.target.selectedIndex ] );
                     });
 
                     row.appendChild( select );
@@ -370,23 +412,60 @@
 
                     row.appendChild( checkbox );
                 }
+                else if (option.type instanceof String) {
+                    const isColor = option.type[0] === '#';
+
+                    const input = document.createElement( 'input' );
+                    input.type = isColor ? 'color' : 'text';
+                    input.classList.add( 'value' );
+                    input.classList.add( id );
+
+                    const val = option.ref();
+                    if (isColor) {
+                        if (val[0] === '#') {
+                            input.value = validateColor( val );
+                            input.addEventListener( 'change', e => {
+                                option.ref( e.target.value );
+                            });
+                        }
+                        else {
+                            const color = cssColorToHex2( val );
+                            input.value = color.hex;
+                            input.alpha = color.a;
+                            input.addEventListener( 'change', e => {
+                                option.ref( hexToRgba( e.target.value, e.target.alpha ) );
+                            });
+                        }
+                    }
+                    else {
+                        input.value = val;
+                        input.addEventListener( 'click', e => {
+                            option.ref( e.target.value );
+                        });
+                    }
+
+                    row.appendChild( input );
+                }
+                else if (option.type instanceof Number) {
+                    const number = document.createElement( 'input' );
+                    number.type = 'number';
+                    number.step = +option.type;
+                    number.classList.add( 'value' );
+                    number.classList.add( id );
+
+                    number.value = option.ref();
+                    number.addEventListener( 'click', e => {
+                        option.ref( e.target.value );
+                    });
+
+                    row.appendChild( number );
+                }
 
                 group.appendChild( row );
-            });
+            }
 
             container.appendChild( group );
         }
-
-        // bindSelect( 'gaze-plot_color-metric', _values.gazePlot.colorMetric );
-        // bindCheckbox( 'gaze-plot_show-ids', _values.gazePlot.showIDs );
-        // bindCheckbox( 'gaze-plot_show-connections', _values.gazePlot.showConnections );
-        // bindCheckbox( 'gaze-plot_show-saccades', _values.gazePlot.showSaccades );
-        // bindCheckbox( 'gaze-plot_show-fixations', _values.gazePlot.showFixations );
-        // bindCheckbox( 'gaze-plot_show-original-fix-location', _values.gazePlot.showOriginalFixLocation );
-
-        // bindSelect( 'gaze-plots_color-metric', _values.textSummary.colorMetric );
-        // bindCheckbox( 'gaze-plots_show-fixations', _values.textSummary.showFixations );
-        // bindCheckbox( 'gaze-plots_show-regressions', _values.textSummary.showRegressions );
     }
 
     app.Options = Options;

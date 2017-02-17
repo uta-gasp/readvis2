@@ -55,24 +55,35 @@ ReadVis2.init = function( components ) {
         root: components.options,
         text: components.textContainer + ' ' + components.text
     }, {    // services
+        common: {
+            name: 'common',
+            title: 'Common',
+            options: ReadVis2.Visualization.createCommonOptions()
+        },
         gazePlot: {
             name: 'gaze-plot',
+            title: 'Gaze plot',
+            update: gazePlot.update.bind( gazePlot ),
             options: gazePlot.options
         },
-        // textSummary: {
-        //     colorMetric: value => { return value === undefined ?
-        //         textSummary.colorMetric :
-        //         (textSummary.colorMetric = value);
-        //     },
-        //     showFixations: value => { return value === undefined ?
-        //         textSummary.showFixations :
-        //         (textSummary.showFixations = value);
-        //     },
-        //     showRegressions: value => { return value === undefined ?
-        //         textSummary.showRegressions :
-        //         (textSummary.showRegressions = value);
-        //     }
-        // }
+        textSummary: {
+            name: 'text-summary',
+            title: 'Text summary',
+            update: textSummary.update.bind( textSummary ),
+            options: textSummary.options
+        },
+        gazeReplay: {
+            name: 'gaze-replay',
+            title: 'Gaze replay',
+            update: gazeReplay.update.bind( gazeReplay ),
+            options: gazeReplay.options
+        },
+        wordReplay: {
+            name: 'word-replay',
+            title: 'Word replay',
+            update: wordReplay.update.bind( wordReplay ),
+            options: wordReplay.options
+        },
     }, {    // utils
     });
 };

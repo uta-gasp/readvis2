@@ -18,25 +18,35 @@
     //      options: {
     //          wordColor           - word color
     //          wordHighlightColor  - mapped word rectangle color
-    //          wordStrokeColor     - word rectable border color
+    //          wordRectColor       - word rectangle border color
     //          infoColor           - info text color
     //          infoFont            - info text font
     //          syllabification: {
     //              background
     //              color
     //          }
+    //          indexColors: {
+    //              line
+    //              word
+    //          }
     //          colorMetric         - word background coloring metric
     //      }
     function Visualization( options ) {
+        Visualization._instaces.push( this );
+
         this.wordColor = options.wordColor || '#666';
         this.wordHighlightColor = options.wordHighlightColor || '#606';
-        this.wordStrokeColor = options.wordStrokeColor || '#888';
+        this.wordRectColor = options.wordRectColor || '#888';
         this.infoColor = options.infoColor || '#444';
         this.infoFont = options.infoFont || '18px Arial';
         this.syllabification = Object.assign({
             background: '#fcc',
             color: '#060'
         }, options.syllabification );
+        this.indexColors = Object.assign({
+            line: '#080',
+            word: '#008'
+        }, options.indexColors );
 
         this.colorMetric = options.colorMetric !== undefined ? options.colorMetric : app.Metric.Type.DURATION;
 
@@ -102,6 +112,48 @@
         return `${date.getDate()}.${date.getMonth()}.${date.getFullYear()}, ${date.getHours()}:${date.getMinutes()} `;
     };
 
+    Visualization.createOptions = function( options, receivers ) {
+        if (!(receivers instanceof Array)) {
+            receivers = [ receivers ];
+        }
+
+        for (let id in options) {
+            options[ id ].ref = value => {
+                const ids = id.split( '.' );
+                if (value === undefined) {
+                    let v = receivers[0];
+                    ids.forEach( _ => {
+                        v = v[ _ ];
+                    })
+                    return v;
+                }
+                else {
+                    receivers.forEach( receiver => {
+                        let v = receiver;
+                        for (let i = 0; i < ids.length - 1; i++) {
+                            v = v[ ids[i] ];
+                        }
+                        v[ ids[ ids.length - 1 ] ] = value;
+                    });
+                }
+            };
+        };
+
+        return options;
+    };
+
+    Visualization.createCommonOptions = function() {
+        return Visualization.createOptions({
+            wordColor: { type: new String('#'), label: 'Text color' },
+            wordHighlightColor: { type: new String('#'), label: 'Highlighting color' },
+            wordRectColor: { type: new String('#'), label: 'Word frame color' },
+            'syllabification.background' : { type: new String('#'), label: 'Syllabification background' },
+            'syllabification.color' : { type: new String('#'), label: 'Syllabification word color' },
+        }, Visualization._instaces );
+    };
+
+    Visualization._instaces = [];
+
     // public
 
     Visualization.prototype.queryData = function( multiple ) {
@@ -134,6 +186,9 @@
             _waiting = false;
             window.alert( err );
         });
+    };
+
+    Visualization.prototype.update = function() {
     };
 
     // data retrival
@@ -290,6 +345,7 @@
             }
         }
     };
+
     // Drawing
 
     Visualization.prototype._getCanvas2D = function() {
@@ -374,18 +430,18 @@
 
         if (settings.indexes) {
             if (settings.indexes.word === 0) {
-                ctx.fillStyle = '#080';
+                ctx.fillStyle = this.indexColors.line;
                 ctx.textAlign = 'end';
                 ctx.fillText( '' + settings.indexes.line, word.x - 20, word.y + 0.8 * word.height );
             }
 
-            ctx.fillStyle = '#008';
+            ctx.fillStyle = this.indexColors.word;
             ctx.textAlign = 'center';
             ctx.fillText( '' + settings.indexes.word, word.x + word.width / 2, word.y );
         }
 
         if (!settings.hideBoundingBox) {
-            ctx.strokeStyle = this.wordStrokeColor;
+            ctx.strokeStyle = this.wordRectColor;
             ctx.lineWidth = 1;
             ctx.strokeRect( word.x, word.y, word.width, word.height);
         }
@@ -468,36 +524,6 @@
     };
 
     // other
-
-    Visualization.prototype._update = function() {
-        if (this._pageIndex < 0) {
-            return;
-        }
-
-        console.log( 'updated' );
-    };
-
-    Visualization.prototype._createOptions = function( params ) {
-        const options = [];
-
-        params.forEach( param => {
-            const option = Object.assign( {
-                ref: value => {
-                    if (value === undefined) {
-                        return this[ param.name ];
-                    }
-                    else {
-                        this[ param.name ] = value;
-                        this._update();
-                    }
-                }
-            }, param );
-
-            options.push( option );
-        });
-
-        return options;
-    };
 
     Visualization.prototype._setCloseCallback = function( cb ) {
         _closeCallback = () => {

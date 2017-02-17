@@ -11,9 +11,13 @@
 
         this._container = document.querySelector( options.container );
 
-        this._longFixationThreshold = 1000;
+        this.longFixationThreshold = 1000;
 
         app.Visualization.call( this, options );
+
+        this.options = app.Visualization.createOptions({
+            longFixationThreshold: { type: new Number(100), label: 'Level duration, ms' },
+        }, this );
 
         this._data = null;
         this._tracks = null;
@@ -24,6 +28,9 @@
     WordReplay.prototype = Object.create( app.Visualization.prototype );
     WordReplay.prototype.base = app.Visualization.prototype;
     WordReplay.prototype.constructor = WordReplay;
+
+    WordReplay.prototype.update = function() {
+    };
 
     WordReplay.prototype._fillCategories = function( list, users ) {
         const texts = this._getTexts( users );
@@ -64,8 +71,8 @@
             this._setPageIndex( 0 );
             this._start();
 
-            this._setPrevPageCallback( () => { this._prevPage(); });
-            this._setNextPageCallback( () => { this._nextPage(); });
+            this._setPrevPageCallback( () => { this._prevPage(); } );
+            this._setNextPageCallback( () => { this._nextPage(); } );
             this._setCloseCallback( () => {
                 this._stopAll();
                 this._container.classList.add( 'invisible' );
@@ -151,7 +158,8 @@
                     const rawWord = track.words[ word.id ];
                     rawWord.totalDuration = rawWord.totalDuration + duration;
 
-                    const tone = 255 - 24 * Math.min( 10, 1 + Math.floor( rawWord.totalDuration / this._longFixationThreshold ) );
+                    const levels = 1 + Math.floor( rawWord.totalDuration / this.longFixationThreshold );
+                    const tone = 255 - 24 * Math.min( 10, levels );
                     const rgb = `rgb(${tone},${tone},${tone})`;
 
                     const row = rows[ word.id + 1 ];
@@ -288,49 +296,6 @@
         else {
             this.pointer.classList.add( 'invisible' );
         }
-    };
-
-    Track.prototype._map = function( session ) {
-        let settings;
-
-        settings = new SGWM.FixationProcessorSettings();
-        settings.location.enabled = false;
-        settings.duration.enabled = false;
-        settings.save();
-
-        settings = new SGWM.SplitToProgressionsSettings();
-        settings.bounds = { // in size of char height
-            left: -0.5,
-            right: 8,
-            verticalChar: 2,
-            verticalLine: 0.6
-        };
-        settings.angle = Math.sin( 15 * Math.PI / 180 );
-        settings.save();
-
-        settings = new SGWM.ProgressionMergerSettings();
-        settings.minLongSetLength = 2;
-        settings.fitThreshold = 0.28;       // fraction of the interline distance
-        settings.maxLinearGradient = 0.15;
-        settings.removeSingleFixationLines = false;
-        settings.correctForEmptyLines = true;
-        settings.emptyLineDetectorFactor = 1.6;
-        settings.save();
-
-        settings = new SGWM.WordMapperSettings();
-        settings.wordCharSkipStart = 3;
-        settings.wordCharSkipEnd = 6;
-        settings.scalingDiffLimit = 0.9;
-        settings.rescaleFixationX = false;
-        settings.partialLengthMaxWordLength = 2;
-        settings.effectiveLengthFactor = 0.7;
-        settings.ignoreTransitions = false;
-        settings.save();
-
-        const sgwm = new SGWM();
-        const result = sgwm.map( session );
-
-        return result;
     };
 
     app.WordReplay = WordReplay;
