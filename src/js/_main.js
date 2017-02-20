@@ -55,12 +55,13 @@ ReadVis2.init = function( components ) {
         root: components.options,
         text: components.textContainer + ' ' + components.text
     }, {    // services
-        _common: ReadVis2.Visualization.createCommonOptions(),
         gazePlot: gazePlot.options,
         textSummary: textSummary.options,
         gazeReplay: gazeReplay.options,
         wordReplay: wordReplay.options,
         studentSummary: studentSummary.options,
+        _common: ReadVis2.Visualization.createCommonOptions(),
+        _sgwm: ReadVis2.Visualization.createSGWMOptions(),
     }, {    // utils
     });
 };

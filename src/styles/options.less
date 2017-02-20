@@ -44,74 +44,80 @@
             &.hidden {
                 display: none;
             }
+        }
 
-            .name {
-                color: #ffd;
-                background: #444;
-                margin-bottom: 0.5em;
-                padding: 0.3em 0.5em;
-                position: sticky;
+        .name {
+            color: #ffd;
+            background: #444;
+            margin-bottom: 0.5em;
+            padding: 0.3em 0.5em;
+            position: sticky;
+        }
+
+        .subname {
+            margin: 0.3em 0.5em;
+            border-bottom: solid 1px #bbb;
+        }
+
+        .row {
+            font-size: 12pt;
+            font-weight: normal;
+            height: 1.5em;
+            padding: 0.2em 0.5em;
+
+            display: flex;
+            flex-wrap: nowrap;
+            justify-content: space-between;
+
+            .cell {
+                display: inline-block;
+
+                span {
+                    padding: 0 0.2em;
+                }
             }
 
-            .row {
-                font-size: 12pt;
-                font-weight: normal;
-                height: 1.5em;
-                padding: 0.2em 0.5em;
+            label, .label {
+                display: inline-block;
+                white-space: pre;
+            }
 
-                display: flex;
-                flex-wrap: nowrap;
-                justify-content: space-between;
+            .value {
+                width: 4em;
+                text-align: right;
+            }
 
-                .cell {
-                    display: inline-block;
+            input.value[type="color"] {
+                width: 4.5em;
+            }
 
-                    span {
-                        padding: 0 0.2em;
-                    }
-                }
+            select.value, input.value[type="text"] {
+                width: 10em;
+                text-align: left;
+            }
 
-                label, .label {
-                    display: inline-block;
-                }
+            input.value[type="number"] {
+                text-align: center;
+            }
 
-                .value {
-                    width: 4em;
-                    text-align: right;
-                }
+            input[type="radio"] {
+                margin: 0;
+                padding: 0;
+                height: 24px;
+            }
 
-                input.value[type="color"] {
-                    width: 4.5em;
-                }
+            .listItem {
+                cursor: pointer;
+                background-size: contain;
+                background-repeat: no-repeat;
+                display: inline-block;
+                transition: all 400ms ease-in;
+                width: 24px;
+                height: 24px;
 
-                select.value, input.value[type="text"] {
-                    width: 10em;
-                    text-align: left;
-                }
-
-                input.value[type="number"] {
-                    text-align: center;
-                }
-
-                input[type="radio"] {
-                    margin: 0;
-                    padding: 0;
-                    height: 24px;
-                }
-
-                .listItem {
-                    cursor: pointer;
-                    background-size: contain;
-                    background-repeat: no-repeat;
-                    display: inline-block;
-                    transition: all 400ms ease-in;
-                    width: 24px;
-                    height: 24px;
-
-                    // &.text-align-left {
-                    //     background-image: url("img/align-left.png");
-                    // }
-                }
+                // &.text-align-left {
+                //     background-image: url("img/align-left.png");
+                // }
             }
         }
     }

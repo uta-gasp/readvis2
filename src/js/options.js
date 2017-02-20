@@ -374,113 +374,141 @@
             name.textContent = vis.title;
             group.appendChild( name );
 
-            for (let optionID in vis.options) {
-                const option = vis.options[ optionID ];
-
-                const row = document.createElement( 'div' );
-                row.classList.add( 'row' );
-
-                const label = document.createElement( 'div' );
-                label.classList.add( 'label' );
-                label.textContent = option.label;
-                row.appendChild( label );
-
-                const id =  vis.id + '_' + optionID;
-
-                if (option.type instanceof Array) {
-                    const select = document.createElement( 'select' );
-                    select.classList.add( 'value' );
-                    select.classList.add( id );
-
-                    option.type.forEach( itemName => {
-                        const item = document.createElement( 'option' );
-                        item.value = itemName;
-                        item.textContent = itemName;
-                        select.appendChild( item );
-                    });
-
-                    select.selectedIndex = option.ref();
-                    select.addEventListener( 'change', e => {
-                        option.ref( option.type[ e.target.selectedIndex ] );
-                    });
-
-                    row.appendChild( select );
+            if (vis.options instanceof Array) {
+                vis.options.forEach( item => {
+                    const subGroup = createSubGroup( item, vis.id );
+                    group.appendChild( subGroup );
+                });
+            }
+            else {
+                for (let optionID in vis.options) {
+                    const option = vis.options[ optionID ];
+                    const row = createRow( option, vis.id + '_' + optionID );
+                    group.appendChild( row );
                 }
-                else if (option.type instanceof Boolean) {
-                    const container = document.createElement( 'span' );
-
-                    const checkbox = document.createElement( 'input' );
-                    checkbox.type = 'checkbox';
-                    checkbox.classList.add( id );
-
-                    checkbox.checked = option.ref();
-                    checkbox.addEventListener( 'click', e => {
-                        option.ref( e.target.checked );
-                    });
-
-                    const label = document.createElement( 'label' );
-                    const div = document.createElement( 'div' );
-                    div.textContent = '\u2714';
-
-                    label.appendChild( div );
-                    container.appendChild( checkbox );
-                    container.appendChild( label );
-                    row.appendChild( container );
-                }
-                else if (option.type instanceof String) {
-                    const isColor = option.type[0] === '#';
-
-                    const input = document.createElement( 'input' );
-                    input.type = isColor ? 'color' : 'text';
-                    input.classList.add( 'value' );
-                    input.classList.add( id );
-
-                    const val = option.ref();
-                    if (isColor) {
-                        if (val[0] === '#') {
-                            input.value = validateColor( val );
-                            input.addEventListener( 'change', e => {
-                                option.ref( e.target.value );
-                            });
-                        }
-                        else {
-                            const color = cssColorToHex2( val );
-                            input.value = color.hex;
-                            input.alpha = color.a;
-                            input.addEventListener( 'change', e => {
-                                option.ref( hexToRgba( e.target.value, e.target.alpha ) );
-                            });
-                        }
-                    }
-                    else {
-                        input.value = val;
-                        input.addEventListener( 'click', e => {
-                            option.ref( e.target.value );
-                        });
-                    }
-
-                    row.appendChild( input );
-                }
-                else if (option.type instanceof Number) {
-                    const number = document.createElement( 'input' );
-                    number.type = 'number';
-                    number.step = +option.type;
-                    number.classList.add( 'value' );
-                    number.classList.add( id );
-
-                    number.value = option.ref();
-                    number.addEventListener( 'click', e => {
-                        option.ref( e.target.value );
-                    });
-
-                    row.appendChild( number );
-                }
-
-                group.appendChild( row );
             }
 
             container.appendChild( group );
         }
+    }
+
+    function createSubGroup( sub, visID ) {
+        const subgroup = document.createElement( 'div' );
+        subgroup.classList.add( 'subgroup' );
+
+        const name = document.createElement( 'div' );
+        name.classList.add( 'subname' );
+        name.textContent = sub.title;
+        subgroup.appendChild( name );
+
+        for (let optionID in sub.options) {
+            const option = sub.options[ optionID ];
+            const row = createRow( option, visID + '_' + optionID);
+            subgroup.appendChild( row );
+        }
+
+        return subgroup;
+    }
+
+    function createRow( option, id ) {
+        const row = document.createElement( 'div' );
+        row.classList.add( 'row' );
+
+        const label = document.createElement( 'div' );
+        label.classList.add( 'label' );
+        label.textContent = option.label;
+        row.appendChild( label );
+
+        if (option.type instanceof Array) {
+            const select = document.createElement( 'select' );
+            select.classList.add( 'value' );
+            select.classList.add( id );
+
+            option.type.forEach( itemName => {
+                const item = document.createElement( 'option' );
+                item.value = itemName;
+                item.textContent = itemName;
+                select.appendChild( item );
+            });
+
+            select.selectedIndex = option.ref();
+            select.addEventListener( 'change', e => {
+                option.ref( option.type[ e.target.selectedIndex ] );
+            });
+
+            row.appendChild( select );
+        }
+        else if (option.type instanceof Boolean) {
+            const container = document.createElement( 'span' );
+
+            const checkbox = document.createElement( 'input' );
+            checkbox.type = 'checkbox';
+            checkbox.classList.add( id );
+
+            checkbox.checked = option.ref();
+            checkbox.addEventListener( 'click', e => {
+                option.ref( e.target.checked );
+            });
+
+            const label = document.createElement( 'label' );
+            const div = document.createElement( 'div' );
+            div.textContent = '\u2714';
+
+            label.appendChild( div );
+            container.appendChild( checkbox );
+            container.appendChild( label );
+            row.appendChild( container );
+        }
+        else if (option.type instanceof String) {
+            const isColor = option.type[0] === '#';
+
+            const input = document.createElement( 'input' );
+            input.type = isColor ? 'color' : 'text';
+            input.classList.add( 'value' );
+            input.classList.add( id );
+
+            const val = option.ref();
+            if (isColor) {
+                if (val[0] === '#') {
+                    input.value = validateColor( val );
+                    input.addEventListener( 'change', e => {
+                        option.ref( e.target.value );
+                    });
+                }
+                else {
+                    const color = cssColorToHex2( val );
+                    input.value = color.hex;
+                    input.alpha = color.a;
+                    input.addEventListener( 'change', e => {
+                        option.ref( hexToRgba( e.target.value, e.target.alpha ) );
+                    });
+                }
+            }
+            else {
+                input.value = val;
+                input.addEventListener( 'click', e => {
+                    option.ref( e.target.value );
+                });
+            }
+
+            row.appendChild( input );
+        }
+        else if (option.type instanceof Number) {
+            const number = document.createElement( 'input' );
+            number.type = 'number';
+            number.step = +option.type;
+            number.classList.add( 'value' );
+            number.classList.add( id );
+
+            number.value = option.ref();
+            number.addEventListener( 'change', e => {
+                option.ref( +e.target.value );
+            });
+
+            row.appendChild( number );
+        }
+
+        return row;
     }
 
     app.Options = Options;

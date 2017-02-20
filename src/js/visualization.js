@@ -68,6 +68,9 @@
         this._sessions = {};
         this._texts = {};
 
+        this._SGWM = {};
+        this._initializeSGWMSettings();
+
         this._pageIndex = -1;
 
         _closeCallback = () => {
@@ -110,12 +113,21 @@
 
     Visualization.formatDate = function( dateString ) {
         const date = new Date( dateString );
-        return `${date.getDate()}.${date.getMonth()}.${date.getFullYear()}, ${date.getHours()}:${date.getMinutes()} `;
+        return `${date.getDate()}.${date.getMonth()+1}.${date.getFullYear()}, ${date.getHours()}:${date.getMinutes()} `;
     };
 
     Visualization.createOptions = function( options, receivers ) {
         if (!(receivers instanceof Array)) {
             receivers = [ receivers ];
+        }
+
+        if (options instanceof Array) {
+            return options.map( item => {
+                return {
+                    title: item.title,
+                    options: Visualization.createOptions( item.options, receivers )
+                };
+            });
         }
 
         for (let id in options) {
@@ -157,7 +169,58 @@
         };
     };
 
+    Visualization.createSGWMOptions = function() {
+        return {
+            id: '_sgwm',
+            title: 'Data mapping',
+            options: Visualization.createOptions([
+                {
+                    title: 'Fixation processing',
+                    options: Visualization.createOptions({
+                        '_SGWM.FixationProcessorSettings.location.enabled': { type: new Boolean(), label: 'By location' },
+                        '_SGWM.FixationProcessorSettings.location.marginX': { type: new Number(10), label: '\tmargin X' },
+                        '_SGWM.FixationProcessorSettings.location.marginY': { type: new Number(), label: '\tmargin Y' },
+                        '_SGWM.FixationProcessorSettings.duration.enabled': { type: new Boolean(), label: 'By duration' },
+                        '_SGWM.FixationProcessorSettings.duration.mergingDurationThreshold': { type: new Number(), label: '\tmerging threshold' },
+                        '_SGWM.FixationProcessorSettings.duration.mergingDistanceThreshold': { type: new Number(), label: '\tmerging distance' },
+                        '_SGWM.FixationProcessorSettings.duration.removingDurationThreshold': { type: new Number(), label: '\tmin duration' },
+                    })
+                },
+                {
+                    title: 'Splitter',
+                    options: Visualization.createOptions({
+                    '_SGWM.SplitToProgressionsSettings.left': { type: new Number(0.1), label: 'Left' },
+                    '_SGWM.SplitToProgressionsSettings.right': { type: new Number(0.1), label: 'Right' },
+                    '_SGWM.SplitToProgressionsSettings.verticalLine': { type: new Number(0.1), label: 'Vertical (lines)' },
+                    '_SGWM.SplitToProgressionsSettings.angle': { type: new Number(0.001), label: 'Angle' },
+                    })
+                },
+                {
+                    title: 'Merging',
+                    options: Visualization.createOptions({
+                    '_SGWM.ProgressionMergerSettings.minLongSetLength': { type: new Number(), label: 'Progression (fixations)' },
+                    '_SGWM.ProgressionMergerSettings.fitThreshold': { type: new Number(0.01), label: 'Threshold' },
+                    '_SGWM.ProgressionMergerSettings.maxLinearGradient': { type: new Number(0.01), label: 'Max gradient' },
+                    '_SGWM.ProgressionMergerSettings.removeSingleFixationLines': { type: new Boolean(), label: 'Remove unmerged single fixations' },
+                    '_SGWM.ProgressionMergerSettings.correctForEmptyLines': { type: new Boolean(), label: 'Account for empty lines' },
+                    '_SGWM.ProgressionMergerSettings.emptyLineDetectorFactor': { type: new Number(0.05), label: '\tempty line factor' },
+                    })
+                },
+                {
+                    title: 'Word mapper',
+                    options: Visualization.createOptions({
+                    '_SGWM.WordMapperSettings.wordCharSkipStart': { type: new Number(1), label: 'Skip from start' },
+                    '_SGWM.WordMapperSettings.wordCharSkipEnd': { type: new Number(1), label: 'Skip from end' },
+                    '_SGWM.WordMapperSettings.scalingDiffLimit': { type: new Number(0.1), label: 'Scaling diff limit' },
+                    '_SGWM.WordMapperSettings.ignoreTransitions': { type: new Boolean(), label: 'Ignore transitions' },
+                    })
+                },
+            ], Visualization._instaces )
+        };
+    };
+
     Visualization._instaces = [];
+    Visualization.SGWM = {};
 
     // public
 
@@ -487,46 +550,63 @@
 
     // Data processing
 
-    Visualization.prototype._map = function( session ) {
+    Visualization.prototype._initializeSGWMSettings = function() {
         const SGWM = window.SGWM;
-
         let settings;
 
         settings = new SGWM.FixationProcessorSettings();
-        settings.location.enabled = false;
-        settings.duration.enabled = false;
-        settings.save();
+        this._SGWM.FixationProcessorSettings = settings;
+        if (!settings.isInitialized) {
+            settings.location.enabled = false;
+            settings.duration.enabled = false;
+            settings.save();
+        }
 
         settings = new SGWM.SplitToProgressionsSettings();
-        settings.bounds = { // in size of char height
-            left: -0.5,
-            right: 8,
-            verticalChar: 2,
-            verticalLine: 0.6
-        };
-        settings.angle = Math.sin( 15 * Math.PI / 180 );
-        settings.save();
+        this._SGWM.SplitToProgressionsSettings = settings;
+        if (!settings.isInitialized) {
+            settings.bounds = { // in size of char height
+                left: -0.5,
+                right: 8,
+                verticalChar: 2,
+                verticalLine: 0.6
+            };
+            settings.angle = Math.sin( 15 * Math.PI / 180 );
+            settings.save();
+        }
 
         settings = new SGWM.ProgressionMergerSettings();
-        settings.minLongSetLength = 2;
-        settings.fitThreshold = 0.28;       // fraction of the interline distance
-        settings.maxLinearGradient = 0.15;
-        settings.removeSingleFixationLines = false;
-        settings.correctForEmptyLines = true;
-        settings.emptyLineDetectorFactor = 1.6;
-        settings.save();
+        this._SGWM.ProgressionMergerSettings = settings;
+        if (!settings.isInitialized) {
+            settings.minLongSetLength = 2;
+            settings.fitThreshold = 0.28;       // fraction of the interline distance
+            settings.maxLinearGradient = 0.15;
+            settings.removeSingleFixationLines = false;
+            settings.correctForEmptyLines = true;
+            settings.emptyLineDetectorFactor = 1.6;
+            settings.save();
+        }
 
         settings = new SGWM.WordMapperSettings();
-        settings.wordCharSkipStart = 3;
-        settings.wordCharSkipEnd = 6;
-        settings.scalingDiffLimit = 0.9;
-        settings.rescaleFixationX = false;
-        settings.partialLengthMaxWordLength = 2;
-        settings.effectiveLengthFactor = 0.7;
-        settings.ignoreTransitions = false;
-        settings.save();
+        this._SGWM.WordMapperSettings = settings;
+        if (!settings.isInitialized) {
+            settings.wordCharSkipStart = 3;
+            settings.wordCharSkipEnd = 6;
+            settings.scalingDiffLimit = 0.9;
+            settings.rescaleFixationX = false;
+            settings.partialLengthMaxWordLength = 2;
+            settings.effectiveLengthFactor = 0.7;
+            settings.ignoreTransitions = false;
+            settings.save();
+        }
+    };
 
-        const sgwm = new SGWM();
+    Visualization.prototype._map = function( session ) {
+        Object.values( this._SGWM ).forEach( settings => {
+            settings.save();
+        });
+
+        const sgwm = new window.SGWM();
         const result = sgwm.map( session );
 
         return result;
