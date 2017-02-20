@@ -212,7 +212,7 @@
         if (this._fillCategories) {
             titleString = this._fillCategories( _categoriesList, users );
 
-            const event = new Event( 'change' );
+            const event = new window.Event( 'change' );
             _categoriesList.dispatchEvent( event );
             _categoriesList.classList.remove( 'invisible' );
         }
@@ -488,6 +488,8 @@
     // Data processing
 
     Visualization.prototype._map = function( session ) {
+        const SGWM = window.SGWM;
+
         let settings;
 
         settings = new SGWM.FixationProcessorSettings();

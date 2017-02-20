@@ -127,12 +127,14 @@
 
         if (options.css) {
             let parts;
+            let savedRule;
+
             const ruleInitilization = rule => {
                 if (rule.selector === parts[0] && rule.name === parts[1]) {
                     rule.initial = options.css[ savedRule ];
                 }
             };
-            for (let savedRule in options.css) {
+            for (savedRule in options.css) {
                 parts = savedRule.split( '____' );
                 cssRules.forEach( ruleInitilization );
             }

@@ -9,11 +9,11 @@ ReadVis2.init = function( components ) {
     ReadVis2.loadingCallbacks.forEach( callback => { callback(); } );
 
     // DB
-    if (typeof firebase !== 'undefined') {
-        ReadVis2.firebase = firebase.database().ref( 'school2' );
+    if (typeof window.firebase !== 'undefined') {
+        ReadVis2.firebase = window.firebase.database().ref( 'school2' );
     }
     else {
-        alert( 'Please connect to the internet and reload the page' );
+        window.alert( 'Please connect to the internet and reload the page' );
     }
 
     // setup
