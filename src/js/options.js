@@ -280,6 +280,10 @@
 
             for (let r = 0; r < cssRules.length; r++) {
                 const rule = cssRules[ r ];
+                if (!) {
+                    continue;
+                }
+
                 for (let c = 0; c < rules.length; c++) {
                     const customRule = rules[ c ];
                     if (rule.selectorText === customRule.selector) {
