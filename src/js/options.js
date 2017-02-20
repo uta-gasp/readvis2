@@ -278,6 +278,10 @@
                 continue;
             }
 
+            if (!cssRules) {
+                continue;
+            }
+
             for (let r = 0; r < cssRules.length; r++) {
                 const rule = cssRules[ r ];
                 if (!rule) {
