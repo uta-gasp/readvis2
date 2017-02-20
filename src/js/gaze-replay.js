@@ -320,4 +320,4 @@
 
     app.GazeReplay = GazeReplay;
 
-})( this.ReadVis2 || module.exports );
+})( window.ReadVis2 || module.exports );

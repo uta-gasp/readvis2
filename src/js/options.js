@@ -477,4 +477,4 @@
 
     app.Options = Options;
 
-})( this.ReadVis2 || module.this.exports );
+})( window.ReadVis2 || module.this.exports );

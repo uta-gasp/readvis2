@@ -5,7 +5,7 @@
     };
 
     Logger.moduleErrorPrinter = function( moduleName ) {
-        if (this.ReadVis2 !== undefined) {
+        if (window.ReadVis2 !== undefined) {
             return () => { };
         }
 
@@ -19,7 +19,7 @@
             console.log( item );
         };
 
-        if (this.ReadVis2 !== undefined) {
+        if (window.ReadVis2 !== undefined) {
             return () => { };
         }
 
@@ -45,7 +45,7 @@
     };
 
     Logger.forModule = (moduleName) => {
-        // if (this.ReadVis2 !== undefined) {
+        // if (window.ReadVis2 !== undefined) {
         //     return () => { };
         // }
 
@@ -131,4 +131,4 @@
 
     app.Logger = Logger;
 
-})( this.ReadVis2 || module.exports );
+})( window.ReadVis2 || module.exports );
