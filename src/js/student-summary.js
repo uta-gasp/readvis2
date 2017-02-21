@@ -28,6 +28,7 @@
         };
 
         this._users = null;
+        this._grade = null;
     }
 
     app.loaded( () => { // we have to defer the prototype definition until the Visualization mudule is loaded
@@ -47,7 +48,10 @@
         const gradeUsers = this._classifyUsersByGrade( userData );
 
         for (let grade in gradeUsers) {
-            this._addOption( list, grade, grade, gradeUsers[ grade ] );
+            const option = this._addOption( list, grade, grade, gradeUsers[ grade ] );
+            if (this._grade === grade) {
+                option.selected = true;
+            }
         }
 
         return 'Select students';
@@ -62,10 +66,12 @@
     //     });
     // };
 
-    StudentSummary.prototype._load = function( cbLoaded, id, users, title ) {
+    StudentSummary.prototype._load = function( cbLoaded, id, users, grade ) {
 
         const textIDs = new Map();
         const sessionPromises = [];
+
+        this._grade = grade;
 
         users.forEach( (user, id) => {
             for (let session in user.sessions) {

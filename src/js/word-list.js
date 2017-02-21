@@ -42,6 +42,10 @@
     //      hyphen (Char) = '-'
     // }
     WordList.prototype.fill = function( words, options = {} ) {
+        if (!words) {
+            return;
+        }
+
         if (!options.preserve) {
             this._words = new Map();
         }
@@ -55,7 +59,12 @@
         const hyphenRegExp = new RegExp( `${hyphen}`, 'g' );
         const descending = (a, b) => b[1].duration - a[1].duration;
         words.forEach( word => {
-            const id = '' + Math.floor( word.rect.x / 10 ) + '_' + Math.floor( word.rect.y / 10 );
+            let id = word.id;
+            if (id === undefined) {
+                id = '' + Math.floor( word.rect.x / 10 ) + '_' + Math.floor( word.rect.y / 10 );
+                console.log( 'new id', id);
+            }
+
             let w = this._words.get( id );
             if (!w) {
                 w = Object.assign( {}, word );

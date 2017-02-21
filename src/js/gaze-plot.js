@@ -96,7 +96,10 @@
         const gradeUsers = this._classifyUsersByGrade( userData );
 
         for (let grade in gradeUsers) {
-            this._addOption( list, grade, grade, gradeUsers[ grade ] );
+            const option = this._addOption( list, grade, grade, gradeUsers[ grade ] );
+            if (this._data && this._data.grade === grade) {
+                option.selected = true;
+            }
         }
 
         return 'Select a student';
@@ -132,6 +135,7 @@
         Promise.all( [sessionPromise, textPromise] ).then( ([session, text]) => {
             this._data = {
                 user: userName,
+                grade: grade,
                 sessionName: sessionName,
                 sessionID: sessionID,
                 session: session,
@@ -150,6 +154,8 @@
                     value: Math.round( session.meta.interaction.syllabification.threshold )
                 }
             });
+
+            this._recreateWordIDsInEvents( this._data.session, this._data.text );
 
             this._setPageIndex( 0 );
             this._mapAndShow();

@@ -77,6 +77,10 @@
 
             app.WordList.instance.show();
 
+            this._data.sessions.forEach( session => {
+                this._recreateWordIDsInEvents( session, this._data.text );
+            });
+
             this._setPageIndex( 0 );
             this._mapAndShow();
 

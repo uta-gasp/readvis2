@@ -42,6 +42,12 @@
         this._style = document.createElement( 'style' );
         document.body.appendChild( this._style );
 
+        _root.addEventListener( 'click', e => {
+            if (e.target === _root) {
+                _root.classList.add( 'invisible' );
+            }
+        });
+
         const save = _root.querySelector( '.save' );
         save.addEventListener( 'click', e => {
             getRulesFromEditors( this._style, _cssRules );

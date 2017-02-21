@@ -23,6 +23,7 @@
         font-size: 1.75em;
         font-family: 'Open Sans', sans-serif;
         padding: 0.2em 0.5em 0.4em;
+        text-align: center;
     }
 
     .options {
@@ -30,6 +31,8 @@
         font-family: 'Roboto Condensed', sans-serif;
         max-height: ~"calc(100vh - 6em)";
         overflow: auto;
+        border-top: solid 1px #ccc;
+        border-bottom: solid 1px #ccc;
 
         @import "mixins/form.less";
 
@@ -127,8 +130,6 @@
         justify-content: center;
         padding: 8px;
         box-sizing: border-box;
-
-        border-top: solid 1px #ccc;
 
         @import "mixins/button.less";
     }

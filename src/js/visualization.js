@@ -192,15 +192,15 @@
                     '_SGWM.SplitToProgressionsSettings.left': { type: new Number(0.1), label: 'Left' },
                     '_SGWM.SplitToProgressionsSettings.right': { type: new Number(0.1), label: 'Right' },
                     '_SGWM.SplitToProgressionsSettings.verticalLine': { type: new Number(0.1), label: 'Vertical (lines)' },
-                    '_SGWM.SplitToProgressionsSettings.angle': { type: new Number(0.001), label: 'Angle' },
+                    '_SGWM.SplitToProgressionsSettings.angle': { type: new Number(0.001), label: 'Angle (rad)' },
                     })
                 },
                 {
-                    title: 'Merging',
+                    title: 'Merger',
                     options: Visualization.createOptions({
-                    '_SGWM.ProgressionMergerSettings.minLongSetLength': { type: new Number(), label: 'Progression (fixations)' },
-                    '_SGWM.ProgressionMergerSettings.fitThreshold': { type: new Number(0.01), label: 'Threshold' },
-                    '_SGWM.ProgressionMergerSettings.maxLinearGradient': { type: new Number(0.01), label: 'Max gradient' },
+                    '_SGWM.ProgressionMergerSettings.minLongSetLength': { type: new Number(), label: 'Shortest progression (fixations)' },
+                    '_SGWM.ProgressionMergerSettings.fitThreshold': { type: new Number(0.01), label: 'Line separation threshold (lines)' },
+                    '_SGWM.ProgressionMergerSettings.maxLinearGradient': { type: new Number(0.01), label: 'Max line incline' },
                     '_SGWM.ProgressionMergerSettings.removeSingleFixationLines': { type: new Boolean(), label: 'Remove unmerged single fixations' },
                     '_SGWM.ProgressionMergerSettings.correctForEmptyLines': { type: new Boolean(), label: 'Account for empty lines' },
                     '_SGWM.ProgressionMergerSettings.emptyLineDetectorFactor': { type: new Number(0.05), label: '\tempty line factor' },
@@ -212,6 +212,9 @@
                     '_SGWM.WordMapperSettings.wordCharSkipStart': { type: new Number(1), label: 'Skip from start' },
                     '_SGWM.WordMapperSettings.wordCharSkipEnd': { type: new Number(1), label: 'Skip from end' },
                     '_SGWM.WordMapperSettings.scalingDiffLimit': { type: new Number(0.1), label: 'Scaling diff limit' },
+                    '_SGWM.WordMapperSettings.rescaleFixationX': { type: new Boolean(), label: 'Rescale fixations horizontally' },
+                    '_SGWM.WordMapperSettings.partialLengthMaxWordLength': { type: new Number(), label: '\tshort word' },
+                    '_SGWM.WordMapperSettings.effectiveLengthFactor': { type: new Number(0.1), label: '\tlimit to' },
                     '_SGWM.WordMapperSettings.ignoreTransitions': { type: new Boolean(), label: 'Ignore transitions' },
                     })
                 },
@@ -413,6 +416,56 @@
                     el.textContent = '.';
                 }
             }
+        }
+    };
+
+    Visualization.prototype._recreateWordIDsInEvents = function( session, text ) {
+        if (session.length !== text.length) {
+            console.error( 'session and text page do not match' );
+            return;
+        }
+
+        for (let i = 0; i < session.length; i++) {
+            const records = session[i].records;
+            const page = text[i];
+
+            const lines = new Map();
+            page.forEach( word => {
+                let wordLine = lines.get( Math.round( word.y ) );
+                if (!wordLine) {
+                    wordLine = [];
+                    lines.set( Math.round( word.y ), wordLine );
+                }
+                wordLine.push( { id: word.id, x: word.x, y: word.y, text: app.Syllabifier.clean( word.text ) } );
+            });
+
+            records.forEach( record => {
+                const line = lines.get( Math.round( record.rect.y ) );
+                if (!line) {
+                    return;
+                }
+
+                const x = record.rect.x;
+                const text = app.Syllabifier.clean( record.text );
+                let candidates = line.filter( lineWord => {
+                    return lineWord.text === text;
+                });
+
+                if (candidates.length === 1) {
+                    record.id = candidates[0].id;
+                }
+                else if (candidates.length > 1) {
+                    const sameWordOnLinePrev = records.filter( r => {
+                        return r.rect.y === record.rect.y &&
+                                r.rect.x < record.rect.x &&
+                                app.Syllabifier.clean( r.text ) === text;
+                    });
+                    record.id = candidates[ sameWordOnLinePrev.length ].id;
+                }
+                else {
+                    console.log( 'no candidate for', text );
+                }
+            });
         }
     };
 
