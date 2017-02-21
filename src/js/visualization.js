@@ -427,9 +427,12 @@
 
         for (let i = 0; i < session.length; i++) {
             const records = session[i].records;
-            const page = text[i];
+            if (!records) {
+                continue;
+            }
 
             const lines = new Map();
+            const page = text[i];
             page.forEach( word => {
                 let wordLine = lines.get( Math.round( word.y ) );
                 if (!wordLine) {
