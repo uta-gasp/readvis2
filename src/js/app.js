@@ -1,7 +1,8 @@
 // Requires:
 //      Firebase
 
-var ReadVis2 = ReadVis2 || {};
+window.ReadVis2 = window.ReadVis2 || {};
+const ReadVis2 = window.ReadVis2;
 
 // "components" contains selectors for each component
 ReadVis2.init = function( components ) {
@@ -41,7 +42,7 @@ ReadVis2.init = function( components ) {
         container: components.studentSummary
     });
 
-    const controls = new ReadVis2.Controls({
+    /*const controls = */new ReadVis2.Controls({
         root: components.controls
     }, {
         displaySession: gazePlot.queryData.bind( gazePlot ),
@@ -51,7 +52,7 @@ ReadVis2.init = function( components ) {
         studentSummary: studentSummary.queryData.bind( studentSummary ),
     });
 
-    const options = new ReadVis2.Options({
+    /*const options = */new ReadVis2.Options({
         root: components.options,
         text: components.textContainer + ' ' + components.text
     }, {    // services

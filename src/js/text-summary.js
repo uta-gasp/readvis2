@@ -26,9 +26,9 @@
             title: 'Text summary',
             update: this.update.bind( this ),
             options: app.Visualization.createOptions({
-                fixationColor: { type: new String('#'), label: 'Fixation color' },
-                showFixations: { type: new Boolean(), label: 'Show fixations' },
-                showRegressions: { type: new Boolean(), label: 'Highlight regressions' },
+                fixationColor: { type: '#', label: 'Fixation color' },
+                showFixations: { type: Boolean, label: 'Show fixations' },
+                showRegressions: { type: Boolean, label: 'Highlight regressions' },
             }, this )
         };
 
@@ -181,4 +181,4 @@
 
     app.TextSummary = TextSummary;
 
-})( window.ReadVis2 || module.exports );
+})( window.ReadVis2 );

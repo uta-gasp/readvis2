@@ -99,7 +99,7 @@
                     sessionMeta.data = sessionData;
 
                     for (let textID in this._texts) {
-                        if (textID == sessionMeta.text) {
+                        if (+textID === +sessionMeta.text) {
                             sessionMeta.pages = this._texts[ textID ];
                             break;
                         }
@@ -222,10 +222,10 @@
         result.push( Math.round( fixations.duration / fixations.count ) );
 
         return result;
-    }
+    };
 
     }); // end of delayed call
 
     app.StudentSummary = StudentSummary;
 
-})( window.ReadVis2 || module.exports );
+})( window.ReadVis2 );

@@ -78,9 +78,9 @@ module.exports = function(grunt) {
                             syntax: require('postcss-less'),
                             extends: './node_modules/stylelint-config-standard/index.js',
                             rules: {
-                                'at-rule-name-case': false,
+                                'at-rule-name-case': 'lower',
+                                'length-zero-no-unit': true,
                                 'indentation': 4,
-                                //'no-invalid-double-slash-comments': false,
                                 'comment-empty-line-before': [ 'never', {
                                     except: ['first-nested'],
                                     ignore: ['stylelint-commands', 'between-comments'],
@@ -98,12 +98,34 @@ module.exports = function(grunt) {
                 'src/js/**/*.js'
             ],
             options: {
-                globals: {
-                    console: true,
-                    module: true,
-                },
+                // engorce
+                bitwise: true,
+                curly: true,
+                eqeqeq: true,
                 esversion: 6,
-                multistr: true
+                freeze: true,
+                funcscope: true,
+                globals: {
+                    // module: true,
+                },
+                //latedef: 'nofunc',
+                newcap: true,
+                noarg: true,
+                nocomma: true,
+                //nonew: true,
+                shadow: false,
+                undef: true,
+                unused: 'vars',
+                varstmt: true,
+
+                // relax
+                boss: true,
+                loopfunc: true,
+                supernew: false,
+
+                //environments
+                browser: true,
+                devel: true,
             }
         },
 
@@ -176,7 +198,6 @@ module.exports = function(grunt) {
     grunt.registerTask('rebuild', ['clean', 'jade', 'less', 'concat', 'copy', 'postcss:build']);
     grunt.registerTask('quick', ['jade', 'less', 'concat', 'copy:img', 'postcss:build']);
     grunt.registerTask('default', ['jade', 'less', 'concat', 'copy:img', 'copy:libs', 'postcss:build']);
-    grunt.registerTask('updatelibs', ['copy:gazeTargets' ]);
     grunt.registerTask('compile', ['jshint']);
     grunt.registerTask('compile2', ['eslint', 'postcss:lint']);
 };

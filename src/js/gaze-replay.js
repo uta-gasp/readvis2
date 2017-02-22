@@ -26,8 +26,8 @@
             title: 'Gaze replay',
             update: this.update.bind( this ),
             options: app.Visualization.createOptions({
-                nameFontSize: { type: new Number(), label: 'Font size' },
-                nameSpacing: { type: new Number(0.1), label: 'Spacing' },
+                nameFontSize: { type: Number, label: 'Font size' },
+                nameSpacing: { type: Number, step: 0.1, label: 'Spacing' },
             }, this )
         };
 
@@ -123,7 +123,7 @@
         if (this._tracks) {
             this._tracks.forEach( track => track.stop() );
         }
-    }
+    };
 
     GazeReplay.prototype._run = function( ctx ) {
         this._tracks.forEach( (track, ti) => {
@@ -146,7 +146,7 @@
                     );
                 }
             );
-        })
+        });
     };
 
     GazeReplay.prototype._prevPage = function() {
@@ -223,7 +223,7 @@
         this.root.appendChild( this.pointer );
 
         this.nextTimer = setTimeout( this.__next, 1500);
-    }
+    };
 
     Track.prototype.stop = function() {
         this._stopFixationTimers();
@@ -237,7 +237,7 @@
             this.root.removeChild( this.pointer );
             this.pointer = null;
         }
-    }
+    };
 
     // private
 
@@ -269,7 +269,7 @@
             this.pointer = null;
             this.nextTimer = null;
         }
-    }
+    };
 
     Track.prototype._moveFixation = function( fixation ) {
         this._stopFixationTimers();
@@ -300,7 +300,7 @@
         }
 
         this.currentFixation = fixation;
-    }
+    };
 
     Track.prototype._updatePointer = function() {
         if (!this.currentFixation || !this.pointer) {
@@ -320,4 +320,4 @@
 
     app.GazeReplay = GazeReplay;
 
-})( window.ReadVis2 || module.exports );
+})( window.ReadVis2 );

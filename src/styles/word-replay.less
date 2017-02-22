@@ -9,38 +9,40 @@
     padding-right: 24px;
 
     &.invisible {
-    	display: none;
+        display: none;
     }
 
     table {
-    	padding: 8px;
-    	font-family: Calibri, Arial, sans-serif;
-		font-size: 16px;
+        padding: 8px;
+        font-family: Calibri, Arial, sans-serif;
+        font-size: 16px;
 
-	    border-collapse: collapse;
+        border-collapse: collapse;
 
-	    thead {
-	    	position: sticky;
-	    	top: 0;
+        thead {
+            position: sticky;
+            top: 0;
 
-            th, td {
+            th,
+            td {
                 background-color: #ffc;
-                border-width: 0 0 1px 0;
+                border-width: 0 0 1px;
                 font-weight: bold;
             }
-	    }
+        }
 
-		th, td {
-		    border: 1px solid black;
-    		text-align: center;
-    		padding: 0 4px;
-		}
+        th,
+        td {
+            border: 1px solid black;
+            text-align: center;
+            padding: 0 4px;
+        }
 
         tfoot {
             font-weight: bold;
 
             td {
-                border-width: 1px 0 0 0;
+                border-width: 1px 0 0;
 
                 &.hidden {
                     color: white;
@@ -48,18 +50,18 @@
             }
         }
 
-    	td:first-of-type {
-    		color: #a00 !important;
-    		text-align: right;
-    		border-width: 0;
-    	}
+        td:first-of-type {
+            color: #a00 !important;
+            text-align: right;
+            border-width: 0;
+        }
     }
 
     .pointer {
         position: absolute;
         height: 8px;
         width: 8px;
-        background-color: #F80;
+        background-color: #f80;
         border: 1px solid black;
         border-radius: 4px;
         opacity: 0.7;

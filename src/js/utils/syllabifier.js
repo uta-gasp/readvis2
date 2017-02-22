@@ -59,8 +59,7 @@
                     if (i < word.length - 1) {
                         const charPrevious = word[ i + 1 ];
                         const typePrevious = getType( charPrevious );
-                        if (charPrevious !== char && typePrevious === type
-                            && !_diftongs.includes( char + charPrevious)) {
+                        if (charPrevious !== char && typePrevious === type && !_diftongs.includes( char + charPrevious)) {
                             if (str) {
                                 result.unshift( str );
                             }
@@ -160,12 +159,9 @@
         return result;
     }
 
-    function formatException( word, exception, syllabified, hyphen ) {
-        return exceptionSyllables( word, exception, syllabified ).join( hyphen );
-    }
 
     // export
 
     app.Syllabifier = Syllabifier;
 
-})( window.ReadVis2 || module.exports );
+})( window.ReadVis2 );

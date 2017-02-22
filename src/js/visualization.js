@@ -137,7 +137,7 @@
                     let v = receivers[0];
                     ids.forEach( _ => {
                         v = v[ _ ];
-                    })
+                    });
                     return v;
                 }
                 else {
@@ -150,7 +150,7 @@
                     });
                 }
             };
-        };
+        }
 
         return options;
     };
@@ -160,11 +160,11 @@
             id: '_common',
             title: 'Common',
             options: Visualization.createOptions({
-                wordColor: { type: new String('#'), label: 'Text color' },
-                wordHighlightColor: { type: new String('#'), label: 'Highlighting color' },
-                wordRectColor: { type: new String('#'), label: 'Word frame color' },
-                'syllabification.background' : { type: new String('#'), label: 'Syllabification background' },
-                'syllabification.color' : { type: new String('#'), label: 'Syllabification word color' },
+                wordColor: { type: '#', label: 'Text color' },
+                wordHighlightColor: { type: '#', label: 'Highlighting color' },
+                wordRectColor: { type: '#', label: 'Word frame color' },
+                'syllabification.background' : { type: '#', label: 'Syllabification background' },
+                'syllabification.color' : { type: '#', label: 'Syllabification word color' },
             }, Visualization._instaces )
         };
     };
@@ -177,45 +177,45 @@
                 {
                     title: 'Fixation processing',
                     options: Visualization.createOptions({
-                        '_SGWM.FixationProcessorSettings.location.enabled': { type: new Boolean(), label: 'By location' },
-                        '_SGWM.FixationProcessorSettings.location.marginX': { type: new Number(10), label: '\tmargin X' },
-                        '_SGWM.FixationProcessorSettings.location.marginY': { type: new Number(), label: '\tmargin Y' },
-                        '_SGWM.FixationProcessorSettings.duration.enabled': { type: new Boolean(), label: 'By duration' },
-                        '_SGWM.FixationProcessorSettings.duration.mergingDurationThreshold': { type: new Number(), label: '\tmerging threshold' },
-                        '_SGWM.FixationProcessorSettings.duration.mergingDistanceThreshold': { type: new Number(), label: '\tmerging distance' },
-                        '_SGWM.FixationProcessorSettings.duration.removingDurationThreshold': { type: new Number(), label: '\tmin duration' },
+                        '_SGWM.FixationProcessorSettings.location.enabled': { type: Boolean, label: 'By location' },
+                        '_SGWM.FixationProcessorSettings.location.marginX': { type: Number, step: 10, label: '\tmargin X, px' },
+                        '_SGWM.FixationProcessorSettings.location.marginY': { type: Number, label: '\tmargin Y, px' },
+                        '_SGWM.FixationProcessorSettings.duration.enabled': { type: Boolean, label: 'By duration' },
+                        '_SGWM.FixationProcessorSettings.duration.mergingDurationThreshold': { type: Number, label: '\tmerging threshold, ms' },
+                        '_SGWM.FixationProcessorSettings.duration.mergingDistanceThreshold': { type: Number, label: '\tmerging distance, px' },
+                        '_SGWM.FixationProcessorSettings.duration.removingDurationThreshold': { type: Number, label: '\tmin duration, ms' },
                     })
                 },
                 {
                     title: 'Splitter',
                     options: Visualization.createOptions({
-                    '_SGWM.SplitToProgressionsSettings.left': { type: new Number(0.1), label: 'Left' },
-                    '_SGWM.SplitToProgressionsSettings.right': { type: new Number(0.1), label: 'Right' },
-                    '_SGWM.SplitToProgressionsSettings.verticalLine': { type: new Number(0.1), label: 'Vertical (lines)' },
-                    '_SGWM.SplitToProgressionsSettings.angle': { type: new Number(0.001), label: 'Angle (rad)' },
+                    '_SGWM.SplitToProgressionsSettings.left': { type: Number, step: 0.1, label: 'Left margin, chars' },
+                    '_SGWM.SplitToProgressionsSettings.right': { type: Number, step: 0.1, label: 'Right margin, chars' },
+                    '_SGWM.SplitToProgressionsSettings.verticalLine': { type: Number, step: 0.1, label: 'Vertical margin, lines' },
+                    '_SGWM.SplitToProgressionsSettings.angle': { type: Number, step: 0.1, label: 'max inclide, rad' },
                     })
                 },
                 {
                     title: 'Merger',
                     options: Visualization.createOptions({
-                    '_SGWM.ProgressionMergerSettings.minLongSetLength': { type: new Number(), label: 'Shortest progression (fixations)' },
-                    '_SGWM.ProgressionMergerSettings.fitThreshold': { type: new Number(0.01), label: 'Line separation threshold (lines)' },
-                    '_SGWM.ProgressionMergerSettings.maxLinearGradient': { type: new Number(0.01), label: 'Max line incline' },
-                    '_SGWM.ProgressionMergerSettings.removeSingleFixationLines': { type: new Boolean(), label: 'Remove unmerged single fixations' },
-                    '_SGWM.ProgressionMergerSettings.correctForEmptyLines': { type: new Boolean(), label: 'Account for empty lines' },
-                    '_SGWM.ProgressionMergerSettings.emptyLineDetectorFactor': { type: new Number(0.05), label: '\tempty line factor' },
+                    '_SGWM.ProgressionMergerSettings.minLongSetLength': { type: Number, label: 'Shortest progression, fixations' },
+                    '_SGWM.ProgressionMergerSettings.fitThreshold': { type: Number, step: 0.01, label: 'Line separation threshold, lines' },
+                    '_SGWM.ProgressionMergerSettings.maxLinearGradient': { type: Number, step: 0.01, label: 'Max line incline, rad' },
+                    '_SGWM.ProgressionMergerSettings.removeSingleFixationLines': { type: Boolean, label: 'Remove unmerged single fixations' },
+                    '_SGWM.ProgressionMergerSettings.correctForEmptyLines': { type: Boolean, label: 'Account for empty lines' },
+                    '_SGWM.ProgressionMergerSettings.emptyLineDetectorFactor': { type: Number, step: 0.05, label: '\tempty line factor, lines' },
                     })
                 },
                 {
                     title: 'Word mapper',
                     options: Visualization.createOptions({
-                    '_SGWM.WordMapperSettings.wordCharSkipStart': { type: new Number(1), label: 'Skip from start' },
-                    '_SGWM.WordMapperSettings.wordCharSkipEnd': { type: new Number(1), label: 'Skip from end' },
-                    '_SGWM.WordMapperSettings.scalingDiffLimit': { type: new Number(0.1), label: 'Scaling diff limit' },
-                    '_SGWM.WordMapperSettings.rescaleFixationX': { type: new Boolean(), label: 'Rescale fixations horizontally' },
-                    '_SGWM.WordMapperSettings.partialLengthMaxWordLength': { type: new Number(), label: '\tshort word' },
-                    '_SGWM.WordMapperSettings.effectiveLengthFactor': { type: new Number(0.1), label: '\tlimit to' },
-                    '_SGWM.WordMapperSettings.ignoreTransitions': { type: new Boolean(), label: 'Ignore transitions' },
+                    '_SGWM.WordMapperSettings.wordCharSkipStart': { type: Number, label: 'Skip from start, chars' },
+                    '_SGWM.WordMapperSettings.wordCharSkipEnd': { type: Number, label: 'Skip from end, chars' },
+                    '_SGWM.WordMapperSettings.scalingDiffLimit': { type: Number, step: 0.1, label: 'Scaling diff limit' },
+                    '_SGWM.WordMapperSettings.rescaleFixationX': { type: Boolean, label: 'Rescale fixations horizontally' },
+                    '_SGWM.WordMapperSettings.partialLengthMaxWordLength': { type: Number, label: '\tshort word, chars' },
+                    '_SGWM.WordMapperSettings.effectiveLengthFactor': { type: Number, step: 0.1, label: '\tlimit to' },
+                    '_SGWM.WordMapperSettings.ignoreTransitions': { type: Boolean, label: 'Ignore transitions' },
                     })
                 },
             ], Visualization._instaces )
@@ -349,7 +349,7 @@
     Visualization.prototype._getTexts = function( users ) {
         const texts = new Map();
         users.forEach( user => {
-            const sessions = user.val()['sessions'];
+            const sessions = user.val().sessions;
             for (let sessionID of Object.keys( sessions )) {
                 const session = sessions[ sessionID ];
                 session.user = user.key;
@@ -364,7 +364,7 @@
                 else {
                     texts.get( session.text ).sessions.set( sessionID, session );
                 }
-            };
+            }
         });
 
         return texts;
@@ -380,9 +380,12 @@
             for (let sessionID in user.sessions) {
                 const textTitle = user.sessions[ sessionID ].textTitle;
                 for (let grade in this._gradeTexts) {
+                    if (gradeUsers[ grade ].indexOf( user ) >= 0) {
+                        continue;
+                    }
                     const gradeTexts = this._gradeTexts[ grade ];
                     gradeTexts.forEach( gradeText => {
-                        if (textTitle === gradeText && gradeUsers[ grade ].indexOf( user ) < 0) {
+                        if (textTitle === gradeText) {
                             user.grade = grade[0];
                             gradeUsers[ grade ].push( user );
                         }
@@ -448,7 +451,6 @@
                     return;
                 }
 
-                const x = record.rect.x;
                 const text = app.Syllabifier.clean( record.text );
                 let candidates = line.filter( lineWord => {
                     return lineWord.text === text;
@@ -516,7 +518,7 @@
     };
 
     Visualization.prototype._drawWords = function( ctx, words, settings ) {
-        const indexComputer = IndexComputer();
+        const indexComputer = createIndexComputer();
 
         words.forEach( (word, index) => {
             const wordSettings = Object.assign({
@@ -711,7 +713,7 @@
 
     let _waiting = false;
 
-    const IndexComputer = function() {
+    const createIndexComputer = function() {
         let lastX = -1;
         let lastY = -1;
         let currentWordIndex = -1;
@@ -843,4 +845,4 @@
 
     app.Visualization = Visualization;
 
-})( window.ReadVis2 || module.exports );
+})( window.ReadVis2 );

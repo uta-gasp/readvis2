@@ -131,4 +131,4 @@
 
     app.Logger = Logger;
 
-})( window.ReadVis2 || module.exports );
+})( window.ReadVis2 );

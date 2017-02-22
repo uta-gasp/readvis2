@@ -95,4 +95,4 @@
 
     app.Metric = Metric;
 
-})( window.ReadVis2 || module.exports );
+})( window.ReadVis2 );

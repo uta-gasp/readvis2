@@ -46,7 +46,7 @@
             `rgba(255,0,255,${lineColorA}`,
         ];
         this._unmappedFixationColor = '#000';
-        this._mergedFixationBorderColor = '#808'
+        this._mergedFixationBorderColor = '#808';
 
         app.Visualization.call( this, options );
 
@@ -55,18 +55,18 @@
             title: 'Gaze plot',
             update: this.update.bind( this ),
             options: app.Visualization.createOptions({
-                colorMetric: { type: ['none', 'duration', 'char speed', 'syllable speed'], label: 'Word color metric' },
-                showConnections: { type: new Boolean(), label: 'Show word-fixation connections' },
-                connectionColor: { type: new String('#'), label: 'Connection color' },
-                showSaccades: { type: new Boolean(), label: 'Show saccades' },
-                saccadeColor: { type: new String('#'), label: 'Saccade color' },
-                showFixations: { type: new Boolean(), label: 'Show fixations' },
-                greyFixationColor: { type: new String('#'), label: 'Default fixation color' },
-                greyFixationSize: { type: new Number(), label: 'Default fixation size' },
-                showIDs: { type: new Boolean(), label: 'Show IDs' },
-                fixationNumberSize: { type: new Number(), label: 'ID font size' },
-                fixationNumberColor: { type: new String('#'), label: 'ID color' },
-                wordListUnits: { type: Object.values( app.WordList.Units ), label: 'Word list units' },
+                colorMetric: { type: Array, items: ['none', 'duration', 'char speed', 'syllable speed'], label: 'Word color metric' },
+                showConnections: { type: Boolean, label: 'Show word-fixation connections' },
+                connectionColor: { type: '#', label: 'Connection color' },
+                showSaccades: { type: Boolean, label: 'Show saccades' },
+                saccadeColor: { type: '#', label: 'Saccade color' },
+                showFixations: { type: Boolean, label: 'Show fixations' },
+                greyFixationColor: { type: '#', label: 'Default fixation color' },
+                greyFixationSize: { type: Number, step: 1, label: 'Default fixation size' },
+                showIDs: { type: Boolean, label: 'Show IDs' },
+                fixationNumberSize: { type: Number, step: 1, label: 'ID font size' },
+                fixationNumberColor: { type: '#', label: 'ID color' },
+                wordListUnits: { type: Array, items: Object.values( app.WordList.Units ), label: 'Word list units' },
             }, this )
         };
 
@@ -258,10 +258,10 @@
 
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.font = `bold ${this.fixationNumberSize}px Verdana`;;
+        ctx.font = `bold ${this.fixationNumberSize}px Verdana`;
         ctx.fillStyle = this.fixationNumberColor;
         ctx.fillText( '' + id, fixation._x ? fixation._x : fixation.x, fixation.y );
-    }
+    };
 
     GazePlot.prototype._drawColoredFixation = function( ctx, fixation, id ) {
         if (fixation.line !== undefined) {
@@ -285,7 +285,7 @@
             ctx.stroke();
             ctx.lineWidth = 1;
         }
-    }
+    };
 
     GazePlot.prototype._drawSaccade = function( ctx, from, to ) {
         ctx.strokeStyle = this.saccadeColor;
@@ -321,4 +321,4 @@
 
     app.GazePlot = GazePlot;
 
-})( window.ReadVis2 || module.exports );
+})( window.ReadVis2 );

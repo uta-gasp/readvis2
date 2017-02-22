@@ -6,7 +6,7 @@
     width: 20vw;
 
     &.invisible {
-    	display: none;
+        display: none;
     }
 
     @import "mixins/button.less";
@@ -15,52 +15,52 @@
         background-image: url('img/down.png');
         background-repeat: no-repeat;
         background-position: right -6px;
-    	background-origin: content-box;
+        background-origin: content-box;
         box-sizing: border-box;
         width: 100%;
         margin: 0;
 
-    	&.dropped {
+        &.dropped {
             color: #474545;
             background-color: #ccc;
-    		background-image: url('img/up.png');
-    	}
+            background-image: url('img/up.png');
+        }
     }
 
     .table {
-    	background-color: rgba(255,255,220,0.8);
+        background-color: rgba(255, 255, 220, 0.8);
         border: solid 1px;
         border-top-width: 0;
 
         height: 100%;
-		transition: height 0.25s ease-in;
-		overflow-y: auto;
+        transition: height 0.25s ease-in;
+        overflow-y: auto;
 
-    	&.invisible {
-    		height: 0;
+        &.invisible {
+            height: 0;
             border-width: 0;
-    		transition: height 0.25s ease-in;
-    	}
+            transition: height 0.25s ease-in;
+        }
 
-    	.record {
-    		width: 100%;
+        .record {
+            width: 100%;
 
-	    	.word {
-	    		display: inline-block;
-	    		width: 60%;
-	    		overflow-x: hidden;
-	    		padding-left: 0.5em;
-	    		box-sizing: border-box;
+            .word {
+                display: inline-block;
+                width: 60%;
+                overflow-x: hidden;
+                padding-left: 0.5em;
+                box-sizing: border-box;
                 text-overflow: ellipsis;
-	    	}
+            }
 
-	    	.duration {
-	    		display: inline-block;
-	    		width: 35%;
-	    		text-align: right;
-	    		padding-right: 0.4em;
-	    		box-sizing: border-box;
-	    	}
-    	}
+            .duration {
+                display: inline-block;
+                width: 35%;
+                text-align: right;
+                padding-right: 0.4em;
+                box-sizing: border-box;
+            }
+        }
     }
 }

@@ -20,7 +20,7 @@
             title: 'Word replay',
             update: this.update.bind( this ),
             options: app.Visualization.createOptions({
-                longFixationThreshold: { type: new Number(100), label: 'Level duration, ms' },
+                longFixationThreshold: { type: Number, step: 100, label: 'Level duration, ms' },
             }, this )
         };
 
@@ -105,7 +105,7 @@
         if (this._tracks) {
             this._tracks.forEach( track => track.stop() );
         }
-    }
+    };
 
     WordReplay.prototype._createTable = function( words, tracks ) {
         const table = this._container.querySelector( 'table' );
@@ -177,7 +177,7 @@
                     cell.classList.remove( 'hidden' );
                 }
             );
-        })
+        });
     };
 
     WordReplay.prototype._prevPage = function() {
@@ -302,4 +302,4 @@
 
     app.WordReplay = WordReplay;
 
-})( window.ReadVis2 || module.exports );
+})( window.ReadVis2 );

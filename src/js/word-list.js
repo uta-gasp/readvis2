@@ -29,11 +29,11 @@
 
     WordList.prototype.show = function() {
 		this._container.classList.remove( 'invisible' );
-    }
+    };
 
     WordList.prototype.clear = function() {
         this._words = new Map();
-    }
+    };
 
     // words: Map
     // options: {
@@ -106,8 +106,8 @@
 
             table.appendChild( record );
         });
-    }
+    };
 
     app.WordList = WordList;
 
-})( window.ReadVis2 || module.exports );
+})( window.ReadVis2 );

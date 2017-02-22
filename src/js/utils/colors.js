@@ -167,4 +167,4 @@
 
     app.Colors = Colors;
 
-})( window.ReadVis2 || module.exports );
+})( window.ReadVis2 );
