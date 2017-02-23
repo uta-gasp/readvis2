@@ -50,7 +50,11 @@ html
         include ./components/options.jade
         +options( ids.options )
 
-        script(src='app.js')
+        if debug
+            script(src='app.js')
+        else
+            script(src='app.min.js')
+
         script.
             window.ReadVis2.init({
                 visualization: '##{ids.visualization}',

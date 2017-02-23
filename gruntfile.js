@@ -17,7 +17,7 @@ module.exports = function(grunt) {
                 options: {
                     pretty: true,
                     data: {
-                        debug: false
+                        debug: true,
                     }
                 },
                 files: {
