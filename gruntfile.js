@@ -1,43 +1,48 @@
+const destDirProd = '';
+const destDirDev = 'build/';
+
+const isDev = process.argv[2] !== 'publish';
+const destDir = isDev ? destDirDev : destDirProd;
+
 module.exports = function(grunt) {
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
 
         clean: {
-            build: {
-                src: ['build/**'],
+            dev: {
+                src: [ `${destDirDev}**` ],
                 filter: function(filepath) {
                     return filepath.split('\\').length > 1;
                 }
-            }
+            },
+            prod: [ `${destDirProd}app.js`, `${destDirProd}app.es5.js` ]
         },
 
         jade: {
             compile: {
                 options: {
-                    pretty: true,
+                    pretty: isDev,
                     data: {
-                        debug: true,
+                        debug: isDev,
                     }
                 },
-                files: {
-                    'build/index.html': ['src/views/*.jade']
-                }
+                src: [ 'src/views/*.jade' ],
+                dest: `${destDir}index.html`
             },
         },
 
         less: {
-            main: {
-                files: {
-                    'build/app.css': ['src/styles/*.less']
-                }
+            compile: {
+                src: [ 'src/styles/*.less' ],
+                dest: `${destDir}app.css`
             }
         },
 
         concat: {
             js: {
-                src: ['src/js/namespace.js', 'src/js/**'],
-                dest: 'build/app.js'
+                src: [ 'src/js/namespace.js', 'src/js/**' ],
+                dest: `${destDir}app.js`
             }
         },
 
@@ -46,14 +51,14 @@ module.exports = function(grunt) {
                 expand: true,
                 cwd: 'libs/',
                 src: '**',
-                dest: 'build/libs/',
+                dest: `${destDirDev}libs/`,
                 flatten: false
             },
             img: {
                 expand: true,
                 cwd: 'img/',
                 src: '**',
-                dest: 'build/img/',
+                dest: `${destDirDev}img/`,
                 flatten: false
             }
         },
@@ -68,7 +73,7 @@ module.exports = function(grunt) {
                         })
                     ]
                 },
-                src: 'build/*.css'
+                src: `${destDir}*.css`
             },
             lint: {
                 options: {
@@ -90,6 +95,31 @@ module.exports = function(grunt) {
                     ]
                 },
                 src: 'src/styles/**/*.less'
+            }
+        },
+
+        babel: {
+            options: {
+                sourceMap: false,
+                presets: ['es2015']
+            },
+            compile: {
+                src: `${destDir}app.js`,
+                dest: `${destDir}app.es5.js`
+            }
+        },
+
+        uglify: {
+            options: {
+                mangle: {
+                    except: [
+                        'ReadVis2', 'SGWM', 'firebase', 'app', 'window', 'document'
+                    ]
+                }
+            },
+            js: {
+                src: `${destDir}app.es5.js`,
+                dest: `${destDir}app.min.js`
             }
         },
 
@@ -148,41 +178,22 @@ module.exports = function(grunt) {
                 },
                 globals: [
                     // browser
-                    'document',
-                    'console',
-                    'window',
-                    'setTimeout',
-                    'clearTimeout',
-                    'localStorage',
-                    'arguments',
-                    'Blob',
-                    'Map',
-                    'NodeFilter',
-
-                    // Node
-                    'module',
-                    'require',
+                    // 'document',
+                    // 'console',
+                    // 'window',
+                    // 'setTimeout',
+                    // 'clearTimeout',
+                    // 'localStorage',
+                    // 'arguments',
+                    // 'Blob',
+                    // 'Map',
+                    // 'NodeFilter',
 
                     // libs
-                    'Firebase',
-                    'GazeTargets',
-                    'shortcut',
-                    'regression'
+                    'firebase',
                 ]
             }
         },
-
-        // stylelint: {     // failed to configure this
-        //     files: [
-        //         'src/styles/**/*.less'
-        //     ],
-        //     options: {
-        //         configFile: './node_modules/stylelint-config-standard/index.js',
-        //         rules: {
-
-        //         }
-        //     }
-        // }
     });
 
     grunt.loadNpmTasks( 'grunt-contrib-clean' );
@@ -191,13 +202,15 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks( 'grunt-contrib-copy' );
     grunt.loadNpmTasks( 'grunt-contrib-concat' );
     grunt.loadNpmTasks( 'grunt-postcss' );
+    grunt.loadNpmTasks( 'grunt-babel' );
+    grunt.loadNpmTasks( 'grunt-contrib-uglify' );
     grunt.loadNpmTasks( 'grunt-contrib-jshint' );
     grunt.loadNpmTasks( 'grunt-eslint' );
-    // grunt.loadNpmTasks( 'grunt-stylelint' );
 
-    grunt.registerTask('rebuild', ['clean', 'jade', 'less', 'concat', 'copy', 'postcss:build']);
-    grunt.registerTask('quick', ['jade', 'less', 'concat', 'copy:img', 'postcss:build']);
-    grunt.registerTask('default', ['jade', 'less', 'concat', 'copy:img', 'copy:libs', 'postcss:build']);
-    grunt.registerTask('compile', ['jshint']);
-    grunt.registerTask('compile2', ['eslint', 'postcss:lint']);
+    grunt.registerTask( 'default', [ 'jade', 'less', 'concat', 'copy', 'postcss:build' ] );
+    grunt.registerTask( 'rebuild', [ 'clean:dev', 'jade', 'less', 'concat', 'copy', 'postcss:build' ] );
+    grunt.registerTask( 'publish', [ 'jade', 'less', 'concat', 'postcss', 'babel', 'uglify', 'clean:prod' ] );
+
+    grunt.registerTask( 'compile', [ 'jshint' ] );
+    grunt.registerTask( 'compile2', [ 'eslint', 'postcss:lint' ] );
 };

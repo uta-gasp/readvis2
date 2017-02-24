@@ -1,6 +1,5 @@
 git checkout -b gh-pages
-copy pub\* /Y
-call grunt
+call grunt publish
 git add --all
 git commit -m "update"
 git push origin gh-pages --force
