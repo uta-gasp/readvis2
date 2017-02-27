@@ -636,9 +636,9 @@
         settings = new SGWM.ProgressionMergerSettings();
         this._SGWM.ProgressionMergerSettings = settings;
         if (!settings.isInitialized) {
-            settings.minLongSetLength = 2;
-            settings.fitThreshold = 0.28;       // fraction of the interline distance
-            settings.maxLinearGradient = 0.15;
+            settings.minLongSetLength = 3;
+            settings.fitThreshold = 0.14;       // fraction of the interline distance
+            settings.maxLinearGradient = 0.1;
             settings.removeSingleFixationLines = false;
             settings.correctForEmptyLines = true;
             settings.emptyLineDetectorFactor = 1.6;
