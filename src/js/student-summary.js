@@ -15,6 +15,7 @@
             'Reading time',
             'Seconds per word',
             'Fixation, ms',
+            'Hyphenations',
         ];
 
         app.Visualization.call( this, options );
@@ -175,11 +176,13 @@
         let wordCount = 0;
         let fixations = {
             count: 0,
-            duration: 0
+            duration: 0,
+            hyphenations: 0
         };
 
         userSessions.forEach( session => {
             const dataPages = session.data;
+            const textPages = session.pages;
 
             let lastPage;
             for (let i = dataPages.length - 1; i>= 0; i--) {
@@ -197,14 +200,15 @@
             const lastFixation = lastPage.fixations[ lastPage.fixations.length - 1 ];
             duration += lastFixation.tsSync + lastFixation.duration;
 
-            wordCount += session.pages.reduce( (acc, page) => {
+            wordCount += textPages.reduce( (acc, page) => {
                 return acc + page.length;
             }, 0);
 
-            fixations = session.data.reduce( (acc, page) => {
+            fixations = dataPages.reduce( (acc, page) => {
                 return {
                     count: acc.count + page.fixations.length,
-                    duration: acc.duration + page.fixations.reduce( (sum, fix) => (sum + fix.duration), 0 )
+                    duration: acc.duration + page.fixations.reduce( (sum, fix) => (sum + fix.duration), 0 ),
+                    hyphenations: acc.hyphenations + (page.syllabifications ? page.syllabifications.length : 0)
                 };
             }, fixations);
 
@@ -220,6 +224,7 @@
         result.push( `${totalDuration.getMinutes()}:${seconds}` );
         result.push( (duration / wordCount / 1000).toFixed(2) );
         result.push( Math.round( fixations.duration / fixations.count ) );
+        result.push( fixations.hyphenations / userSessions.length );
 
         return result;
     };
