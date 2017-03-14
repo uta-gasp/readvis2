@@ -69,7 +69,9 @@
                 textID: textID,
                 textTitle: textTitle,
                 text: text,
-                sessions: sessionDatas
+                sessions: sessionDatas,
+                hyphen: sessionDatas[0].meta.interaction.syllabification.hyphen,
+                font: sessionDatas[0].meta.font,
             };
 
             Track.colorIndex = 0;
@@ -103,15 +105,14 @@
         const ctx = this._getCanvas2D();
         this._drawTitle( ctx, `"${this._data.text.title}" for ${this._data.sessions.length} sessions` );
 
-        const meta = this._data.sessions[0].meta;
         const words = this._data.text[ this._pageIndex ];
 
-        this._setCanvasFont( ctx, meta.font );
+        this._setCanvasFont( ctx, this._data.font );
         this._drawWords( ctx, words, {
             metricRange: null,
             showIDs: false,
             hideBoundingBox: true,
-            hyphen: meta.interaction.syllabification.hyphen
+            hyphen: this._data.hyphen
         });
 
         this._drawNames( ctx );
@@ -128,22 +129,25 @@
     GazeReplay.prototype._run = function( ctx ) {
         this._tracks.forEach( (track, ti) => {
             track.start(
-                this._pageIndex,
-                // fixation
-                (fixation, pointer) => {
-                },
-                 // done
-                () => {
-                    ctx.textAlign = 'left';
-                    ctx.textBaseline = 'top';
-                    ctx.strokeStyle = '#000';
-                    ctx.fillStyle = track.color;
-                    ctx.font = `bold ${this.nameFontSize}px ${this._nameFontFamily}`;
-                    ctx.fillText(
-                        String.fromCharCode( 0x2713 ),
-                        this._tracksLegendLocation.x - this.nameFontSize,
-                        this._tracksLegendLocation.y + (this.nameSpacing * this.nameFontSize) * ti
-                    );
+                this._pageIndex, {  // callbacks
+                    fixation: (fixation, pointer) => {
+                    },
+                    completed: () => {
+                        ctx.textAlign = 'left';
+                        ctx.textBaseline = 'top';
+                        ctx.strokeStyle = '#000';
+                        ctx.fillStyle = track.color;
+                        ctx.font = `bold ${this.nameFontSize}px ${this._nameFontFamily}`;
+                        ctx.fillText(
+                            checkMark,
+                            this._tracksLegendLocation.x - this.nameFontSize,
+                            this._tracksLegendLocation.y + (this.nameSpacing * this.nameFontSize) * ti
+                        );
+                    },
+                    syllabification: syllabification => {
+                        this._setCanvasFont( ctx, this._data.font );
+                        this._drawSyllabification( ctx, syllabification, this._data.hyphen );
+                    }
                 }
             );
         });
@@ -205,15 +209,20 @@
     Track.fixationGrowInterval = 100;
     Track.colorIndex = 0;
 
-    Track.prototype.start = function( pageIndex, onFixation, onCompleted ) {
-        this.onFixation = onFixation;
-        this.onCompleted = onCompleted;
+    Track.prototype.start = function( pageIndex, callbacks ) {
+        this.callbacks = callbacks || {};
+        this.callbacks.fixation = this.callbacks.fixation || (() => {});
+        this.callbacks.completed = this.callbacks.completed || (() => {});
+        this.callbacks.syllabification = this.callbacks.syllabification || (() => {});
 
         this.fixations = this.session[ pageIndex ].fixations;
         if (!this.fixations) {
             onCompleted();
             return;
         }
+
+        this.syllabifications = this.session[ pageIndex ].syllabifications;
+        this.nextSyllabificationIndex = this.syllabifications ? 0 : -1;
 
         this.fixationIndex = 0;
 
@@ -264,7 +273,7 @@
             this.nextTimer = setTimeout( this.__next, pause );
         }
         else {
-            this.onCompleted();
+            this.callbacks.completed();
             this.root.removeChild( this.pointer );
             this.pointer = null;
             this.nextTimer = null;
@@ -275,7 +284,9 @@
         this._stopFixationTimers();
 
         if (fixation) {
-            this.onFixation( fixation, this.pointer );
+            this._checkSyllabification( fixation );
+
+            this.callbacks.fixation( fixation, this.pointer );
 
             if (fixation.x > 0 && fixation.y > 0) {
                 // const size = Track.basePointerSize + Math.sqrt( fixation.duration / 30 );
@@ -317,6 +328,27 @@
 
         this.currentDuration += Track.fixationGrowInterval;
     };
+
+    Track.prototype._checkSyllabification = function( fixation ) {
+        if (this.nextSyllabificationIndex < 0) {
+            return;
+        }
+
+        const syllabification = this.syllabifications[ this.nextSyllabificationIndex ];
+        const fixationEndsAt = fixation.tsSync + fixation.duration;
+        if (syllabification.ts < fixationEndsAt) {
+            this.nextSyllabificationIndex++;
+            if (this.nextSyllabificationIndex === this.syllabifications.length) {
+                this.nextSyllabificationIndex = -1;
+            }
+
+            setTimeout( () => {
+                this.callbacks.syllabification( syllabification );
+            }, (fixationEndsAt - syllabification.ts) );
+        }
+    };
+
+    const checkMark = String.fromCharCode( 0x2713 );
 
     app.GazeReplay = GazeReplay;
 

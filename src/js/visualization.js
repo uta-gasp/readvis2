@@ -508,13 +508,21 @@
         ctx.textAlign = 'start';
         ctx.textBaseline = 'alphabetic';
         events.forEach( event => {
-            const rc = event.rect;
-            const word = app.Syllabifier.syllabify( event.text, hyphen );
-            ctx.fillStyle = this.syllabification.background;
-            ctx.fillRect( rc.x, rc.y, rc.width, rc.height);
-            ctx.fillStyle = this.syllabification.color;
-            ctx.fillText( word, rc.x, rc.y + 0.8 * rc.height);
+            this._drawSyllabification( ctx, event, hyphen );
         });
+    };
+
+    Visualization.prototype._drawSyllabification = function( ctx, event, hyphen ) {
+        ctx.textAlign = 'start';
+        ctx.textBaseline = 'alphabetic';
+
+        const rect = event.rect;
+        const word = app.Syllabifier.syllabify( event.text, hyphen );
+
+        ctx.fillStyle = this.syllabification.background;
+        ctx.fillRect( rect.x, rect.y, rect.width, rect.height);
+        ctx.fillStyle = this.syllabification.color;
+        ctx.fillText( word, rect.x, rect.y + 0.8 * rect.height);
     };
 
     Visualization.prototype._drawWords = function( ctx, words, settings ) {
