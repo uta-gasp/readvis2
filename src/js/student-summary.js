@@ -142,10 +142,15 @@
             const cell = row.insertCell();
             cell.textContent = user.name;
 
-            const userStatistics = this._getUserStatistics( user );
-            userStatistics.forEach( stat => {
+            user.statistics = this._getUserStatistics( user );
+            user.statistics.forEach( (stat, si) => {
                 const cell = row.insertCell();
-                cell.textContent = stat;
+                if (si === 1) {
+                    cell.textContent = `${(stat / 60).toFixed(0)}:${secondsToString( stat % 60 )}`;
+                }
+                else {
+                    cell.textContent = stat;
+                }
             });
         });
 
@@ -157,12 +162,67 @@
         footerRow.insertCell();
 
         this._statistics.forEach( stat => {
-            headerRow.insertCell().textContent = stat;
+            const header = headerRow.insertCell();
+            header.textContent = stat;
+            header.addEventListener( 'click', e => {
+                const sortDirection = this._updateTableHeader( table, e.target.cellIndex );
+                this._sortTable( table, e.target.cellIndex - 1, sortDirection );
+            });
         });
 
         table.scrollTo( 0, 0 );
 
         this._container.classList.remove( 'invisible' );
+    };
+
+    StudentSummary.prototype._updateTableHeader = function( table, sortedColumn ) {
+        const cells = table.tHead.rows[0].cells;
+        let currentSortDirection = 0;
+        if (cells[ sortedColumn ].classList.contains( 'up' )) {
+            currentSortDirection = 1;
+        }
+        else if (cells[ sortedColumn ].classList.contains( 'down' )) {
+            currentSortDirection = -1;
+        }
+
+        for (let i = 0; i < cells.length; i++) {
+            cells[i].classList.remove( 'sorted' );
+            cells[i].classList.remove( 'up' );
+            cells[i].classList.remove( 'down' );
+        }
+        cells[ sortedColumn ].classList.add( 'sorted' );
+        cells[ sortedColumn ].classList.add( currentSortDirection < 1 ? 'up' : 'down' );
+
+        return currentSortDirection < 1 ? 1 : -1;
+    };
+
+    StudentSummary.prototype._sortTable = function( table, statIndex, sortDirection ) {
+        const users = [];
+        this._users.forEach( user => {
+            users.push( user );
+        });
+
+        users.sort( (a, b) => {
+            return sortDirection > 0 ?
+                b.statistics[ statIndex ] - a.statistics[ statIndex ] :
+                a.statistics[ statIndex ] - b.statistics[ statIndex ] ;
+        });
+
+        const rows = table.tBodies[0].rows;
+        users.forEach( (user, index) => {
+            const row = rows[ index ];
+            row.cells[0].textContent = user.name;
+
+            user.statistics.forEach( (stat, si) => {
+                const cell = row.cells[ si + 1 ];
+                if (si === 1) {
+                    cell.textContent = `${(stat / 60).toFixed(0)}:${secondsToString( stat % 60 )}`;
+                }
+                else {
+                    cell.textContent = stat;
+                }
+            });
+        });
     };
 
     StudentSummary.prototype._getUserStatistics = function( user ) {
@@ -216,12 +276,8 @@
         });
 
         const totalDuration = new Date( 0, 0, 0, 0, 0, Math.round( duration / 1000 ) );
-        let seconds = '' + totalDuration.getSeconds();
-        if (seconds.length < 2) {
-            seconds = '0' + seconds;
-        }
 
-        result.push( `${totalDuration.getMinutes()}:${seconds}` );
+        result.push( totalDuration.getMinutes() * 60 + totalDuration.getSeconds() );
         result.push( (duration / wordCount / 1000).toFixed(2) );
         result.push( Math.round( fixations.duration / fixations.count ) );
         result.push( fixations.hyphenations / userSessions.length );
@@ -230,6 +286,14 @@
     };
 
     }); // end of delayed call
+
+    function secondsToString( seconds ) {
+        let text = '' + seconds;
+        if (text.length < 2) {
+            text = '0' + text;
+        }
+        return text;
+    }
 
     app.StudentSummary = StudentSummary;
 

@@ -35,8 +35,25 @@
 
             th,
             td {
+                background-origin: border-box;
+                background-position: 98% center;
+                background-repeat: no-repeat;
+
                 border-width: 2px;
                 padding: 0.3em 1em;
+                cursor: pointer;
+
+                &.sorted {
+                    color: #cfc;
+                }
+
+                &.up {
+                    background-image: url("img/up-arrow.png");
+                }
+
+                &.down {
+                    background-image: url("img/down-arrow.png");
+                }
             }
         }
 
