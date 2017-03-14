@@ -1,9 +1,10 @@
 //- requires:
 
 mixin visualization(id)
-    div(id=id).path.invisible
+    div(id=id).invisible
         canvas
         .wait &nbsp;
+        .vis-title
         .top-panel
             .props.invisible
                 .prop.speech

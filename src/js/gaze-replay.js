@@ -103,7 +103,7 @@
         }
 
         const ctx = this._getCanvas2D();
-        this._drawTitle( ctx, `"${this._data.text.title}" for ${this._data.sessions.length} sessions` );
+        this._setTitle( `"${this._data.text.title}" for ${this._data.sessions.length} sessions` );
 
         const words = this._data.text[ this._pageIndex ];
 

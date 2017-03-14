@@ -19,8 +19,6 @@
     //          wordColor           - word color
     //          wordHighlightColor  - mapped word rectangle color
     //          wordRectColor       - word rectangle border color
-    //          infoColor           - info text color
-    //          infoFont            - info text font
     //          syllabification: {
     //              background
     //              color
@@ -37,8 +35,6 @@
         this.wordColor = options.wordColor || '#666';
         this.wordHighlightColor = options.wordHighlightColor || '#606';
         this.wordRectColor = options.wordRectColor || '#888';
-        this.infoColor = options.infoColor || '#444';
-        this.infoFont = options.infoFont || '18px Arial';
         this.syllabification = Object.assign({
             background: '#fcc',
             color: '#060'
@@ -84,6 +80,7 @@
     Visualization.init = function( root ) {
         _view = document.querySelector( root );
         _wait = _view.querySelector( '.wait' );
+        _title = _view.querySelector( '.vis-title' );
         _canvas = _view.querySelector( 'canvas');
 
         _prompt = _view.querySelector( '.prompt' );
@@ -498,13 +495,8 @@
         ctx.font = `${font.style} ${font.weight} ${font.size} ${font.family}`;
     };
 
-    Visualization.prototype._drawTitle = function( ctx, title ) {
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'alphabetic';
-        ctx.fillStyle = this.infoColor;
-        ctx.font = this.infoFont;
-
-        ctx.fillText( title, _width / 2, 52);
+    Visualization.prototype._setTitle = function( title ) {
+        _title.textContent = title;
     };
 
     Visualization.prototype._drawSyllabifications = function( ctx, events, hyphen ) {
@@ -598,7 +590,7 @@
 
     Visualization.prototype._setPageIndex = function( value ) {
         this._pageIndex = value;
-        _page.textContent = value + 1;
+        _page.textContent = !value ? '' : `${value}/${this._data.text.length - 1}`;
         this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );
     };
 
@@ -706,6 +698,7 @@
 
     let _view;
     let _wait;
+    let _title;
     let _canvas;
 
     let _prompt;

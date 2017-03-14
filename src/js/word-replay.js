@@ -95,7 +95,7 @@
         }
 
         const ctx = this._getCanvas2D();
-        this._drawTitle( ctx, `"${this._data.text.title}" for ${this._data.sessions.length} sessions` );
+        this._setTitle( `"${this._data.text.title}" for ${this._data.sessions.length} sessions` );
 
         const table = this._createTable( this._data.text[ this._pageIndex ], this._tracks );
         this._run( table );

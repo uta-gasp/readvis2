@@ -132,7 +132,7 @@
         }
 
         const ctx = this._getCanvas2D();
-        this._drawTitle( ctx, `${this._users.size} users` );
+        this._setTitle( `${this._users.size} users` );
 
         const table = this._container.querySelector( 'table' );
         table.innerHTML = '';

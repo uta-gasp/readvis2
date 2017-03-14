@@ -214,7 +214,7 @@
             this._drawFixations( ctx, fixations );
         }
 
-        this._drawTitle( ctx, `${this._data.user} reading "${this._data.session.meta.textTitle}" at ${this._data.sessionName}` );
+        this._setTitle( `${this._data.user} reading "${this._data.session.meta.textTitle}" at ${this._data.sessionName}` );
     };
 
     GazePlot.prototype._drawFixations = function( ctx, fixations ) {

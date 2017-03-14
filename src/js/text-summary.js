@@ -135,7 +135,7 @@
             }
         });
 
-        this._drawTitle( ctx, `"${this._data.text.title}" for ${this._data.sessions.length} sessions` );
+        this._setTitle( `"${this._data.text.title}" for ${this._data.sessions.length} sessions` );
     };
 
     // Overriden from Visualization._drawWord
