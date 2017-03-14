@@ -204,7 +204,8 @@
                     '_SGWM.ProgressionMergerSettings.maxLinearGradient': { type: Number, step: 0.01, label: 'Max line incline, rad' },
                     '_SGWM.ProgressionMergerSettings.removeSingleFixationLines': { type: Boolean, label: 'Remove unmerged single fixations' },
                     '_SGWM.ProgressionMergerSettings.correctForEmptyLines': { type: Boolean, label: 'Account for empty lines' },
-                    '_SGWM.ProgressionMergerSettings.emptyLineDetectorFactor': { type: Number, step: 0.05, label: '\tempty line factor, lines' },
+                    //'_SGWM.ProgressionMergerSettings.emptyLineDetectorFactor': { type: Number, step: 0.05, label: '\tempty line factor, lines' },
+                    '_SGWM.ProgressionMergerSettings.intelligentFirstLineMapping': { type: Boolean, label: 'Intelligent first reading line search' },
                     })
                 },
                 {
@@ -653,6 +654,7 @@
             settings.removeSingleFixationLines = false;
             settings.correctForEmptyLines = true;
             settings.emptyLineDetectorFactor = 1.6;
+            settings.intelligentFirstLineMapping = true;
             settings.save();
         }
 

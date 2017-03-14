@@ -62,7 +62,7 @@
             let id = word.id;
             if (id === undefined) {
                 id = '' + Math.floor( word.rect.x / 10 ) + '_' + Math.floor( word.rect.y / 10 );
-                console.log( 'new id', id);
+                //console.log( 'new id', id);
             }
 
             let w = this._words.get( id );
