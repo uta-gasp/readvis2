@@ -96,6 +96,7 @@
         _navigationBar = _view.querySelector( '.menu .navigation' );
         _prev = _navigationBar.querySelector( '.prev' );
         _next = _navigationBar.querySelector( '.next' );
+        _page = _navigationBar.querySelector( '.page' );
 
         _prompt.classList.add( 'invisible' );
 
@@ -236,6 +237,7 @@
 
         _view.classList.remove( 'invisible' );
         _wait.classList.remove( 'invisible' );
+        _page.textContent = '';
         this._enableNavigationButtons( false, false );
 
         _waiting = true;
@@ -595,6 +597,7 @@
 
     Visualization.prototype._setPageIndex = function( value ) {
         this._pageIndex = value;
+        _page.textContent = value + 1;
         this._enableNavigationButtons( this._pageIndex > 0, this._pageIndex < this._data.text.length - 1 );
     };
 
@@ -713,6 +716,7 @@
     let _navigationBar;
     let _prev;
     let _next;
+    let _page;
 
     let _promtCallback;
     let _prevPageCallback;
