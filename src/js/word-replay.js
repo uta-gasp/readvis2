@@ -99,6 +99,8 @@
 
         const table = this._createTable( this._data.text[ this._pageIndex ], this._tracks );
         this._run( table );
+
+        table.parentElement.scrollTo( 0, 0 );
     };
 
     WordReplay.prototype._stopAll = function() {

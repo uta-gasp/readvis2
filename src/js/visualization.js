@@ -190,7 +190,7 @@
                     '_SGWM.SplitToProgressionsSettings.left': { type: Number, step: 0.1, label: 'Left margin, chars' },
                     '_SGWM.SplitToProgressionsSettings.right': { type: Number, step: 0.1, label: 'Right margin, chars' },
                     '_SGWM.SplitToProgressionsSettings.verticalLine': { type: Number, step: 0.1, label: 'Vertical margin, lines' },
-                    '_SGWM.SplitToProgressionsSettings.angle': { type: Number, step: 0.1, label: 'max inclide, rad' },
+                    '_SGWM.SplitToProgressionsSettings.angle': { type: Number, step: 0.1, label: 'Max incline, rad' },
                     })
                 },
                 {
@@ -201,6 +201,7 @@
                     '_SGWM.ProgressionMergerSettings.maxLinearGradient': { type: Number, step: 0.01, label: 'Max line incline, rad' },
                     '_SGWM.ProgressionMergerSettings.removeSingleFixationLines': { type: Boolean, label: 'Remove unmerged single fixations' },
                     '_SGWM.ProgressionMergerSettings.correctForEmptyLines': { type: Boolean, label: 'Account for empty lines' },
+                    '_SGWM.ProgressionMergerSettings.currentLineSupportInCorrection': { type: Number, step: 0.05, label: '\tsupport current line by' },
                     //'_SGWM.ProgressionMergerSettings.emptyLineDetectorFactor': { type: Number, step: 0.05, label: '\tempty line factor, lines' },
                     '_SGWM.ProgressionMergerSettings.intelligentFirstLineMapping': { type: Boolean, label: 'Intelligent first reading line search' },
                     })
@@ -236,6 +237,7 @@
         _view.classList.remove( 'invisible' );
         _wait.classList.remove( 'invisible' );
         _page.textContent = '';
+        _title.textContent = '';
         this._enableNavigationButtons( false, false );
 
         _waiting = true;
@@ -619,7 +621,9 @@
         settings = new SGWM.FixationProcessorSettings();
         this._SGWM.FixationProcessorSettings = settings;
         if (!settings.isInitialized) {
-            settings.location.enabled = false;
+            settings.location.enabled = true;
+            settings.location.marginX = 290;
+            settings.location.marginY = 290;
             settings.duration.enabled = false;
             settings.save();
         }
@@ -642,9 +646,10 @@
         if (!settings.isInitialized) {
             settings.minLongSetLength = 3;
             settings.fitThreshold = 0.14;       // fraction of the interline distance
-            settings.maxLinearGradient = 0.1;
+            settings.maxLinearGradient = 0.15;
             settings.removeSingleFixationLines = false;
             settings.correctForEmptyLines = true;
+            settings.currentLineSupportInCorrection = 0.15;
             settings.emptyLineDetectorFactor = 1.6;
             settings.intelligentFirstLineMapping = true;
             settings.save();

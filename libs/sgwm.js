@@ -664,7 +664,10 @@ var SGWM =
 	            // drop short sets
 	            result = dropShortSets( result, settings.minLongSetLength );
 	            log( '#3a:', result.length );
+	        // }
 	
+	        // if (result.length > lineCount) {
+	            // and still too many...
 	            // then force joining the closest sets
 	            result = joinSetsOfType( result, lineCount, SET_TYPE.ANY, SET_TYPE.ANY );
 	            log( '#3b:', result.length );
@@ -877,6 +880,10 @@ var SGWM =
 	}
 	
 	function computeRange( set, getValue ) {
+	    if (!set) {
+	        return { min: 0, max: 0, range: 0 };
+	    }
+	
 	    let min = Number.MAX_SAFE_INTEGER;
 	    let max = Number.MIN_SAFE_INTEGER;
 	    set.forEach( fixation => {
@@ -959,9 +966,10 @@ var SGWM =
 	            }
 	
 	            if (lineIDsFromMappedSets.length) {
-	                const avgID = lineIDsFromMappedSets.reduce( (acc, id) => {
-	                    return acc + id;
-	                }, 0 ) / lineIDsFromMappedSets.length;
+	                let avgID = lineIDsFromMappedSets.reduce( (acc, id) => (acc + id), 0 ) / lineIDsFromMappedSets.length;
+	                if (avgID < currentLineID) {
+	                    avgID += settings.currentLineSupportInCorrection;   // if between prev and current line, then support more the current line, thatn the previous
+	                }
 	                currentLineID = Math.min( maxID, Math.max( minID, Math.round( avgID ) ) );
 	            }
 	            else {
@@ -999,12 +1007,32 @@ var SGWM =
 	/**********************
 	    dropShortSets
 	**********************/
-	function dropShortSets( fixationSets, minLength ) {
-	    var result = [];
+	function dropShortestSet( fixationSets, minSetLength ) {
+	    const shortest = fixationSets.reduce(( acc, set, index ) => {
+	        if (set.length < acc.length) {
+	            return {
+	                index: index,
+	                length: acc.length
+	            };
+	        }
+	        else {
+	            return acc;
+	        }
+	    }, {index: -1, length: 100} );
 	
-	    for (var i = 0; i < fixationSets.length; i += 1) {
-	        var fixationSet = fixationSets[i];
-	        if (fixationSet.length >= minLength) {
+	    if (shortest.index >= 0 && shortest.length < minSetLength) {
+	        fixationSets.splice( shortest.index, 1 );
+	    }
+	
+	    return fixationSets;
+	}
+	
+	function dropAllShortSets( fixationSets, minSetLength ) {
+	    const result = [];
+	
+	    for (let i = 0; i < fixationSets.length; i += 1) {
+	        const fixationSet = fixationSets[i];
+	        if (fixationSet.length >= minSetLength) {
 	            result.push( fixationSet );
 	        }
 	        else {
@@ -1013,6 +1041,23 @@ var SGWM =
 	    }
 	
 	    return result;
+	}
+	
+	function dropShortSets( fixationSets, minSetLength, minSetsCount ) {
+	    if (minSetsCount === undefined) {
+	        return dropAllShortSets( fixationSets, minSetLength );
+	    }
+	    else {
+	        let result = fixationSets;
+	        while (result.length > minSetsCount ) {
+	            const shortened = dropShortestSet( result, minSetLength );
+	            if (shortened.length === result.length) {
+	                break;
+	            }
+	            result = shortened;
+	        }
+	        return result;
+	    }
 	}
 	
 	module.exports = ProgressionMerger;
@@ -1307,6 +1352,7 @@ var SGWM =
 			this._maxLinearGradient = 0.15; // the maximum difference in equation gradients for fixations that can be joined
 			this._removeSingleFixationLines = false;
 			this._correctForEmptyLines = true;
+			this._currentLineSupportInCorrection = 0.0;
 			this._emptyLineDetectorFactor = 1.7;	// multiplier to interlineDistance
 			this._intelligentFirstLineMapping = false;	// if false, then it  assumes the reading always start from the first line
 	
@@ -1323,6 +1369,8 @@ var SGWM =
 		set removeSingleFixationLines( value ) { this._removeSingleFixationLines = value; }
 		get correctForEmptyLines() { return this._correctForEmptyLines; }
 		set correctForEmptyLines( value ) { this._correctForEmptyLines = value; }
+		get currentLineSupportInCorrection() { return this._currentLineSupportInCorrection; }
+		set currentLineSupportInCorrection( value ) { this._currentLineSupportInCorrection = value; }
 		get emptyLineDetectorFactor() { return this._emptyLineDetectorFactor; }
 		set emptyLineDetectorFactor( value ) { this._emptyLineDetectorFactor = value; }
 		get intelligentFirstLineMapping() { return this._intelligentFirstLineMapping; }
