@@ -7,25 +7,24 @@ mixin visualization(id)
         .vis-title
         .top-panel
             .props.invisible
-                abbr(title="Speech output")
-                    .prop.speech
-                abbr(title="Syllabification")
-                    .prop.syllab
+                abbr.prop.speech(title="Speech output")
+                abbr.prop.syllab(title="Syllabification")
             .menu
                 .navigation
-                    abbr(title="Previous page")
-                        .btn.prev
+                    abbr.btn.prev(title="Previous page")
                     .page
-                    abbr(title="Next page")
-                        .btn.next
+                    abbr.btn.next(title="Next page")
                 .separator
-                abbr(title="Settings")
-                    .btn.settings
-                abbr(title="Close this visualization")
-                    .btn.close
+                abbr.btn.settings(title="Settings")
+                abbr.btn.close(title="Close this visualization")
         div.prompt
             .title Select sessions
             div
                 select.categories
                 select.items
                 input.select(type="button", value="Continue", autofocus="autofocus")
+        .bottom-panel
+            .player.invisible
+                abbr.btn.restart(title="Restart")
+                abbr.btn.pause(title="Pause / Continue")
+                .track

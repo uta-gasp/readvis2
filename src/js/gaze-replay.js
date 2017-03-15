@@ -87,6 +87,18 @@
             this._setPrevPageCallback( () => { this._prevPage(); } );
             this._setNextPageCallback( () => { this._nextPage(); } );
             this._setCloseCallback( () => { this._stopAll(); } );
+            this._setRestartCallback( () => {
+                this._stopAll();
+                this._start();
+            });
+            this._setPauseCallback( () => {
+                let isRunning = false;
+                this._tracks.forEach( track => { isRunning = track.togglePause() || isRunning; } );
+                return {
+                    previous: isRunning ? 'play' : 'pause',
+                    current: isRunning ? 'pause' : 'play',
+                };
+            });
 
             if (cbLoaded) {
                 cbLoaded();
@@ -101,6 +113,8 @@
         if (!this._tracks.length) {
             return;
         }
+
+        this._setPlayerProps({ a: 110 });
 
         const ctx = this._getCanvas2D();
         this._setTitle( `"${this._data.text.title}" for ${this._data.sessions.length} sessions` );
@@ -196,11 +210,14 @@
         this.fixationEndTimer = null;
         this.fixationGrowTimer = null;
         this.nextTimer = null;
+        this.syllabTimer = null;
 
         this.fixations = null;
         this.currentFixation = null;
         this.currentDuration = 0;
         this.fixationIndex = -1;
+
+        this._lastPause = 0;
 
         this.__next = this._next.bind( this );
     }
@@ -248,6 +265,27 @@
         }
     };
 
+    Track.prototype.togglePause = function() {
+        if (!this.pointer) {
+            return false;
+        }
+
+        if (this.nextTimer) {
+            this._stopFixationTimers();
+
+            clearTimeout( this.nextTimer );
+            this.nextTimer = null;
+
+            return true;
+        }
+        else {
+            this.nextTimer = setTimeout( this.__next, this._lastPause );
+            this._moveFixation( this.currentFixation );
+
+            return false;
+        }
+    }
+
     // private
 
     Track.prototype._stopFixationTimers = function() {
@@ -260,6 +298,11 @@
             clearInterval( this.fixationGrowTimer );
             this.fixationGrowTimer = null;
         }
+
+        if (this.syllabTimer) {
+            clearTimeout( this.syllabTimer );
+            this.syllabTimer = null;
+        }
     };
 
     Track.prototype._next = function() {
@@ -269,8 +312,8 @@
 
         this.fixationIndex++;
         if (this.fixationIndex < this.fixations.length) {
-            let pause = this.fixations[ this.fixationIndex ].ts - fixation.ts;
-            this.nextTimer = setTimeout( this.__next, pause );
+            this._lastPause = this.fixations[ this.fixationIndex ].ts - fixation.ts;
+            this.nextTimer = setTimeout( this.__next, this._lastPause );
         }
         else {
             this.callbacks.completed();
@@ -342,7 +385,8 @@
                 this.nextSyllabificationIndex = -1;
             }
 
-            setTimeout( () => {
+            this.syllabTimer = setTimeout( () => {
+                this.syllabTimer = null;
                 this.callbacks.syllabification( syllabification );
             }, (fixationEndsAt - syllabification.ts) );
         }

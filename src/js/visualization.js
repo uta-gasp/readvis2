@@ -95,6 +95,10 @@
         _next = _navigationBar.querySelector( '.next' );
         _page = _navigationBar.querySelector( '.page' );
 
+        _player = _view.querySelector( '.player' );
+        _restart = _player.querySelector( '.restart' );
+        _pause = _player.querySelector( '.pause' );
+
         _prompt.classList.add( 'invisible' );
 
         Visualization.root = _view;
@@ -107,6 +111,9 @@
 
         _prev.addEventListener( 'click', prevPage );
         _next.addEventListener( 'click', nextPage );
+
+        _restart.addEventListener( 'click', restart );
+        _pause.addEventListener( 'click', pause );
     };
 
     Visualization.formatDate = function( dateString ) {
@@ -424,6 +431,16 @@
         }
     };
 
+    Visualization.prototype._setPlayerProps = function( props ) {
+        if (props) {
+            _player.classList.remove( 'invisible' );
+        }
+        else {
+            _player.classList.add( 'invisible' );
+            return;
+        }
+    }
+
     Visualization.prototype._recreateWordIDsInEvents = function( session, text ) {
         if (session.length !== text.length) {
             console.error( 'session and text page do not match' );
@@ -590,6 +607,14 @@
         _nextPageCallback = cb;
     };
 
+    Visualization.prototype._setRestartCallback = function( cb ) {
+        _restartCallback = cb;
+    };
+
+    Visualization.prototype._setPauseCallback = function( cb ) {
+        _pauseCallback = cb;
+    };
+
     Visualization.prototype._setPageIndex = function( value ) {
         this._pageIndex = value;
         _page.textContent = !value ? '' : `${value}/${this._data.text.length - 1}`;
@@ -718,10 +743,16 @@
     let _next;
     let _page;
 
+    let _player;
+    let _restart;
+    let _pause;
+
     let _promtCallback;
     let _prevPageCallback;
     let _nextPageCallback;
     let _closeCallback;
+    let _restartCallback;
+    let _pauseCallback;
 
     let _waiting = false;
 
@@ -761,6 +792,7 @@
     function clickClose( e ) {
         _view.classList.add( 'invisible' );
         _sessionProps.classList.add( 'invisible' );
+        _player.classList.add( 'invisible' );
 
         const ctx = _canvas.getContext('2d');
         ctx.clearRect( 0, 0, _width, _height );
@@ -848,6 +880,20 @@
     function nextPage( e ) {
         if (_nextPageCallback) {
             _nextPageCallback( );
+        }
+    }
+
+    function restart( e ) {
+        if (_restartCallback) {
+            _restartCallback( );
+        }
+    }
+
+    function pause( e ) {
+        if (_pauseCallback) {
+            const state = _pauseCallback( );
+            _pause.classList.remove( state.current );
+            _pause.classList.add( state.previous );
         }
     }
 
