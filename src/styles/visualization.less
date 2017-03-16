@@ -1,4 +1,5 @@
 @import "mixins/control-panel.less";
+@import "mixins/icon-button.less";
 
 #visualization {
     position: fixed;
@@ -13,7 +14,9 @@
         display: none;
     }
 
-    @import "mixins/icon-button.less";
+    .btn {
+        #readvis2.icon-button();
+    }
 
     .top-panel {
         position: absolute;
@@ -21,7 +24,7 @@
         right: 0;
 
         .props {
-            .control-panel();
+            #readvis2.control-panel;
 
             margin-right: 12px;
 
@@ -44,6 +47,7 @@
 
                 &.speech {
                     background-image: url("img/speech.png");
+
                     &.off {
                         background-image: url("img/speech-no.png");
                     }
@@ -52,6 +56,7 @@
                 &.syllab {
                     background-image: url("img/syllab.png");
                     background-position: center bottom;
+
                     &.off {
                         background-image: url("img/syllab-no.png");
                         background-position: center center;
@@ -61,7 +66,7 @@
         }
 
         .menu {
-            .control-panel();
+            #readvis2.control-panel;
 
             .navigation {
                 display: inline-block;
@@ -189,7 +194,7 @@
         width: 100vw;
 
         .player {
-            .control-panel();
+            #readvis2.control-panel;
 
             display: inline-block;
             margin: 4px auto;
@@ -209,9 +214,11 @@
                 &.restart {
                     background-image: url("img/restart.png");
                 }
+
                 &.pause {
                     background-image: url("img/pause.png");
                 }
+
                 &.play {
                     background-image: url("img/play.png");
                 }

@@ -1,3 +1,5 @@
+@import "mixins/button.less";
+
 #controls {
     position: fixed;
     display: flex;
@@ -19,7 +21,9 @@
         width: 100vw;
     }
 
-    @import "mixins/button.less";
+    .button {
+        #readvis2.button;
+    }
 
     .separator {
         width: 0.5em;

@@ -1,30 +1,32 @@
-.btn {
-    display: inline-block;
-    box-sizing: content-box;
-    padding: 4px;
-    width: 28px;
-    height: 28px;
-    z-index: 2;
+#readvis2 {
+    .icon-button {
+        display: inline-block;
+        box-sizing: content-box;
+        padding: 4px;
+        width: 28px;
+        height: 28px;
+        z-index: 2;
 
-    background-position: center;
-    background-repeat: no-repeat;
-    background-origin: content-box;
-    outline-color: #fff;
-    outline-style: solid;
-    outline-width: 1px;
-    text-decoration: none;
-    transition: outline-color 0.25s ease-in;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-origin: content-box;
+        outline-color: #fff;
+        outline-style: solid;
+        outline-width: 1px;
+        text-decoration: none;
+        transition: outline-color 0.25s ease-in;
 
-    cursor: pointer;
-    user-select: none;
+        cursor: pointer;
+        user-select: none;
 
-    &.disabled {
-        opacity: 0.3;
-        cursor: auto;
-        pointer-events: none;
-    }
+        &.disabled {
+            opacity: 0.3;
+            cursor: auto;
+            pointer-events: none;
+        }
 
-    &:hover:not([class~=disabled]) {
-        outline-color: #888;
+        &:hover:not([class~=disabled]) {
+            outline-color: #888;
+        }
     }
 }

@@ -1,51 +1,53 @@
-.button {
-    background-color: #666;
-    background-image: linear-gradient(to bottom, #666, #7d7d7d);
-    border-radius: 5px;
-    color: #e7e5e5;
-    font: bold 13px Arial, Helvetica, sans-serif;
-    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-    user-select: none;
-    cursor: pointer;
+#readvis2 {
+    .button {
+        background-color: #666;
+        background-image: linear-gradient(to bottom, #666, #7d7d7d);
+        border-radius: 5px;
+        color: #e7e5e5;
+        font: bold 13px Arial, Helvetica, sans-serif;
+        text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+        user-select: none;
+        cursor: pointer;
 
-    display: inline-block;
-    padding: 8px;
-    margin: 0 2px;
+        display: inline-block;
+        padding: 8px;
+        margin: 0 2px;
 
-    text-align: center;
-    vertical-align: middle;
+        text-align: center;
+        vertical-align: middle;
 
-    @media (max-width: 1280px) {
-        font-size: 90%;
-    }
+        @media (max-width: 1280px) {
+            font-size: 90%;
+        }
 
-    @media (max-width: 1024px) {
-        font-size: 80%;
-    }
+        @media (max-width: 1024px) {
+            font-size: 80%;
+        }
 
-    @media (max-width: 800px) {
-        font-size: 70%;
-    }
+        @media (max-width: 800px) {
+            font-size: 70%;
+        }
 
-    @media (max-width: 640px) {
-        font-size: 60%;
-    }
+        @media (max-width: 640px) {
+            font-size: 60%;
+        }
 
-    &.disabled {
-        background-color: #bbb;
-        background-image: linear-gradient(to bottom, #ccc, #bbb) !important;
-        color: #8a8a7b;
-        cursor: auto;
-        pointer-events: none;
-    }
+        &.disabled {
+            background-color: #bbb;
+            background-image: linear-gradient(to bottom, #ccc, #bbb) !important;
+            color: #8a8a7b;
+            cursor: auto;
+            pointer-events: none;
+        }
 
-    &.selected {
-        background-color: #fff;
-        background-image: linear-gradient(to bottom, #48d, #26a) !important;
-    }
+        &.selected {
+            background-color: #fff;
+            background-image: linear-gradient(to bottom, #48d, #26a) !important;
+        }
 
-    &.hidden {
-        display: none;
+        &.hidden {
+            display: none;
+        }
     }
 }

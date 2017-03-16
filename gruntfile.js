@@ -64,7 +64,7 @@ module.exports = function(grunt) {
         },
 
         postcss: {
-            build: {
+            autopref: {
                 options: {
                     map: false,
                     processors: [
@@ -75,27 +75,6 @@ module.exports = function(grunt) {
                 },
                 src: `${destDir}*.css`
             },
-            lint: {
-                options: {
-                    map: false,
-                    processors: [
-                        require('stylelint')({
-                            syntax: require('postcss-less'),
-                            extends: './node_modules/stylelint-config-standard/index.js',
-                            rules: {
-                                'at-rule-name-case': 'lower',
-                                'length-zero-no-unit': true,
-                                'indentation': 4,
-                                'comment-empty-line-before': [ 'never', {
-                                    except: ['first-nested'],
-                                    ignore: ['stylelint-commands', 'between-comments'],
-                                } ],
-                            }
-                        })
-                    ]
-                },
-                src: 'src/styles/**/*.less'
-            }
         },
 
         babel: {
@@ -194,6 +173,27 @@ module.exports = function(grunt) {
                 ]
             }
         },
+
+        stylelint: {
+            options: {
+                syntax: '',
+                config: {
+                    extends: 'stylelint-config-standard',
+                    rules: {
+                        'at-rule-name-case': 'lower',
+                        'length-zero-no-unit': true,
+                        'indentation': 4,
+                        'comment-empty-line-before': [ 'never', {
+                            except: ['first-nested'],
+                            ignore: ['stylelint-commands', 'after-comment'],
+                        }],
+                        'declaration-empty-line-before': null,
+                    }
+                }
+            },
+
+            src: 'src/styles/**/*.less'
+        },
     });
 
     grunt.loadNpmTasks( 'grunt-contrib-clean' );
@@ -206,11 +206,12 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks( 'grunt-contrib-uglify' );
     grunt.loadNpmTasks( 'grunt-contrib-jshint' );
     grunt.loadNpmTasks( 'grunt-eslint' );
+    grunt.loadNpmTasks( 'grunt-stylelint' );
 
-    grunt.registerTask( 'default', [ 'jade', 'less', 'concat', 'copy', 'postcss:build' ] );
-    grunt.registerTask( 'rebuild', [ 'clean:dev', 'jade', 'less', 'concat', 'copy', 'postcss:build' ] );
+    grunt.registerTask( 'default', [ 'jade', 'less', 'concat', 'copy', 'postcss' ] );
+    grunt.registerTask( 'rebuild', [ 'clean:dev', 'jade', 'less', 'concat', 'copy', 'postcss' ] );
     grunt.registerTask( 'publish', [ 'jade', 'less', 'concat', 'postcss', 'babel', 'uglify', 'clean:prod' ] );
 
     grunt.registerTask( 'compile', [ 'jshint' ] );
-    grunt.registerTask( 'compile2', [ 'eslint', 'postcss:lint' ] );
+    grunt.registerTask( 'compile2', [ 'eslint', 'stylelint' ] );
 };
