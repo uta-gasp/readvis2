@@ -75,6 +75,36 @@ module.exports = function(grunt) {
                 },
                 src: `${destDir}*.css`
             },
+            // This linting do work with syntax: require('postcss-less'),
+            // but stylelint complains about certain LESS syntax features,
+            // like mixins ( .a { .b } ).
+            // Having postcss-less for syntax does not really
+            // help, just removes the ressame "you are using CSS parser for LESS files"
+            // If "syntax: 'less', then some error occurs,
+            // Work OK with syntax: require('stylelint/node_modules/postcss-less), but
+            // removes ";" after mixins in "less" files, so the following lint will fail
+            lint: {
+                options: {
+                    map: false,
+                    syntax: require('stylelint/node_modules/postcss-less'),
+                    processors: [
+                        require('stylelint')({
+                            extends: './node_modules/stylelint-config-standard/index.js',
+                            rules: {
+                                'at-rule-name-case': 'lower',
+                                'length-zero-no-unit': true,
+                                'indentation': 4,
+                                'comment-empty-line-before': [ 'never', {
+                                    except: ['first-nested'],
+                                    ignore: ['stylelint-commands', 'after-comment'],
+                                }],
+                                'declaration-empty-line-before': null,
+                            }
+                        })
+                    ]
+                },
+                src: 'src/styles/**/*.less'
+            }
         },
 
         babel: {
