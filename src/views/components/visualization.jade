@@ -11,12 +11,16 @@ mixin visualization(id)
                 abbr.prop.syllab(title="Syllabification")
             .menu
                 .navigation
-                    abbr.btn.prev(title="Previous page")
+                    abbr(title="Previous page")
+                        button.btn.prev
                     .page
-                    abbr.btn.next(title="Next page")
+                    abbr(title="Next page")
+                        button.btn.next
                 .separator
-                abbr.btn.settings(title="Settings")
-                abbr.btn.close(title="Close this visualization")
+                abbr(title="Settings")
+                    button.btn.settings
+                abbr(title="Close this visualization")
+                    button.btn.close
         div.prompt
             .title Select sessions
             div
@@ -25,6 +29,8 @@ mixin visualization(id)
                 input.select(type="button", value="Continue", autofocus="autofocus")
         .bottom-panel
             .player.invisible
-                abbr.btn.restart(title="Restart")
-                abbr.btn.pause(title="Pause / Continue")
+                abbr(title="Restart")
+                    button.btn.restart
+                abbr(title="Pause / Continue")
+                    button.btn.pause
                 .track

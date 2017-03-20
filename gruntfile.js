@@ -238,9 +238,9 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks( 'grunt-eslint' );
     grunt.loadNpmTasks( 'grunt-stylelint' );
 
-    grunt.registerTask( 'default', [ 'jade', 'less', 'concat', 'copy', 'postcss' ] );
-    grunt.registerTask( 'rebuild', [ 'clean:dev', 'jade', 'less', 'concat', 'copy', 'postcss' ] );
-    grunt.registerTask( 'publish', [ 'jade', 'less', 'concat', 'postcss', 'babel', 'uglify', 'clean:prod' ] );
+    grunt.registerTask( 'default', [ 'jade', 'less', 'concat', 'copy', 'postcss:autopref' ] );
+    grunt.registerTask( 'rebuild', [ 'clean:dev', 'jade', 'less', 'concat', 'copy', 'postcss:autopref' ] );
+    grunt.registerTask( 'publish', [ 'jade', 'less', 'concat', 'postcss:autopref', 'babel', 'uglify', 'clean:prod' ] );
 
     grunt.registerTask( 'compile', [ 'jshint' ] );
     grunt.registerTask( 'compile2', [ 'eslint', 'stylelint' ] );
