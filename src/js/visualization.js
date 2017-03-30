@@ -303,6 +303,10 @@
         _prompt.classList.remove( 'invisible' );
     };
 
+    Visualization.prototype._hideIdentity = function( realName ) {
+        return _identity[ realName ];
+    };
+
     Visualization.prototype._addOption = function( list, value, text, data ) {
         return addOption( list, value, text, data );
     };
@@ -361,7 +365,7 @@
             const sessions = user.val().sessions;
             for (let sessionID of Object.keys( sessions )) {
                 const session = sessions[ sessionID ];
-                session.user = user.key;
+                session.user = this._hideIdentity( user.key );
                 if (!texts.has( session.text )) {
                     const item = {
                         title: session.textTitle || session.text,
@@ -755,6 +759,49 @@
     let _pauseCallback;
 
     let _waiting = false;
+
+    const _identity = {
+        Akseli: ' Anthony',
+        Asta:    'Anna',
+        Daniel:  'David',
+        Eeli:    'Edward',
+        Eero:    'Eric',
+        Helmi:   'Helen',
+        Iida:    'Irene',
+        'Iida 3':'Isabel',
+        Jenni:   'Jessica',
+        Jesse:   'Jose',
+        Jimi:    'John',
+        'Jimi 3':'Jason',
+        Jooa:    'James',
+        Julius:  'Jerry',
+        Kaapo:   'Kenneth',
+        Kasimir: 'Kevin',
+        Kerttu:  'Karen',
+        Lilia:   'Linda',
+        Matti:   'Michael',
+        Meri:    'Margaret',
+        Miikka:  'Mark',
+        Miro:    'Matthew',
+        Nalla:   'Natalie',
+        Neea:    'Nancy',
+        Otto:    'Oscar',
+        Paavo:   'Peter',
+        Patrik:  'Paul',
+        Pinja:   'Patricia',
+        Roope:   'Richard',
+        sabina:  'Sandra',
+        Samu:    'Steven',
+        Sara:    'Shirley',
+        Senni:   'Sharon',
+        Susa:    'Stephanie',
+        Teresa:  'Tina',
+        Tobias:  'Thomas',
+        Venla:   'Virginia',
+        Vieno:   'Victoria',
+        Vili:    'Victor',
+        Vilma:   'Valerie'
+    };
 
     const createIndexComputer = function() {
         let lastX = -1;
