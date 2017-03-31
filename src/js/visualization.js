@@ -58,6 +58,10 @@
                 'Suomi ja suomalaisuus',
                 'Helsinki on Suomen pääkaupunki',
                 'Suomen kaupunkeja'
+            ],
+            'ITK 2017': [
+                'Koulutuspolitiikkaa',
+                'Mielensapahoittaja'
             ]
         };
 
@@ -770,7 +774,7 @@
         Iida:    'Irene',
         'Iida 3':'Isabel',
         Jenni:   'Jessica',
-        Jesse:   'Jose',
+        Jesse:   'Jack',
         Jimi:    'John',
         'Jimi 3':'Jason',
         Jooa:    'James',
