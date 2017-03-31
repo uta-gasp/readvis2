@@ -61,7 +61,8 @@
             ],
             'ITK 2017': [
                 'Koulutuspolitiikkaa',
-                'Mielensapahoittaja'
+                'Mielensapahoittaja',
+                'Difficult English'
             ]
         };
 
