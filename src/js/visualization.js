@@ -309,7 +309,8 @@
     };
 
     Visualization.prototype._hideIdentity = function( realName ) {
-        return _identity[ realName ];
+        const idName = _identity[ realName ];
+        return idName ? idName : realName;
     };
 
     Visualization.prototype._addOption = function( list, value, text, data ) {
