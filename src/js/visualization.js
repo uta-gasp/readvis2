@@ -121,9 +121,19 @@
         _pause.addEventListener( 'click', pause );
     };
 
+    Visualization.formatTimeComponent = function( timeComponent ) {
+        let formattedTimeComponent = '' + timeComponent;
+        if (formattedTimeComponent.length < 2) {
+            formattedTimeComponent = '0' + formattedTimeComponent;
+        }
+        return formattedTimeComponent;
+    };
+
     Visualization.formatDate = function( dateString ) {
         const date = new Date( dateString );
-        return `${date.getDate()}.${date.getMonth()+1}.${date.getFullYear()}, ${date.getHours()}:${date.getMinutes()} `;
+        const hours = Visualization.formatTimeComponent( date.getHours() );
+        const minutes = Visualization.formatTimeComponent( date.getMinutes() );
+        return `${date.getDate()}.${date.getMonth()+1}.${date.getFullYear()} ${hours}:${minutes} `;
     };
 
     Visualization.createOptions = function( options, receivers ) {
@@ -898,7 +908,7 @@
                     let textToDisplay = Visualization.formatDate( session.date );
                     if (session.user) {
                         textToDisplay += new Array( Math.max( 0, 17 - textToDisplay.length ) ).join( String.fromCharCode( 0x2012 ) );
-                        textToDisplay += ' ' + session.user;
+                        textToDisplay += ' | ' + session.user;
                     }
 
                     addOption( _itemsList, id, textToDisplay, session );
