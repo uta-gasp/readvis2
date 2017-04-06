@@ -934,6 +934,8 @@
         if (_nextPageCallback) {
             _nextPageCallback( );
         }
+        _pause.classList.remove( 'play' );
+        _pause.classList.add( 'pause' );
     }
 
     function restart( e ) {
