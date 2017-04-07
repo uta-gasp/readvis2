@@ -151,28 +151,32 @@
         }
 
         for (let id in options) {
-            options[ id ].ref = value => {
-                const ids = id.split( '.' );
-                if (value === undefined) {
-                    let v = receivers[0];
-                    ids.forEach( _ => {
-                        v = v[ _ ];
-                    });
-                    return v;
-                }
-                else {
-                    receivers.forEach( receiver => {
-                        let v = receiver;
-                        for (let i = 0; i < ids.length - 1; i++) {
-                            v = v[ ids[i] ];
-                        }
-                        v[ ids[ ids.length - 1 ] ] = value;
-                    });
-                }
-            };
+            options[ id ].ref = createOptionReference( id, receivers );
         }
 
         return options;
+    };
+
+    function createOptionReference( id, receivers ) {
+        return value => {
+            const ids = id.split( '.' );
+            if (value === undefined) {
+                let v = receivers[0];
+                ids.forEach( _ => {
+                    v = v[ _ ];
+                });
+                return v;
+            }
+            else {
+                receivers.forEach( receiver => {
+                    let v = receiver;
+                    for (let i = 0; i < ids.length - 1; i++) {
+                        v = v[ ids[i] ];
+                    }
+                    v[ ids[ ids.length - 1 ] ] = value;
+                });
+            }
+        };
     };
 
     Visualization.createCommonOptions = function() {
