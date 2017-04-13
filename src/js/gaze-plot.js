@@ -25,7 +25,7 @@
         this.connectionColor = options.connectionColor || '#F00';
 
         this.showIDs = options.showIDs || false;
-        this.showConnections = options.showConnections !== undefined ? options.showConnections : true;
+        this.showConnections = options.showConnections !== undefined ? options.showConnections : false;
         this.showSaccades = options.showSaccades !== undefined ? options.showSaccades : true;
         this.showFixations = options.showFixations !== undefined ? options.showFixations : true;
 

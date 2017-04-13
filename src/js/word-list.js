@@ -85,7 +85,7 @@
         this._words.forEach( word => {
         	let value = word.duration;
         	if (units === WordList.Units.MS) {
-        		value = Math.round( value );
+        		value = (Math.round( value ) / 1000).toFixed(2);
         	}
         	else if (units === WordList.Units.PERCENTAGE) {
         		value = (100 * value / totalDuration).toFixed(1) + '%';
