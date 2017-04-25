@@ -89,7 +89,7 @@
         const userData = [];
         users.forEach( userSnapshot => {
             const user = userSnapshot.val();
-            user.name = this._hideIdentity( userSnapshot.key );
+            user.name = this._getUserName( userSnapshot );
             userData.push( user );
         });
 

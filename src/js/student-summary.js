@@ -42,7 +42,7 @@
         const userData = [];
         users.forEach( userSnapshot => {
             const user = userSnapshot.val();
-            user.name = this._hideIdentity( userSnapshot.key );
+            user.name = this._getUserName( userSnapshot );
             userData.push( user );
         });
 
@@ -132,16 +132,18 @@
         }
 
         const ctx = this._getCanvas2D();
-        this._setTitle( `${this._users.size} students` );
+        this._setTitle( `${this._users.size} students from ${this._grade}` );
 
         const table = this._container.querySelector( 'table' );
         table.innerHTML = '';
 
+        // const studentVectors = [];
         this._users.forEach( user => {
             const row = table.insertRow();
             const cell = row.insertCell();
             cell.textContent = user.name;
 
+            // const studentVector = [];
             user.statistics = this._getUserStatistics( user );
             user.statistics.forEach( (stat, si) => {
                 const cell = row.insertCell();
@@ -151,8 +153,15 @@
                 else {
                     cell.textContent = stat;
                 }
+                // if (si > 1) {
+                //     studentVector.push( stat );
+                // }
             });
+
+            // studentVectors.push( studentVector );
         });
+
+        // app.DataExporter.save( studentVectors.join( '\r\n' ), 'students.txt' );
 
         const header = table.createTHead();
         const footer = table.createTFoot();

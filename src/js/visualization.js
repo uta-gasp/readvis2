@@ -322,9 +322,8 @@
         _prompt.classList.remove( 'invisible' );
     };
 
-    Visualization.prototype._hideIdentity = function( realName ) {
-        const idName = _identity[ realName ];
-        return idName ? idName : realName;
+    Visualization.prototype._getUserName = function( userSnapshot ) {
+        return userSnapshot.key;
     };
 
     Visualization.prototype._addOption = function( list, value, text, data ) {
@@ -385,7 +384,7 @@
             const sessions = user.val().sessions;
             for (let sessionID of Object.keys( sessions )) {
                 const session = sessions[ sessionID ];
-                session.user = this._hideIdentity( user.key );
+                session.user = this._getUserName( user );
                 if (!texts.has( session.text )) {
                     const item = {
                         title: session.textTitle || session.text,
@@ -779,49 +778,6 @@
     let _pauseCallback;
 
     let _waiting = false;
-
-    const _identity = {
-        Akseli: ' Anthony',
-        Asta:    'Anna',
-        Daniel:  'David',
-        Eeli:    'Edward',
-        Eero:    'Eric',
-        Helmi:   'Helen',
-        Iida:    'Irene',
-        'Iida 3':'Isabel',
-        Jenni:   'Jessica',
-        Jesse:   'Jack',
-        Jimi:    'John',
-        'Jimi 3':'Jason',
-        Jooa:    'James',
-        Julius:  'Jerry',
-        Kaapo:   'Kenneth',
-        Kasimir: 'Kevin',
-        Kerttu:  'Karen',
-        Lilia:   'Linda',
-        Matti:   'Michael',
-        Meri:    'Margaret',
-        Miikka:  'Mark',
-        Miro:    'Matthew',
-        Nalla:   'Natalie',
-        Neea:    'Nancy',
-        Otto:    'Oscar',
-        Paavo:   'Peter',
-        Patrik:  'Paul',
-        Pinja:   'Patricia',
-        Roope:   'Richard',
-        sabina:  'Sandra',
-        Samu:    'Steven',
-        Sara:    'Shirley',
-        Senni:   'Sharon',
-        Susa:    'Stephanie',
-        Teresa:  'Tina',
-        Tobias:  'Thomas',
-        Venla:   'Virginia',
-        Vieno:   'Victoria',
-        Vili:    'Victor',
-        Vilma:   'Valerie'
-    };
 
     const createIndexComputer = function() {
         let lastX = -1;
