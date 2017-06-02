@@ -13,6 +13,7 @@
         this._statistics = [
             'Sessions',
             'Reading time',
+            'WPM',
             'Seconds per word',
             'Fixation, ms',
             'Hyphenations',
@@ -287,6 +288,7 @@
         const totalDuration = new Date( 0, 0, 0, 0, 0, Math.round( duration / 1000 ) );
 
         result.push( totalDuration.getMinutes() * 60 + totalDuration.getSeconds() );
+        result.push( (wordCount / (duration / 60000)).toFixed(0) );
         result.push( (duration / wordCount / 1000).toFixed(2) );
         result.push( Math.round( fixations.duration / fixations.count ) );
         result.push( fixations.hyphenations / userSessions.length );

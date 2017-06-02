@@ -48,21 +48,44 @@
 
         this._gradeTexts = {
             '2nd grade': [
-                'Krokotiili hiihtää kevääseen',
-                'Heinähattu, Vilttitossu ja iso Elsa',
-                'Muumilaaksossa',
+                'Krokotiili hiihtää kevääseen',         // 1242688269
+                'Heinähattu, Vilttitossu ja iso Elsa',  // 4186627776
+                'Muumilaaksossa',                       // 3500610092
                 'Olympialaiset'
             ],
             '3rd grade': [
-                'Suomi on tasavalta',
-                'Suomi ja suomalaisuus',
-                'Helsinki on Suomen pääkaupunki',
-                'Suomen kaupunkeja'
+                'Suomi on tasavalta',               // 3125237432
+                'Suomi ja suomalaisuus',            // 2542361273
+                'Helsinki on Suomen pääkaupunki',   // 2123841483
+                'Suomen kaupunkeja'                 // 1992773228
             ],
             'ITK 2017': [
-                'Koulutuspolitiikkaa',
-                'Mielensäpahoittaja',
-                'Difficult English'
+                'Koulutuspolitiikkaa',  // 1161576252
+                'Mielensäpahoittaja',   // 2288695053
+                'Difficult English'     // 562169305
+            ],
+            'Kaustinen': [
+            ]
+        };
+
+        this._gradeTexts = {
+            '2nd grade': [
+                1242688269,
+                4186627776,
+                3500610092
+            ],
+            '3rd grade': [
+                3125237432,
+                2542361273,
+                2123841483,
+                1992773228,
+            ],
+            'ITK 2017': [
+                1161576252,
+                2288695053,
+                562169305
+            ],
+            'Kaustinen': [
             ]
         };
 
@@ -410,6 +433,25 @@
 
         userData.forEach( user => {
             for (let sessionID in user.sessions) {
+                const textID = user.sessions[ sessionID ].text;
+                for (let grade in this._gradeTexts) {
+                    if (gradeUsers[ grade ].indexOf( user ) >= 0) {
+                        continue;
+                    }
+                    const gradeTexts = this._gradeTexts[ grade ];
+                    gradeTexts.forEach( gradeText => {
+                        if (textID === gradeText) {
+                            user.grade = grade;
+                            gradeUsers[ grade ].push( user );
+                        }
+                    });
+                }
+            }
+        });
+
+        /*
+        userData.forEach( user => {
+            for (let sessionID in user.sessions) {
                 const textTitle = user.sessions[ sessionID ].textTitle;
                 for (let grade in this._gradeTexts) {
                     if (gradeUsers[ grade ].indexOf( user ) >= 0) {
@@ -424,7 +466,7 @@
                     });
                 }
             }
-        });
+        });*/
 
         return gradeUsers;
     };
