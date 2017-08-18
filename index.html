@@ -1,0 +1,18 @@
+<!DOCTYPE html><html><head><title>School Reading Visualization 2</title><meta charset="utf-8"><link href="https://fonts.googleapis.com/css?family=Oxygen+Mono|Open+Sans|Roboto+Condensed" rel="stylesheet"><link rel="stylesheet" href="app.css"><script src="./libs/sgwm.js"></script><script src="https://www.gstatic.com/firebasejs/3.6.6/firebase.js"></script><script>var config = {
+    apiKey: "AIzaSyCHAhFtSM2bKNEzTbKVOiYEv-wpRi2zjdU",
+    authDomain: "burning-torch-9217.firebaseapp.com",
+    databaseURL: "https://burning-torch-9217.firebaseio.com",
+    storageBucket: "burning-torch-9217.appspot.com",
+    messagingSenderId: "777150892492"
+};
+if (this["firebase"]) {
+    this.firebase.initializeApp( config );
+}
+</script></head><body><div id="controls" class="controls top"><button class="button gaze-plot">Gaze plot</button><button class="button text-summary">Text summary</button><button class="button gaze-replay">Gaze replay</button><button class="button word-replay">Word replay</button><button class="button student-summary">Student summary</button></div><div id="visualization" class="invisible"><canvas></canvas><div class="wait">&nbsp;</div><div class="vis-title"></div><div class="top-panel"><div class="props invisible"><abbr title="Speech output" class="prop speech"></abbr><abbr title="Syllabification" class="prop syllab"></abbr></div><div class="menu"><div class="navigation"><abbr title="Previous page"><button class="btn prev"></button></abbr><div class="page"></div><abbr title="Next page"><button class="btn next"></button></abbr></div><div class="separator"></div><abbr title="Settings"><button class="btn settings"></button></abbr><abbr title="Close this visualization"><button class="btn close"></button></abbr></div></div><div class="prompt"><div class="title">Select sessions</div><div><select class="categories"></select><select class="items"></select><input type="button" value="Continue" autofocus="autofocus" class="select"></div></div><div class="bottom-panel"><div class="player invisible"><abbr title="Restart"><button class="btn restart"></button></abbr><abbr title="Pause / Continue"><button class="btn pause"></button></abbr><div class="track"></div></div></div></div><div id="word-list" class="invisible"><button class="button">Reading durations</button><div class="table invisible"></div></div><div id="word-replay" class="invisible"><table></table></div><div id="student-summary" class="invisible"><table></table></div><div id="options" class="invisible"><div class="inner"><div class="title">Settings</div><div class="options"></div><div class="buttons"><button class="button save">Save and close</button><button class="button apply">Apply</button><button class="button reset">Reset</button></div></div></div><script src="app.min.js"></script><script>window.ReadVis2.init({
+    visualization: '#visualization',
+    controls: '#controls',
+    options: '#options',
+    wordReplay: '#word-replay',
+    wordList: '#word-list',
+    studentSummary: '#student-summary',
+});</script></body></html>
